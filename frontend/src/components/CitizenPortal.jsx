@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { 
-  Send, AlertTriangle, Pill, Calendar, Hash, Layers, 
-  MapPin, CheckCircle2, QrCode, Sparkles, Loader2, Tag, 
-  Building2, PlusCircle, Check, User, Mail, Phone, Award,
-  Flame, TrendingUp, ShieldCheck, HelpCircle, Leaf, Zap
+  Pill, Award, QrCode, Building2, Layers, Calendar, 
+  MapPin, User, Mail, Phone, Tag, Sparkles, Hash, 
+  Leaf, AlertTriangle, ShieldCheck, CheckCircle2, ChevronRight,
+  Clock, ArrowRight, Loader2, Info
 } from 'lucide-react';
-import CameraCapture from './CameraCapture';
 import MapPicker from './MapPicker';
+import CameraCapture from './CameraCapture';
 import WebAudioAssist from './WebAudioAssist';
 import { playNotificationSound } from '../services/socket';
 
 export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentLang, t }) {
-  // User Details (Name mandatory, Email & Phone optional)
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -169,437 +168,393 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
   };
 
   return (
-    <div className="w-full">
-      {/* Dual Screen Ratio Grid:
-          - On Mobile Phones (< 1024px): 1-column vertical flow, 100% native phone ratio.
-          - On Laptops & Desktops (>= 1024px): Widescreen 12-column ratio taking full advantage of wide screens.
-      */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-        
-        {/* ============================================================== */}
-        {/* LEFT COLUMN (Laptops: 5 Cols sticky; Mobile: Top of Screen)    */}
-        {/* ============================================================== */}
-        <div className="lg:col-span-5 space-y-5 lg:sticky lg:top-24">
-          
-          {/* Hero Banner with Modern Gradient & Attractive Glow Effects */}
-          <div className="relative rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-slate-950 via-emerald-950 to-teal-950 text-white shadow-2xl overflow-hidden border border-emerald-500/20">
-            {/* Animated decorative glow meshes */}
-            <div className="absolute top-0 right-0 -mt-8 -mr-8 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
-            <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-60 h-60 bg-teal-500/15 rounded-full blur-2xl pointer-events-none"></div>
+    <div className="w-full max-w-4xl mx-auto space-y-8 animate-fade-in pb-16">
+      
+      {/* ============================================================== */}
+      {/* 1. HERO SECTION: CLEAN, CONFIDENT & MINIMALIST                 */}
+      {/* ============================================================== */}
+      <section className="text-center space-y-4 pt-2 sm:pt-6">
+        {/* Pill Badge */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold shadow-2xs">
+          <Pill className="w-3.5 h-3.5 text-emerald-600" />
+          <span>India's Specialized Blister Foil Recovery Network</span>
+          <span className="text-emerald-400">•</span>
+          <span className="text-emerald-700">Bengaluru Live</span>
+        </div>
 
-            <div className="relative z-10 space-y-3.5">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="px-3 py-1 bg-emerald-500/20 border border-emerald-400/30 rounded-full text-emerald-300 text-[10px] sm:text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5 shadow-xs">
-                  <Pill className="w-3.5 h-3.5 text-emerald-400" />
-                  {t.badge}
-                </span>
-                <span className="px-3 py-1 bg-amber-500/20 border border-amber-400/30 rounded-full text-amber-300 text-[10px] sm:text-[11px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-xs">
-                  <Tag className="w-3.5 h-3.5" />
-                  Up to 25% Pharmacy Discount
-                </span>
-              </div>
+        {/* Headline */}
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight max-w-3xl mx-auto">
+          Turn Empty Blister Packs Into <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">Medicine Discounts</span>.
+        </h1>
 
-              <h1 className="text-xl sm:text-3xl font-black tracking-tight text-white leading-tight">
-                {t.heroHeading}
-              </h1>
+        {/* Subtitle */}
+        <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-normal">
+          Drop off used medicine tablet foils at verified pharmacies across Bengaluru. Help extract pure aluminum and polymers while receiving <strong className="text-slate-900 font-bold">10%–25% OFF</strong> your next prescription purchase.
+        </p>
 
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
-                {t.heroSub}
-              </p>
+        {/* Stat Badges Row */}
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 pt-2 text-xs font-semibold text-slate-600">
+          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
+            🏥 <strong className="text-slate-900">100+</strong> Drop Hubs
+          </span>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs text-emerald-700">
+            🎁 <strong className="text-emerald-800">10%–25%</strong> Store Voucher
+          </span>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
+            ♻️ <strong className="text-slate-900">99.2%</strong> Foil Delamination
+          </span>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
+            🌱 Zero Toxic Landfill
+          </span>
+        </div>
+      </section>
 
-              {/* Action Buttons & Quick Hubs */}
-              <div className="pt-2 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={onOpenQrModal}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/30 flex items-center gap-2 transition-all transform active:scale-95 cursor-pointer"
-                >
-                  <QrCode className="w-4 h-4" />
-                  <span>{t.scanQrBtn}</span>
-                </button>
-                <span className="text-[11px] text-emerald-300/90 font-semibold flex items-center gap-1">
-                  📍 Bengaluru Live • Expanding Pan-India
-                </span>
-              </div>
-            </div>
+      {/* ============================================================== */}
+      {/* 2. UNIFIED MAIN DEPOSIT CARD                                   */}
+      {/* ============================================================== */}
+      <form 
+        onSubmit={handleSubmit} 
+        className="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200/90 space-y-8 text-left"
+      >
+        {/* Card Header with Live Reward Preview */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-slate-100">
+          <div>
+            <h2 className="text-lg sm:text-xl font-black text-slate-900">
+              Record Your Blister Drop-Off
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Fill in your drop-off details to receive your instant pharmacy discount promo code.
+            </p>
           </div>
 
-          {/* Gamified Reward Tiers Card (Desktop Guide & Live Tier Tracker) */}
-          <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-3.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                <Award className="w-4 h-4 text-amber-500" />
-                Voucher Reward Tiers
-              </span>
-              <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                Current: {currentTier.percent}% OFF
-              </span>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-50 text-emerald-800 border border-emerald-200/80 shadow-2xs flex items-center gap-1.5">
+              <Award className="w-4 h-4 text-emerald-600" />
+              <span>Current Reward: <strong>{currentTier.percent}% OFF</strong></span>
+            </span>
+          </div>
+        </div>
+
+        {/* Error Alert */}
+        {formError && (
+          <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 text-xs text-rose-800 animate-shake">
+            <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <span className="font-bold block">Submission Requirement Missing</span>
+              <span>{formError}</span>
+            </div>
+          </div>
+        )}
+
+        {/* ------------------------------------------------------------ */}
+        {/* STEP 1: RECYCLER IDENTITY                                    */}
+        {/* ------------------------------------------------------------ */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0">
+              1
+            </span>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800">
+              Your Details (Voucher Identity)
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Full Name */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
+                <User className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Full Name</span>
+                <span className="text-rose-500 font-black">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="e.g. Ramesh Sharma"
+                className="w-full px-4 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-2xs"
+              />
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              {stripPresets.map((tier) => {
-                const isActive = currentTier.percent === tier.percent;
+            {/* Phone Number */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                <span className="flex items-center gap-1">
+                  <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Mobile Phone Number</span>
+                </span>
+                <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">
+                  Required to Redeem at Store
+                </span>
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+91 98765 43210"
+                className="w-full px-4 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-2xs"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ------------------------------------------------------------ */}
+        {/* STEP 2: BLISTER QUANTITY & DROP-OFF POINT                     */}
+        {/* ------------------------------------------------------------ */}
+        <div className="space-y-5 pt-2 border-t border-slate-100">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0">
+                2
+              </span>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800">
+                Blister Quantity & Drop-off Point
+              </h3>
+            </div>
+            <span className="text-xs font-bold text-emerald-700">
+              Reward Tier: <span className="font-mono">{currentTier.percent}% OFF</span>
+            </span>
+          </div>
+
+          {/* Quantity Tier Selector */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-slate-700">How many empty strips are you recycling?</span>
+              <div className="flex items-center gap-1.5 font-bold">
+                <span className="text-slate-500 text-[11px]">Exact count:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="500"
+                  value={exactStrips}
+                  onChange={(e) => setExactStrips(e.target.value)}
+                  className="w-14 px-2 py-1 bg-slate-50 border border-slate-300 rounded-lg text-center font-black text-xs text-emerald-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {stripPresets.map((opt) => {
+                const isSelected = stripCount === opt.label;
                 return (
-                  <div 
-                    key={tier.label}
-                    className={`p-2.5 rounded-2xl border transition-all ${
-                      isActive 
-                        ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-400/30' 
-                        : 'bg-slate-50 border-slate-200/80 text-slate-600'
+                  <button
+                    key={opt.label}
+                    type="button"
+                    onClick={() => {
+                      setStripCount(opt.label);
+                      setExactStrips(opt.count.toString());
+                    }}
+                    className={`p-3.5 rounded-2xl border text-center transition-all cursor-pointer relative overflow-hidden ${
+                      isSelected
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20 scale-[1.01]'
+                        : 'bg-slate-50/70 hover:bg-slate-100/80 border-slate-200 text-slate-700'
                     }`}
                   >
-                    <div className="flex items-center justify-between font-bold">
-                      <span className={isActive ? 'text-emerald-950 font-black' : 'text-slate-800'}>{tier.label}</span>
-                      <span className={`text-[11px] font-black px-1.5 py-0.5 rounded-md ${isActive ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}`}>
-                        {tier.discount}
-                      </span>
+                    <div className="text-xs font-bold">{opt.label}</div>
+                    <div className={`text-xs font-black mt-1 px-2 py-0.5 rounded-full inline-block ${
+                      isSelected ? 'bg-white text-emerald-800 shadow-2xs' : 'bg-emerald-100 text-emerald-800'
+                    }`}>
+                      {opt.discount}
                     </div>
-                    <div className="text-[10px] text-slate-500 mt-1">{tier.sub}</div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
 
-            {/* Dynamic Progress Bar */}
-            <div className="space-y-1.5 pt-1">
-              <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600">
-                <span>Progress to next tier</span>
-                <span className="text-emerald-700 font-bold">
-                  {currentTier.nextNeeded > 0 
-                    ? `+${currentTier.nextNeeded} strips for ${currentTier.nextTier}` 
-                    : '🏆 Maximum Tier Unlocked!'}
+            {/* Dynamic Progress Bar to Next Discount Tier */}
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 space-y-1.5 text-xs">
+              <div className="flex items-center justify-between font-bold">
+                <span className="text-slate-700 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Tier Status: <strong>{currentTier.label}</strong></span>
+                </span>
+                <span className="text-emerald-700 text-[11px]">
+                  {currentTier.nextNeeded > 0
+                    ? `+${currentTier.nextNeeded} more strips to unlock ${currentTier.nextTier}!`
+                    : '🏆 Maximum 25% Discount Tier Unlocked!'}
                 </span>
               </div>
-              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-slate-200/80 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500 rounded-full"
                   style={{ width: `${currentTier.progress}%` }}
-                ></div>
+                />
               </div>
             </div>
           </div>
 
-          {/* Environmental Mission & Circular Economy Note (Visible on Laptop Screens) */}
-          <div className="hidden lg:block bg-gradient-to-br from-teal-50 to-emerald-50/50 rounded-3xl p-5 border border-emerald-200/60 shadow-xs space-y-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-900 flex items-center gap-1.5">
-              <Leaf className="w-4 h-4 text-emerald-600" />
-              Circular Recovery Impact
-            </span>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Medicine blister packs combine cold-form aluminum with thermoform PVC/PVDC plastic. Eco-Blisters separates 
-              them into <strong>99.2% pure secondary aluminum</strong> and clean polymer granulate, keeping toxic waste 
-              out of Indian landfills.
-            </p>
-          </div>
+          {/* Pharmacy Drop-off Point Selector */}
+          <div className="space-y-2 pt-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Drop-off Pharmacy / Medical Store</span>
+                <span className="text-rose-500 font-black">*</span>
+              </label>
 
-        </div>
-
-        {/* ============================================================== */}
-        {/* RIGHT COLUMN (Laptops: 7 Cols Form; Mobile: Full Native Flow)   */}
-        {/* ============================================================== */}
-        <div className="lg:col-span-7">
-          <form onSubmit={handleSubmit} className="bg-white rounded-[32px] p-5 sm:p-7 shadow-xl border border-slate-200 space-y-6">
-            
-            {/* Form Title & Subtitle */}
-            <div className="border-b border-slate-100 pb-4 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg sm:text-xl font-black text-slate-900">
-                  {t.depositSectionTitle || "Deposit Blister Packaging"}
-                </h2>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  {t.depositSectionSub || "Deposit empty medicine strips to receive your instant pharmacy discount voucher."}
-                </p>
-              </div>
-              <span className="text-[11px] font-black text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 hidden sm:inline shadow-xs">
-                🎁 {t.stripTierBadge || "Strip-Tiered Voucher"}
-              </span>
+              <button
+                type="button"
+                onClick={() => setIsCustomPoint(!isCustomPoint)}
+                className="text-xs text-emerald-700 font-bold hover:underline cursor-pointer"
+              >
+                {isCustomPoint ? "Choose from Drop-box List" : "+ Other Medical Store"}
+              </button>
             </div>
 
-            {formError && (
-              <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-2 text-xs text-red-700 animate-shake">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
-                <span className="font-semibold">{formError}</span>
-              </div>
+            {!isCustomPoint ? (
+              <select
+                value={selectedDropPoint}
+                onChange={(e) => setSelectedDropPoint(e.target.value)}
+                className="w-full px-4 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-2xs"
+              >
+                {bengaluruLocations.map((group) => (
+                  <optgroup key={group.group} label={group.group}>
+                    {group.items.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                required
+                value={customPointText}
+                onChange={(e) => setCustomPointText(e.target.value)}
+                placeholder="e.g. Sanjeevani Medicals, Near Malleshwaram 8th Cross"
+                className="w-full px-4 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-2xs"
+              />
             )}
 
-            {/* 1. CITIZEN DETAILS: Name (MANDATORY), Email & Phone (OPTIONAL) */}
-            <div className="p-5 bg-gradient-to-br from-slate-50 to-emerald-50/40 rounded-2xl border border-emerald-100/80 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                  <User className="w-4 h-4 text-emerald-600" />
-                  {t.citizenDetailsTitle || "Recycler / Citizen Details"}
-                </span>
-                <span className="text-[11px] text-emerald-700 font-medium">
-                  {t.voucherIssuedToName || "Voucher will be issued to your name"}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* Name: Mandatory */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                    {t.fullNameLabel || "Full Name"} <span className="text-red-500 font-black">* {t.requiredBadge || "(Required)"}</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder={t.fullNamePlaceholder || "e.g. Ramesh Sharma"}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent font-semibold shadow-xs"
-                  />
-                </div>
-
-                {/* Email: Optional */}
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-slate-600 flex items-center gap-1">
-                    {t.emailLabel || "Email Address"} <span className="text-slate-400 text-[10px]">{t.optionalBadge || "(Optional)"}</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="ramesh@example.com"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
-                  />
-                </div>
-
-                {/* Phone: Optional */}
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-slate-600 flex items-center gap-1">
-                    {t.phoneLabel || "Phone Number"} <span className="text-slate-400 text-[10px]">{t.optionalBadge || "(Optional)"}</span>
-                  </label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+91 98765 43210"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 2. NUMBER OF STRIPS & DYNAMIC DISCOUNT TIER CALCULATOR */}
-            <div className="space-y-3 p-5 bg-gradient-to-r from-emerald-50/50 via-teal-50/40 to-slate-50 rounded-2xl border border-emerald-200/60 shadow-xs">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                  <Hash className="w-4 h-4 text-emerald-600" />
-                  {t.stripsLabel} <span className="text-red-500">*</span>
-                </label>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-slate-600">{t.exactStripsLabel || "Exact Strips Count"}:</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max="500"
-                    value={exactStrips}
-                    onChange={(e) => setExactStrips(e.target.value)}
-                    className="w-16 px-2.5 py-1 bg-white border-2 border-emerald-500 rounded-xl text-center font-black text-sm text-emerald-800 shadow-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Preset Buttons with Explicit Discount Values */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {stripPresets.map((opt) => (
-                  <button
-                    key={opt.label}
-                    type="button"
-                    onClick={() => { setStripCount(opt.label); setExactStrips(opt.count.toString()); }}
-                    className={`p-3 rounded-2xl border-2 text-center transition-all cursor-pointer ${
-                      stripCount === opt.label
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg scale-[1.02] font-black'
-                        : 'bg-white border-slate-200 text-slate-700 hover:border-emerald-300 hover:bg-emerald-50/40 font-medium'
-                    }`}
-                  >
-                    <div className="text-xs font-black">{opt.label}</div>
-                    <div className={`text-[11px] font-black mt-1 px-2 py-0.5 rounded-full inline-block ${stripCount === opt.label ? 'bg-white text-emerald-800' : 'bg-emerald-100 text-emerald-800'}`}>
-                      {opt.discount}
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {/* Gamified Reward Progress Bar */}
-              <div className="p-3 bg-white rounded-xl border border-emerald-100 shadow-xs space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-bold">
-                  <span className="text-emerald-700 flex items-center gap-1">
-                    <Award className="w-4 h-4 text-amber-500" />
-                    Voucher Reward: <strong className="text-base text-emerald-900">{currentTier.percent}% OFF</strong>
-                  </span>
-                  <span className="text-[11px] text-slate-500">
-                    {currentTier.nextNeeded > 0 
-                      ? `Add ${currentTier.nextNeeded} more strips to unlock ${currentTier.nextTier}!` 
-                      : `🏆 Maximum Reward Tier Unlocked!`}
-                  </span>
-                </div>
-
-                <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-500 transition-all duration-500"
-                    style={{ width: `${currentTier.progress}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. Drop-off Point / Pharmacy Location */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                  <Building2 className="w-4 h-4 text-emerald-600" />
-                  {t.binIdLabel} <span className="text-red-500">*</span>
-                </label>
+            {/* Quick Chips for Bengaluru */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+              <span className="text-[11px] text-slate-400 font-semibold mr-1">Quick Select:</span>
+              {["Victoria Hospital", "Apollo Pharmacy Indiranagar", "Manipal Hospital", "Majestic Metro Hub"].map((name) => (
                 <button
+                  key={name}
                   type="button"
-                  onClick={() => setIsCustomPoint(!isCustomPoint)}
-                  className="text-xs text-emerald-700 font-semibold hover:underline cursor-pointer"
+                  onClick={() => {
+                    setIsCustomPoint(false);
+                    const found = bengaluruLocations.flatMap(g => g.items).find(i => i.label.includes(name));
+                    if (found) setSelectedDropPoint(found.id);
+                  }}
+                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold border border-slate-200/80 transition-colors cursor-pointer"
                 >
-                  {isCustomPoint ? "Choose from Drop-box List" : "+ Add Other Medical Shop / Hospital"}
+                  {name}
                 </button>
-              </div>
-
-              {!isCustomPoint ? (
-                <select
-                  value={selectedDropPoint}
-                  onChange={(e) => setSelectedDropPoint(e.target.value)}
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
-                  {bengaluruLocations.map((group) => (
-                    <optgroup key={group.group} label={group.group}>
-                      {group.items.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {item.label}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type="text"
-                  value={customPointText}
-                  onChange={(e) => setCustomPointText(e.target.value)}
-                  placeholder="e.g. Sanjeevani Medicals, Near Malleshwaram 8th Cross"
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
-                  required
-                />
-              )}
-
-              {/* Quick Selection Chips */}
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                <span className="text-[11px] text-slate-400 font-medium self-center mr-1">Popular:</span>
-                {["Victoria Hospital", "Apollo Pharmacy Indiranagar", "Manipal Hospital", "Majestic Metro Hub"].map((name) => (
-                  <button
-                    key={name}
-                    type="button"
-                    onClick={() => {
-                      setIsCustomPoint(false);
-                      const found = bengaluruLocations.flatMap(g => g.items).find(i => i.label.includes(name));
-                      if (found) setSelectedDropPoint(found.id);
-                    }}
-                    className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-[11px] text-slate-700 font-medium border border-slate-200 transition-colors cursor-pointer"
-                  >
-                    {name}
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
+          </div>
 
-            {/* 4. Blister Packaging Material */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                <Layers className="w-4 h-4 text-emerald-600" />
-                {t.materialLabel} <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={materialType}
-                onChange={(e) => setMaterialType(e.target.value)}
-                className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value="Alu-Alu Blister Foil (Cold Form Opaque)">{t.materials.aluAlu}</option>
-                <option value="PVC / PVDC Transparent + Aluminum Backing">{t.materials.pvcAlu}</option>
-                <option value="High-Barrier Aclar / Alu Pharmaceutical Strip">{t.materials.highBarrier}</option>
-                <option value="Empty Medicine Bottles & Plastic Containers">{t.materials.bottlesCaps}</option>
-                <option value="Mixed Pharmaceutical Blister Packs">{t.materials.mixed}</option>
-              </select>
-            </div>
-
-            {/* 5. Date & Time */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-emerald-600" />
-                {t.dateLabel}
-              </label>
-              <input
-                type="datetime-local"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
-              />
-            </div>
-
-            {/* 6. Photo Evidence (Mandatory) */}
-            <div id="camera-section" className="space-y-1 scroll-mt-24">
-              <CameraCapture
-                onPhotoCapture={(dataUrl, meta) => {
-                  setPhoto(dataUrl);
-                  if (meta) setPhotoMeta(meta);
-                  if (dataUrl) setFormError(null);
-                }}
-                currentPhoto={photo}
-                isRequired={true}
-                t={t}
-              />
-            </div>
-
-            {/* 7. Location with Map & GPS */}
-            <MapPicker
-              latitude={location.latitude}
-              longitude={location.longitude}
-              address={location.address}
-              onLocationChange={setLocation}
-              t={t}
-            />
-
-            {/* 8. Web Audio Assistance (Speech-to-Text & Narration in Tamil, Malayalam, Hindi, Kannada, etc.) */}
-            <WebAudioAssist
-              notes={notes}
-              onNotesChange={setNotes}
-              currentLang={currentLang}
-              t={t}
-            />
-
-            {/* Submit Button */}
-            <div className="pt-2 space-y-2">
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full py-4 px-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-black text-sm sm:text-base rounded-2xl shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transform active:scale-[0.99] transition-all cursor-pointer"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Generating {currentTier.percent}% OFF Medical Voucher...</span>
-                  </>
-                ) : (
-                  <>
-                    <Award className="w-5 h-5 text-amber-300" />
-                    <span>Submit & Generate {currentTier.percent}% OFF Medical Voucher</span>
-                  </>
-                )}
-              </button>
-
-              <p className="text-center text-[11px] text-slate-500 flex items-center justify-center gap-1">
-                <Tag className="w-3.5 h-3.5 text-emerald-600" />
-                Upon submitting, your personalized voucher code will be generated immediately for chemist checkout.
-              </p>
-            </div>
-          </form>
+          {/* Material Type */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Blister Foil Packaging Material</span>
+            </label>
+            <select
+              value={materialType}
+              onChange={(e) => setMaterialType(e.target.value)}
+              className="w-full px-4 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-2xs"
+            >
+              <option value="Alu-Alu Blister Foil (Cold Form Opaque)">Alu-Alu Cold-Form Opaque Foil (Highest Aluminum Yield)</option>
+              <option value="PVC / PVDC Transparent + Aluminum Backing">PVC / PVDC Transparent + Aluminum Backing Foil</option>
+              <option value="High-Barrier Aclar / Alu Pharmaceutical Strip">High-Barrier Aclar / Aluminum Foil Strip</option>
+              <option value="Mixed Pharmaceutical Blister Packs">Mixed Medical Blister Packaging</option>
+            </select>
+          </div>
         </div>
 
-      </div>
+        {/* ------------------------------------------------------------ */}
+        {/* STEP 3: MANDATORY CAMERA PHOTO PROOF                         */}
+        {/* ------------------------------------------------------------ */}
+        <div id="camera-section" className="space-y-4 pt-2 border-t border-slate-100 scroll-mt-24">
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0">
+              3
+            </span>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+              <span>Photo Verification</span>
+              <span className="text-rose-500 font-black">* (Mandatory)</span>
+            </h3>
+          </div>
+
+          <CameraCapture
+            onPhotoCapture={(dataUrl, meta) => {
+              setPhoto(dataUrl);
+              if (meta) setPhotoMeta(meta);
+              if (dataUrl) setFormError(null);
+            }}
+            currentPhoto={photo}
+            isRequired={true}
+            t={t}
+          />
+        </div>
+
+        {/* ------------------------------------------------------------ */}
+        {/* STEP 4: LOCATION & OPTIONAL AUDIO ASSIST                      */}
+        {/* ------------------------------------------------------------ */}
+        <div className="space-y-4 pt-2 border-t border-slate-100">
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-black flex items-center justify-center shrink-0">
+              4
+            </span>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800">
+              Location & Audio Assistance (Optional)
+            </h3>
+          </div>
+
+          {/* Map & GPS Picker */}
+          <MapPicker
+            latitude={location.latitude}
+            longitude={location.longitude}
+            address={location.address}
+            onLocationChange={setLocation}
+            t={t}
+          />
+
+          {/* Voice Notes */}
+          <WebAudioAssist
+            notes={notes}
+            onNotesChange={setNotes}
+            currentLang={currentLang}
+            t={t}
+          />
+        </div>
+
+        {/* ------------------------------------------------------------ */}
+        {/* SUBMIT ACTION BAR                                            */}
+        {/* ------------------------------------------------------------ */}
+        <div className="pt-4 border-t border-slate-100 space-y-3">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full py-4 px-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-black text-sm sm:text-base rounded-2xl shadow-xl shadow-emerald-700/25 flex items-center justify-center gap-2.5 transform active:scale-[0.99] transition-all cursor-pointer"
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Generating {currentTier.percent}% OFF Medical Voucher...</span>
+              </>
+            ) : (
+              <>
+                <Award className="w-5 h-5 text-amber-300" />
+                <span>Submit Deposit & Generate {currentTier.percent}% OFF Voucher</span>
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </>
+            )}
+          </button>
+
+          <p className="text-center text-xs text-slate-500 flex items-center justify-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span>Your discount voucher is generated instantly with barcode & promo code for chemist checkout.</span>
+          </p>
+        </div>
+
+      </form>
     </div>
   );
 }
