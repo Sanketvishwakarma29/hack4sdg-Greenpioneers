@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
+import React, { useState, useEffect, useMemo } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { 
   Truck, AlertTriangle, CheckCircle2, Clock, MapPin, 
   Navigation, Radio, Bell, RefreshCw, Filter, ExternalLink,
-  Shield, Check, ArrowUpRight, Camera, Smartphone, ChevronRight
+  Shield, Check, ArrowUpRight, Camera, Smartphone, ChevronRight,
+  BarChart3, PieChart, TrendingUp, DollarSign, Calculator,
+  FileSpreadsheet, Download, Search, Tag, Building2, Leaf,
+  Sparkles, CheckCircle, Info, Award
 } from 'lucide-react';
 import { socket, playNotificationSound } from '../services/socket';
 import BrandLogo from './BrandLogo';
@@ -12,7 +15,7 @@ import BrandLogo from './BrandLogo';
 // Custom Map Icons
 const createIcon = (color, label = '') => new L.DivIcon({
   className: 'custom-pin',
-  html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 11px;">${label || '🗑️'}</div>`,
+  html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 11px;">${label || '💊'}</div>`,
   iconSize: [32, 32],
   iconAnchor: [16, 16],
   popupAnchor: [0, -18]
@@ -20,21 +23,35 @@ const createIcon = (color, label = '') => new L.DivIcon({
 
 const driverTruckIcon = new L.DivIcon({
   className: 'truck-pin',
-  html: `<div style="background-color: #2563eb; width: 36px; height: 36px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(37,99,235,0.7); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px;">🚚</div>`,
-  iconSize: [36, 36],
-  iconAnchor: [18, 18],
+  html: `<div style="background-color: #059669; width: 38px; height: 38px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(5,150,105,0.7); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">🚚</div>`,
+  iconSize: [38, 38],
+  iconAnchor: [19, 19],
 });
 
 export default function AndroidDriverApp({ t }) {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('feed'); // 'feed', 'map', 'my-jobs'
+  const [activeTab, setActiveTab] = useState('feed'); // 'feed', 'analytics', 'table', 'promocodes', 'impact', 'economics', 'map'
   const [selectedReport, setSelectedReport] = useState(null);
   const [newAlert, setNewAlert] = useState(null);
-  const [driverName, setDriverName] = useState('Officer R. Sharma (Truck #07)');
-  const [driverLocation, setDriverLocation] = useState({ lat: 19.0740, lng: 72.8750 });
+  const [driverName, setDriverName] = useState('Kiran Gowda (Eco-Blisters Van #01)');
+  const [driverLocation, setDriverLocation] = useState({ lat: 12.9716, lng: 77.5946 });
   const [filterCategory, setFilterCategory] = useState('ALL');
   const [phoneFrameMode, setPhoneFrameMode] = useState(false);
+  const [graphMode, setGraphMode] = useState('shops'); // 'shops' | 'areas'
+  const [tableSearch, setTableSearch] = useState('');
+  const [tableStatusFilter, setTableStatusFilter] = useState('ALL');
+  const [promoSearch, setPromoSearch] = useState('');
+  const [redeemedCodes, setRedeemedCodes] = useState({});
+
+  // Unit Economics Calculator Inputs
+  const [stripsMonthly, setStripsMonthly] = useState(50000);
+  const [avgStripWeight, setAvgStripWeight] = useState(1.6); // grams
+  const [aluPricePerKg, setAluPricePerKg] = useState(220); // ₹ / kg
+  const [polymerPricePerKg, setPolymerPricePerKg] = useState(45); // ₹ / kg
+  const [affiliateFeePerVoucher, setAffiliateFeePerVoucher] = useState(15); // ₹ / voucher
+  const [logisticsCostPerStrip, setLogisticsCostPerStrip] = useState(0.35); // ₹ / strip
+  const [processingCostPerStrip, setProcessingCostPerStrip] = useState(0.25); // ₹ / strip
 
   // Load initial reports
   const fetchReports = async () => {
@@ -55,7 +72,6 @@ export default function AndroidDriverApp({ t }) {
   useEffect(() => {
     fetchReports();
 
-    // Get live driver location from browser GPS
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -65,14 +81,11 @@ export default function AndroidDriverApp({ t }) {
       );
     }
 
-    // Socket.io real-time listeners
     const handleNewReport = (newReport) => {
       setReports((prev) => [newReport, ...prev]);
       setNewAlert(newReport);
       playNotificationSound('alert');
-
-      // Auto clear alert banner after 6s
-      setTimeout(() => setNewAlert(null), 6000);
+      setTimeout(() => setNewAlert(null), 7000);
     };
 
     const handleStatusChanged = (update) => {
@@ -97,7 +110,6 @@ export default function AndroidDriverApp({ t }) {
     };
   }, []);
 
-  // Update status action
   const updateStatus = async (token, newStatus) => {
     try {
       const res = await fetch(`/api/reports/${encodeURIComponent(token)}/status`, {
@@ -108,7 +120,7 @@ export default function AndroidDriverApp({ t }) {
           driverName: driverName,
           note: `Status updated to ${newStatus} by ${driverName}`,
           resolutionPhotoUrl: newStatus === 'Resolved' 
-            ? 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=500&auto=format&fit=crop&q=60' 
+            ? 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60' 
             : null
         })
       });
@@ -135,14 +147,164 @@ export default function AndroidDriverApp({ t }) {
     return (R * c).toFixed(1);
   };
 
-  // Stats calculation
+  // Status Metrics
   const total = reports.length;
   const pendingCount = reports.filter((r) => r.status === 'Pending').length;
   const inProgressCount = reports.filter((r) => r.status === 'In Progress' || r.status === 'Assigned').length;
   const resolvedCount = reports.filter((r) => r.status === 'Resolved').length;
 
+  // Derive Zone from address/bin
+  const getZone = (item) => {
+    const text = `${item.binId} ${item.address}`.toLowerCase();
+    if (text.includes('indiranagar') || text.includes('hal') || text.includes('whitefield')) return 'East Bengaluru';
+    if (text.includes('majestic') || text.includes('shivajinagar') || text.includes('market') || text.includes('bowring')) return 'Central Bengaluru';
+    if (text.includes('koramangala') || text.includes('jayanagar') || text.includes('bannerghatta') || text.includes('fortis')) return 'South Bengaluru';
+    return 'West / Metro Zone';
+  };
+
+  // Graph Data: Recovery aggregated by Shop
+  const shopRecoveryData = useMemo(() => {
+    const map = {};
+    reports.forEach((r) => {
+      const name = r.binId || 'Central Collection Hub';
+      const exact = Number(r.exactStrips) || 12;
+      if (!map[name]) {
+        map[name] = { name, count: 0, strips: 0, aluGrams: 0, polymerGrams: 0 };
+      }
+      map[name].count += 1;
+      map[name].strips += exact;
+      map[name].aluGrams += Math.round(exact * 0.5); // ~0.5g pure aluminum per strip
+      map[name].polymerGrams += Math.round(exact * 1.1); // ~1.1g polymer per strip
+    });
+    return Object.values(map).sort((a, b) => b.strips - a.strips);
+  }, [reports]);
+
+  // Graph Data: Recovery aggregated by Area/Zone
+  const areaRecoveryData = useMemo(() => {
+    const map = {};
+    reports.forEach((r) => {
+      const zone = getZone(r);
+      const exact = Number(r.exactStrips) || 12;
+      if (!map[zone]) {
+        map[zone] = { zone, count: 0, strips: 0, aluGrams: 0, polymerGrams: 0 };
+      }
+      map[zone].count += 1;
+      map[zone].strips += exact;
+      map[zone].aluGrams += Math.round(exact * 0.5);
+      map[zone].polymerGrams += Math.round(exact * 1.1);
+    });
+    return Object.values(map).sort((a, b) => b.strips - a.strips);
+  }, [reports]);
+
+  const maxShopStrips = Math.max(...shopRecoveryData.map(s => s.strips), 1);
+  const maxAreaStrips = Math.max(...areaRecoveryData.map(a => a.strips), 1);
+
+  // Promocode Analytics
+  const promocodesList = useMemo(() => {
+    return reports.map((r, idx) => ({
+      id: r.id || `promo-${idx}`,
+      token: r.token,
+      promoCode: r.promoCode || `ECOBLISTER-${r.discountPercentage || 15}OFF-${r.token?.slice(-4) || '7A92'}`,
+      userName: r.userName || 'Citizen Recycler',
+      discount: r.discountPercentage || 15,
+      shop: r.binId || 'Apollo Pharmacy Indiranagar',
+      date: r.date || new Date().toISOString(),
+      isRedeemed: !!redeemedCodes[r.promoCode || r.token],
+      strips: r.stripCount || '10 Strips'
+    }));
+  }, [reports, redeemedCodes]);
+
+  const activePromosCount = promocodesList.filter(p => !p.isRedeemed).length;
+  const redeemedPromosCount = promocodesList.filter(p => p.isRedeemed).length;
+  const avgDiscount = promocodesList.length > 0 
+    ? Math.round(promocodesList.reduce((acc, p) => acc + (p.discount || 15), 0) / promocodesList.length)
+    : 17;
+
+  // Toggle Promo Code Redeemed state
+  const toggleRedeemCode = (code) => {
+    setRedeemedCodes(prev => ({
+      ...prev,
+      [code]: !prev[code]
+    }));
+  };
+
+  // Master Table Filtering
+  const filteredTableData = useMemo(() => {
+    return reports.filter((r) => {
+      const matchesSearch = 
+        (r.token && r.token.toLowerCase().includes(tableSearch.toLowerCase())) ||
+        (r.binId && r.binId.toLowerCase().includes(tableSearch.toLowerCase())) ||
+        (r.userName && r.userName.toLowerCase().includes(tableSearch.toLowerCase())) ||
+        (r.materialType && r.materialType.toLowerCase().includes(tableSearch.toLowerCase()));
+      
+      const matchesStatus = tableStatusFilter === 'ALL' || r.status === tableStatusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [reports, tableSearch, tableStatusFilter]);
+
+  // Export CSV Helper
+  const downloadCSV = () => {
+    const headers = [
+      'Batch Token', 'Citizen Name', 'Drop-off Shop', 'Zone', 'Packaging Material', 
+      'Strips Count', 'Alu Recovered (g)', 'Polymer Recovered (g)', 'Issued Voucher', 
+      'Voucher Status', 'Pipeline Status', 'Date'
+    ];
+    const rows = filteredTableData.map(r => {
+      const exact = Number(r.exactStrips) || 12;
+      const isRedeemed = !!redeemedCodes[r.promoCode || r.token];
+      return [
+        `"${r.token}"`,
+        `"${r.userName || 'Citizen'}"`,
+        `"${r.binId}"`,
+        `"${getZone(r)}"`,
+        `"${r.materialType || 'PVC Blister'}"`,
+        `"${r.stripCount || '10 Strips'}"`,
+        (exact * 0.5).toFixed(1),
+        (exact * 1.1).toFixed(1),
+        `"${r.promoCode || 'ECOBLISTER-VOUCHER'}"`,
+        `"${isRedeemed ? 'Redeemed' : 'Active'}"`,
+        `"${r.status || 'Pending'}"`,
+        `"${new Date(r.date).toLocaleDateString()}"`
+      ];
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `ecoblister-recovery-master-data-${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Unit Economics Calculations
+  const totalWeightKg = (stripsMonthly * avgStripWeight) / 1000;
+  const aluWeightKg = totalWeightKg * 0.32; // ~32% aluminum by weight
+  const polymerWeightKg = totalWeightKg * 0.68; // ~68% polymers by weight
+
+  const revenueAlu = Math.round(aluWeightKg * aluPricePerKg);
+  const revenuePolymer = Math.round(polymerWeightKg * polymerPricePerKg);
+  // Estimate ~70% of deposited strips generate a redeemed affiliate coupon
+  const totalRedeemedVouchers = Math.round((stripsMonthly / 12) * 0.70);
+  const revenueAffiliate = Math.round(totalRedeemedVouchers * affiliateFeePerVoucher);
+  const totalMonthlyRevenue = revenueAlu + revenuePolymer + revenueAffiliate;
+
+  const costLogistics = Math.round(stripsMonthly * logisticsCostPerStrip);
+  const costProcessing = Math.round(stripsMonthly * processingCostPerStrip);
+  const totalMonthlyCost = costLogistics + costProcessing;
+
+  const netMonthlyProfit = totalMonthlyRevenue - totalMonthlyCost;
+  const profitMarginPercent = totalMonthlyRevenue > 0 ? ((netMonthlyProfit / totalMonthlyRevenue) * 100).toFixed(1) : 0;
+  const unitProfitPerStrip = (netMonthlyProfit / stripsMonthly).toFixed(2);
+  const co2AvoidedKg = Math.round(aluWeightKg * 3.2);
+
+  // Preset scenarios
+  const applyScenario = (strips, name) => {
+    setStripsMonthly(strips);
+  };
+
   const filteredReports = reports.filter((r) => {
-    if (activeTab === 'my-jobs') return r.assignedDriver?.includes('Sharma');
     if (filterCategory === 'ALL') return true;
     return r.status === filterCategory;
   });
@@ -151,53 +313,53 @@ export default function AndroidDriverApp({ t }) {
     <div className="bg-slate-900 text-slate-100 min-h-screen pb-20 sm:pb-8 flex flex-col font-sans">
       {/* Real-time Notification Banner */}
       {newAlert && (
-        <div className="bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white p-3 sm:px-6 shadow-xl flex items-center justify-between animate-bounce">
+        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white p-3 sm:px-6 shadow-xl flex items-center justify-between animate-bounce">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white/20 rounded-full animate-pulse">
               <Bell className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="font-extrabold text-xs sm:text-sm block">🚨 {t.realtimeNotification}</span>
+              <span className="font-extrabold text-xs sm:text-sm block">🚨 Real-time Blister Recovery Alert</span>
               <span className="text-[11px] text-white/90">
-                Bin #{newAlert.binId} ({newAlert.fillLevel}) at {newAlert.address}
+                {newAlert.stripCount} deposited at {newAlert.binId} by {newAlert.userName || 'Citizen'}
               </span>
             </div>
           </div>
           <button
             onClick={() => { setSelectedReport(newAlert); setNewAlert(null); setActiveTab('feed'); }}
-            className="px-3 py-1 bg-white text-red-700 font-bold text-xs rounded-xl shadow hover:bg-slate-100"
+            className="px-3 py-1 bg-white text-emerald-800 font-bold text-xs rounded-xl shadow hover:bg-slate-100 cursor-pointer"
           >
             View
           </button>
         </div>
       )}
 
-      {/* Android Top App Bar */}
+      {/* Top Fleet Header */}
       <div className="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-3">
           <BrandLogo size="sm" theme="dark" />
-          <span className="hidden sm:inline-block text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-            Fleet
+          <span className="hidden sm:inline-block text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider border border-emerald-500/30">
+            Logistics & Intelligence Fleet
           </span>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Desktop Frame Toggle */}
+          {/* Frame Toggle */}
           <button
             type="button"
             onClick={() => setPhoneFrameMode(!phoneFrameMode)}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 cursor-pointer"
             title="Toggle Android Device Frame Preview"
           >
             <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{phoneFrameMode ? 'Full Screen' : 'Android Frame'}</span>
+            <span>{phoneFrameMode ? 'Full Screen' : 'Device Frame'}</span>
           </button>
 
           <button
             type="button"
             onClick={fetchReports}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
-            title="Refresh"
+            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer"
+            title="Refresh Fleet Data"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -205,351 +367,1036 @@ export default function AndroidDriverApp({ t }) {
       </div>
 
       {/* Main Container */}
-      <div className="flex-1 p-3 sm:p-6 max-w-6xl mx-auto w-full space-y-4">
-        {/* Status Metrics Bar */}
+      <div className="flex-1 p-3 sm:p-6 max-w-7xl mx-auto w-full space-y-4">
+        
+        {/* KPI Metrics Strip */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           <div className="p-3 bg-slate-800/80 border border-slate-700/60 rounded-2xl">
-            <span className="text-[11px] text-slate-400 block">{t.totalReports}</span>
+            <span className="text-[11px] text-slate-400 block font-medium">Total Deposits</span>
             <span className="text-xl font-black text-white">{total}</span>
           </div>
           <div className="p-3 bg-rose-950/40 border border-rose-800/50 rounded-2xl">
-            <span className="text-[11px] text-rose-300 block">{t.pendingAlert}</span>
+            <span className="text-[11px] text-rose-300 block font-medium">Pending Pickup</span>
             <span className="text-xl font-black text-rose-400">{pendingCount}</span>
           </div>
           <div className="p-3 bg-amber-950/40 border border-amber-800/50 rounded-2xl">
-            <span className="text-[11px] text-amber-300 block">{t.activeJobs}</span>
+            <span className="text-[11px] text-amber-300 block font-medium">In Transit</span>
             <span className="text-xl font-black text-amber-400">{inProgressCount}</span>
           </div>
           <div className="p-3 bg-emerald-950/40 border border-emerald-800/50 rounded-2xl">
-            <span className="text-[11px] text-emerald-300 block">{t.cleanedToday}</span>
-            <span className="text-xl font-black text-emerald-400">{resolvedCount}</span>
+            <span className="text-[11px] text-emerald-300 block font-medium">Active Promocodes</span>
+            <span className="text-xl font-black text-emerald-400">{activePromosCount}</span>
           </div>
         </div>
 
-        {/* Tab Selection */}
-        <div className="flex items-center gap-2 p-1 bg-slate-950 rounded-2xl border border-slate-800">
+        {/* 6 Specialized Logistics & Business Suite Tabs */}
+        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-950 rounded-2xl border border-slate-800 overflow-x-auto">
           <button
             onClick={() => setActiveTab('feed')}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
+            className={`px-3 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'feed'
                 ? 'bg-emerald-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            📋 {t.viewListTab} ({reports.length})
+            <Truck className="w-3.5 h-3.5" />
+            <span>Recovery Fleet ({reports.length})</span>
           </button>
+
           <button
-            onClick={() => setActiveTab('map')}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
-              activeTab === 'map'
+            onClick={() => setActiveTab('analytics')}
+            className={`px-3 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'analytics'
                 ? 'bg-emerald-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            🗺️ {t.viewMapTab}
+            <BarChart3 className="w-3.5 h-3.5 text-amber-400" />
+            <span>Recovery Graphs</span>
           </button>
+
           <button
-            onClick={() => setActiveTab('my-jobs')}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
-              activeTab === 'my-jobs'
+            onClick={() => setActiveTab('table')}
+            className={`px-3 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'table'
                 ? 'bg-emerald-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            🚛 My Truck Queue
+            <FileSpreadsheet className="w-3.5 h-3.5 text-teal-400" />
+            <span>Master Recovery Data</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('promocodes')}
+            className={`px-3 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'promocodes'
+                ? 'bg-emerald-600 text-white shadow'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Tag className="w-3.5 h-3.5 text-rose-400" />
+            <span>Active Promocodes ({activePromosCount})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('impact')}
+            className={`px-3 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'impact'
+                ? 'bg-emerald-600 text-white shadow'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5 text-blue-400" />
+            <span>Shops Profit & City Impact</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('economics')}
+            className={`px-3 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'economics'
+                ? 'bg-emerald-600 text-white shadow'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Calculator className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Unit Economics Calculator</span>
           </button>
         </div>
 
-        {/* Tab 1: Live GPS Map */}
-        {activeTab === 'map' && (
-          <div className="h-[480px] rounded-3xl overflow-hidden border border-slate-800 shadow-xl relative">
-            <MapContainer
-              center={[driverLocation.lat, driverLocation.lng]}
-              zoom={14}
-              style={{ height: '100%', width: '100%' }}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
+        {/* ================= TAB 1: RECOVERY FLEET DISPATCH ================= */}
+        {activeTab === 'feed' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            {/* Left Queue List */}
+            <div className="lg:col-span-5 space-y-2">
+              <div className="flex items-center justify-between pb-1">
+                <span className="text-xs font-bold uppercase text-slate-400">Incoming Blister Batches</span>
+                <div className="flex gap-1 text-[11px]">
+                  {['ALL', 'Pending', 'In Progress', 'Resolved'].map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setFilterCategory(cat)}
+                      className={`px-2 py-0.5 rounded-lg font-medium cursor-pointer ${
+                        filterCategory === cat
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-              {/* Driver Location Marker */}
-              <Marker position={[driverLocation.lat, driverLocation.lng]} icon={driverTruckIcon}>
-                <Popup>
-                  <div className="text-xs font-bold text-slate-800">
-                    🚚 {driverName} (Your Current Location)
-                  </div>
-                </Popup>
-              </Marker>
-              <Circle
-                center={[driverLocation.lat, driverLocation.lng]}
-                radius={300}
-                pathOptions={{ color: '#2563eb', fillColor: '#3b82f6', fillOpacity: 0.15 }}
-              />
-
-              {/* Bin Markers */}
-              {reports.map((r) => {
-                const color =
-                  r.status === 'Resolved' ? '#10b981' : r.status === 'In Progress' ? '#f59e0b' : '#ef4444';
-
-                return (
-                  <Marker
-                    key={r.id}
-                    position={[r.latitude, r.longitude]}
-                    icon={createIcon(color, r.status === 'Resolved' ? '✓' : '🗑')}
-                    eventHandlers={{ click: () => setSelectedReport(r) }}
-                  >
-                    <Popup>
-                      <div className="text-xs space-y-1 text-slate-900">
-                        <span className="font-bold block text-sm">{r.binId}</span>
-                        <span className="block text-slate-600">{r.address}</span>
-                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold text-white" style={{ backgroundColor: color }}>
-                          {r.status}
-                        </span>
-                      </div>
-                    </Popup>
-                  </Marker>
-                );
-              })}
-            </MapContainer>
-
-            {/* Radar status pill */}
-            <div className="absolute top-3 left-3 z-[400] bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700 flex items-center gap-2 text-xs font-semibold text-emerald-400 shadow">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-              {t.driverStatusActive}
-            </div>
-          </div>
-        )}
-
-        {/* Tab 2: Feed & Queue (Split View on Large screens) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Reports List Column */}
-          <div className="lg:col-span-6 space-y-3">
-            {/* Filter Pills */}
-            <div className="flex gap-1.5 overflow-x-auto pb-1 text-xs">
-              {['ALL', 'Pending', 'In Progress', 'Resolved'].map((st) => (
-                <button
-                  key={st}
-                  onClick={() => setFilterCategory(st)}
-                  className={`px-3 py-1 rounded-xl font-medium shrink-0 transition-all ${
-                    filterCategory === st
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                  }`}
-                >
-                  {st}
-                </button>
-              ))}
-            </div>
-
-            {/* Report cards */}
-            <div className="space-y-2.5 max-h-[550px] overflow-y-auto pr-1">
-              {filteredReports.map((r) => {
-                const isSelected = selectedReport?.id === r.id;
-                const distance = calcDistance(
-                  driverLocation.lat,
-                  driverLocation.lng,
-                  r.latitude,
-                  r.longitude
-                );
-
-                return (
-                  <div
-                    key={r.id}
-                    onClick={() => setSelectedReport(r)}
-                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex gap-3 ${
-                      isSelected
-                        ? 'bg-slate-800/95 border-emerald-500 shadow-lg ring-1 ring-emerald-500/50'
-                        : 'bg-slate-850/60 border-slate-800 hover:bg-slate-800 hover:border-slate-700'
-                    }`}
-                  >
-                    {/* Thumbnail */}
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-900 shrink-0 border border-slate-700">
-                      <img src={r.photoUrl} alt="Bin" className="w-full h-full object-cover" />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-1 mb-1">
-                        <span className="font-extrabold text-sm text-white truncate">{r.binId}</span>
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 ${
-                            r.status === 'Resolved'
-                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                              : r.status === 'In Progress'
-                              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                              : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                          }`}
-                        >
-                          {r.status}
+              <div className="space-y-2 max-h-[650px] overflow-y-auto pr-1">
+                {filteredReports.map((item) => {
+                  const isSelected = selectedReport?.token === item.token || selectedReport?.id === item.id;
+                  const dist = calcDistance(driverLocation.lat, driverLocation.lng, item.latitude, item.longitude);
+                  return (
+                    <div
+                      key={item.token || item.id}
+                      onClick={() => setSelectedReport(item)}
+                      className={`p-3 rounded-2xl border transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-slate-800 border-emerald-500 shadow-md ring-1 ring-emerald-500/50'
+                          : 'bg-slate-950/70 border-slate-800 hover:bg-slate-800/60'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-slate-800 text-emerald-400">
+                            {item.token}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            item.status === 'Resolved' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
+                            item.status === 'In Progress' ? 'bg-amber-950 text-amber-400 border border-amber-800' :
+                            'bg-rose-950 text-rose-400 border border-rose-800'
+                          }`}>
+                            {item.status}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
+                          <Navigation className="w-3 h-3 text-emerald-400" />
+                          {dist} km
                         </span>
                       </div>
 
-                      <p className="text-xs text-slate-400 truncate mb-1">{r.address}</p>
+                      <h4 className="font-bold text-xs text-white mt-1.5 line-clamp-1">{item.binId}</h4>
+                      <p className="text-[11px] text-slate-400 line-clamp-1">📍 {item.address}</p>
 
-                      <div className="flex items-center justify-between text-[11px] text-slate-500">
-                        <span className="text-emerald-400 font-mono">📍 {distance} km {t.distanceAway}</span>
-                        <span>{new Date(r.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <div className="flex items-center justify-between text-[11px] mt-2 pt-2 border-t border-slate-800/80">
+                        <span className="text-emerald-300 font-semibold">💊 {item.stripCount}</span>
+                        <span className="text-slate-400">👤 {item.userName || 'Citizen'}</span>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+            </div>
 
-              {filteredReports.length === 0 && (
-                <div className="p-8 text-center bg-slate-800/40 rounded-2xl border border-slate-800 text-slate-500 text-xs">
-                  No bin reports match this category.
+            {/* Right Selected Report Detail */}
+            <div className="lg:col-span-7">
+              {selectedReport ? (
+                <div className="bg-slate-950 border border-slate-800 rounded-3xl p-5 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                    <div>
+                      <span className="text-xs font-mono text-emerald-400 font-bold block">{selectedReport.token}</span>
+                      <h3 className="text-base font-extrabold text-white">{selectedReport.binId}</h3>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      selectedReport.status === 'Resolved' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
+                      selectedReport.status === 'In Progress' ? 'bg-amber-950 text-amber-300 border border-amber-800' :
+                      'bg-rose-950 text-rose-300 border border-rose-800'
+                    }`}>
+                      Pipeline: {selectedReport.status}
+                    </span>
+                  </div>
+
+                  {/* Metadata Chips */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-800">
+                      <span className="text-slate-400 block text-[10px]">Citizen</span>
+                      <span className="font-bold text-white truncate block">{selectedReport.userName || 'Citizen'}</span>
+                    </div>
+                    <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-800">
+                      <span className="text-slate-400 block text-[10px]">Material</span>
+                      <span className="font-bold text-teal-300 truncate block">{selectedReport.materialType || 'PVC Blister'}</span>
+                    </div>
+                    <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-800">
+                      <span className="text-slate-400 block text-[10px]">Quantity</span>
+                      <span className="font-bold text-emerald-400 block">{selectedReport.stripCount}</span>
+                    </div>
+                    <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-800">
+                      <span className="text-slate-400 block text-[10px]">Issued Voucher</span>
+                      <span className="font-mono font-bold text-amber-300 block truncate">{selectedReport.promoCode || 'PROMO-CODE'}</span>
+                    </div>
+                  </div>
+
+                  {/* Address & Navigation */}
+                  <div className="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+                    <p className="text-xs text-slate-300">📍 {selectedReport.address}</p>
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-[11px] font-mono text-slate-400">
+                        GPS: {selectedReport.latitude?.toFixed(4)}, {selectedReport.longitude?.toFixed(4)}
+                      </span>
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${selectedReport.latitude},${selectedReport.longitude}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow"
+                      >
+                        <Navigation className="w-3.5 h-3.5" />
+                        <span>Google Maps Turn-by-Turn</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  {selectedReport.notes && (
+                    <div className="p-3 bg-slate-900 rounded-2xl border border-slate-800">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Citizen Voice / Deposit Notes</span>
+                      <p className="text-xs text-slate-200 italic">"{selectedReport.notes}"</p>
+                    </div>
+                  )}
+
+                  {/* Pipeline Actions */}
+                  <div className="space-y-2 pt-2 border-t border-slate-800">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Update Fleet Recovery Status:</span>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => updateStatus(selectedReport.token, 'Assigned')}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          selectedReport.status === 'Assigned'
+                            ? 'bg-blue-600 text-white shadow-lg ring-2 ring-blue-400'
+                            : 'bg-slate-800 hover:bg-slate-700 text-blue-300'
+                        }`}
+                      >
+                        1. Assign Route
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateStatus(selectedReport.token, 'In Progress')}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          selectedReport.status === 'In Progress'
+                            ? 'bg-amber-600 text-white shadow-lg ring-2 ring-amber-400'
+                            : 'bg-slate-800 hover:bg-slate-700 text-amber-300'
+                        }`}
+                      >
+                        2. Picked up from Bin
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateStatus(selectedReport.token, 'Resolved')}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          selectedReport.status === 'Resolved'
+                            ? 'bg-emerald-600 text-white shadow-lg ring-2 ring-emerald-400'
+                            : 'bg-slate-800 hover:bg-slate-700 text-emerald-300'
+                        }`}
+                      >
+                        3. Foil Recovered
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-64 flex items-center justify-center bg-slate-950 border border-slate-800 rounded-3xl text-slate-500 text-xs">
+                  Select a blister batch from the queue to inspect details & actions
                 </div>
               )}
             </div>
           </div>
+        )}
 
-          {/* Report Detail & Action Panel */}
-          <div className="lg:col-span-6">
-            {selectedReport ? (
-              <div className="p-5 bg-slate-800/90 rounded-3xl border border-slate-700/80 shadow-2xl space-y-4 sticky top-16">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <span className="text-[11px] text-slate-400 font-mono">TOKEN: {selectedReport.token}</span>
-                    <h2 className="text-xl font-black text-white flex items-center gap-2">
-                      {selectedReport.binId}
-                      <span className="text-xs font-normal text-slate-400">({selectedReport.category})</span>
-                    </h2>
+        {/* ================= TAB 2: RECOVERY GRAPHS ================= */}
+        {activeTab === 'analytics' && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+              <div>
+                <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-emerald-400" />
+                  Blister Recovery Distribution Graphs
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Real-time visualization of pharmaceutical blister waste collected across Bengaluru chemist shops & zones
+                </p>
+              </div>
+
+              {/* Graph Toggle */}
+              <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setGraphMode('shops')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    graphMode === 'shops'
+                      ? 'bg-emerald-600 text-white shadow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  By Chemist / Hospital Shops
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGraphMode('areas')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    graphMode === 'areas'
+                      ? 'bg-emerald-600 text-white shadow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  By Bengaluru Area / Zone
+                </button>
+              </div>
+            </div>
+
+            {/* Shop Graph View */}
+            {graphMode === 'shops' && (
+              <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-slate-800">
+                  <span className="font-bold text-white">Partner Chemist Hub</span>
+                  <div className="flex items-center gap-6">
+                    <span>Batch Volume</span>
+                    <span className="hidden sm:inline">Aluminum Yield</span>
+                    <span className="font-bold text-emerald-400">Total Strips Recovered</span>
                   </div>
-
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${selectedReport.latitude},${selectedReport.longitude}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl shadow flex items-center gap-1.5 transition-colors"
-                  >
-                    <Navigation className="w-3.5 h-3.5" />
-                    <span>Navigate</span>
-                  </a>
                 </div>
 
-                {/* Evidence Image */}
-                <div className="h-48 rounded-2xl overflow-hidden border border-slate-700 bg-black">
-                  <img src={selectedReport.photoUrl} alt="Bin" className="w-full h-full object-cover" />
-                </div>
+                <div className="space-y-3">
+                  {shopRecoveryData.map((shop, i) => {
+                    const pct = Math.round((shop.strips / maxShopStrips) * 100);
+                    return (
+                      <div key={shop.name} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-slate-200 flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-slate-800 text-[10px] flex items-center justify-center text-emerald-400 font-mono font-bold">
+                              #{i + 1}
+                            </span>
+                            {shop.name}
+                          </span>
+                          <div className="flex items-center gap-6 text-[11px]">
+                            <span className="text-slate-400">{shop.count} batches</span>
+                            <span className="text-teal-300 font-mono hidden sm:inline">~{shop.aluGrams}g pure Al</span>
+                            <span className="font-bold font-mono text-emerald-400">{shop.strips} strips</span>
+                          </div>
+                        </div>
 
-                {/* Location & Info */}
-                <div className="space-y-2 text-xs">
-                  <div className="flex items-center gap-2 text-slate-300">
-                    <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>{selectedReport.address}</span>
-                  </div>
-
-                  {selectedReport.notes && (
-                    <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-700 text-slate-300 italic">
-                      "{selectedReport.notes}"
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-2 text-[11px]">
-                    <div className="p-2 bg-slate-900/60 rounded-xl border border-slate-700">
-                      <span className="text-slate-400 block font-semibold">Strips Count</span>
-                      <span className="font-bold text-emerald-400">{selectedReport.stripCount || selectedReport.fillLevel}</span>
-                    </div>
-                    <div className="p-2 bg-slate-900/60 rounded-xl border border-slate-700">
-                      <span className="text-slate-400 block font-semibold">Material</span>
-                      <span className="font-bold text-slate-200 truncate block">{selectedReport.materialType || selectedReport.category}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Driver Actions - Real-time Status Changers */}
-                <div className="pt-2 border-t border-slate-700 space-y-2">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Update Field Status (Live Sync)
-                  </span>
-
-                  <div className="grid grid-cols-3 gap-2">
-                    <button
-                      type="button"
-                      disabled={selectedReport.status === 'Assigned'}
-                      onClick={() => updateStatus(selectedReport.token, 'Assigned')}
-                      className={`py-2.5 px-2 rounded-xl text-xs font-bold transition-all ${
-                        selectedReport.status === 'Assigned'
-                          ? 'bg-blue-600/30 text-blue-300 border border-blue-500/50'
-                          : 'bg-slate-700 hover:bg-slate-600 text-white'
-                      }`}
-                    >
-                      {t.actionAssign}
-                    </button>
-
-                    <button
-                      type="button"
-                      disabled={selectedReport.status === 'In Progress'}
-                      onClick={() => updateStatus(selectedReport.token, 'In Progress')}
-                      className={`py-2.5 px-2 rounded-xl text-xs font-bold transition-all ${
-                        selectedReport.status === 'In Progress'
-                          ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
-                          : 'bg-amber-600 hover:bg-amber-500 text-white'
-                      }`}
-                    >
-                      {t.actionRoute}
-                    </button>
-
-                    <button
-                      type="button"
-                      disabled={selectedReport.status === 'Resolved'}
-                      onClick={() => updateStatus(selectedReport.token, 'Resolved')}
-                      className={`py-2.5 px-2 rounded-xl text-xs font-bold transition-all ${
-                        selectedReport.status === 'Resolved'
-                          ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/50'
-                          : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                      }`}
-                    >
-                      {t.actionResolve}
-                    </button>
-                  </div>
+                        {/* Animated Bar Meter */}
+                        <div className="h-3 w-full bg-slate-800/80 rounded-full overflow-hidden flex">
+                          <div
+                            style={{ width: `${pct}%` }}
+                            className="h-full bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400 rounded-full transition-all duration-700"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            ) : (
-              <div className="p-8 text-center bg-slate-800/40 rounded-3xl border border-slate-800 text-slate-500 text-xs">
-                Select a report from the list to view details and update municipal status.
+            )}
+
+            {/* Area Graph View */}
+            {graphMode === 'areas' && (
+              <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-slate-800">
+                  <span className="font-bold text-white">Bengaluru Geographic Zone</span>
+                  <div className="flex items-center gap-6">
+                    <span>Active Hubs</span>
+                    <span className="hidden sm:inline">Polymer Recovered</span>
+                    <span className="font-bold text-emerald-400">Total Strips Recovered</span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {areaRecoveryData.map((area, i) => {
+                    const pct = Math.round((area.strips / maxAreaStrips) * 100);
+                    return (
+                      <div key={area.zone} className="space-y-1.5 p-3 bg-slate-900/60 rounded-2xl border border-slate-800">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-white flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-emerald-400" />
+                            {area.zone}
+                          </span>
+                          <div className="flex items-center gap-6 text-[11px]">
+                            <span className="text-slate-400">{area.count} drop points</span>
+                            <span className="text-amber-300 font-mono hidden sm:inline">~{area.polymerGrams}g polymers</span>
+                            <span className="font-black font-mono text-emerald-400">{area.strips} strips</span>
+                          </div>
+                        </div>
+
+                        <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden flex">
+                          <div
+                            style={{ width: `${pct}%` }}
+                            className="h-full bg-gradient-to-r from-teal-500 via-emerald-500 to-amber-400 rounded-full transition-all duration-700"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
-        </div>
+        )}
+
+        {/* ================= TAB 3: MASTER RECOVERY DATA TABLE ================= */}
+        {activeTab === 'table' && (
+          <div className="bg-slate-950 p-4 sm:p-5 rounded-3xl border border-slate-800 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                  <FileSpreadsheet className="w-5 h-5 text-teal-400" />
+                  Master Blister Recovery Database
+                </h3>
+                <p className="text-xs text-slate-400">Comprehensive log of all blister deposits, materials yield, and issued vouchers</p>
+              </div>
+
+              {/* Actions & CSV Export */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={downloadCSV}
+                  className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition-all cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download CSV</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div className="flex flex-col sm:flex-row items-center gap-2 pt-2">
+              <div className="relative flex-1 w-full">
+                <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search token, pharmacy shop, citizen, or material..."
+                  value={tableSearch}
+                  onChange={(e) => setTableSearch(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <select
+                value={tableStatusFilter}
+                onChange={(e) => setTableStatusFilter(e.target.value)}
+                className="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500 w-full sm:w-auto"
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+              </select>
+            </div>
+
+            {/* Data Table */}
+            <div className="overflow-x-auto rounded-2xl border border-slate-800">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800">
+                  <tr>
+                    <th className="py-3 px-3">Batch Token</th>
+                    <th className="py-3 px-3">Citizen Name</th>
+                    <th className="py-3 px-3">Drop-off Shop</th>
+                    <th className="py-3 px-3">Material</th>
+                    <th className="py-3 px-3">Quantity</th>
+                    <th className="py-3 px-3">Yield (Alu / Poly)</th>
+                    <th className="py-3 px-3">Issued Voucher</th>
+                    <th className="py-3 px-3">Status</th>
+                    <th className="py-3 px-3">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  {filteredTableData.map((row) => {
+                    const exact = Number(row.exactStrips) || 12;
+                    const alu = (exact * 0.5).toFixed(1);
+                    const poly = (exact * 1.1).toFixed(1);
+                    return (
+                      <tr key={row.token || row.id} className="hover:bg-slate-900/50 transition-colors">
+                        <td className="py-2.5 px-3 font-mono font-bold text-emerald-400 whitespace-nowrap">{row.token}</td>
+                        <td className="py-2.5 px-3 font-semibold text-white whitespace-nowrap">{row.userName || 'Citizen'}</td>
+                        <td className="py-2.5 px-3 text-slate-300 max-w-xs truncate">{row.binId}</td>
+                        <td className="py-2.5 px-3 text-teal-300 text-[11px] whitespace-nowrap">{row.materialType || 'PVC Blister'}</td>
+                        <td className="py-2.5 px-3 font-bold text-white whitespace-nowrap">{row.stripCount}</td>
+                        <td className="py-2.5 px-3 font-mono text-[11px] whitespace-nowrap text-slate-300">
+                          {alu}g Al • {poly}g Poly
+                        </td>
+                        <td className="py-2.5 px-3 font-mono font-bold text-amber-300 whitespace-nowrap">
+                          {row.promoCode || 'ECOBLISTER-VOUCHER'}
+                        </td>
+                        <td className="py-2.5 px-3 whitespace-nowrap">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            row.status === 'Resolved' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
+                            row.status === 'In Progress' ? 'bg-amber-950 text-amber-400 border border-amber-800' :
+                            'bg-rose-950 text-rose-400 border border-rose-800'
+                          }`}>
+                            {row.status}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-400 text-[11px] whitespace-nowrap">
+                          {new Date(row.date).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="text-[11px] text-slate-500 text-right">
+              Showing {filteredTableData.length} recorded recovery transactions
+            </div>
+          </div>
+        )}
+
+        {/* ================= TAB 4: ACTIVE PROMOCODES ================= */}
+        {activeTab === 'promocodes' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800">
+                <span className="text-xs text-slate-400 block font-medium">Total Promocodes Issued</span>
+                <span className="text-2xl font-black text-white">{promocodesList.length}</span>
+              </div>
+              <div className="p-4 bg-slate-950 rounded-2xl border border-emerald-800/40">
+                <span className="text-xs text-emerald-400 block font-medium">Active (Ready for Chemist)</span>
+                <span className="text-2xl font-black text-emerald-400">{activePromosCount}</span>
+              </div>
+              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800">
+                <span className="text-xs text-slate-400 block font-medium">Redeemed at Stores</span>
+                <span className="text-2xl font-black text-amber-400">{redeemedPromosCount}</span>
+              </div>
+              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800">
+                <span className="text-xs text-slate-400 block font-medium">Average Discount Tier</span>
+                <span className="text-2xl font-black text-teal-300">{avgDiscount}% OFF</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div>
+                  <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-emerald-400" />
+                    Active Pharmacy Promocode Registry
+                  </h3>
+                  <p className="text-xs text-slate-400">Verifiable discount promo vouchers generated upon verified blister deposits</p>
+                </div>
+
+                <div className="relative w-full sm:w-64">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search promocode or citizen..."
+                    value={promoSearch}
+                    onChange={(e) => setPromoSearch(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl pl-8 pr-3 py-1.5 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {promocodesList
+                  .filter(p => 
+                    p.promoCode.toLowerCase().includes(promoSearch.toLowerCase()) || 
+                    p.userName.toLowerCase().includes(promoSearch.toLowerCase())
+                  )
+                  .map((promo) => (
+                    <div
+                      key={promo.id}
+                      className={`p-3.5 rounded-2xl border transition-all ${
+                        promo.isRedeemed 
+                          ? 'bg-slate-900/40 border-slate-800 opacity-60' 
+                          : 'bg-slate-900 border-emerald-500/40 shadow-sm'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-black bg-emerald-500/20 text-emerald-300">
+                          {promo.discount}% DISCOUNT
+                        </span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          promo.isRedeemed ? 'bg-slate-800 text-slate-400' : 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                        }`}>
+                          {promo.isRedeemed ? 'Claimed' : '● Active'}
+                        </span>
+                      </div>
+
+                      <div className="my-2.5 p-2 bg-slate-950 rounded-xl border border-slate-800 text-center">
+                        <span className="font-mono font-black text-sm text-emerald-400 tracking-wider block">
+                          {promo.promoCode}
+                        </span>
+                      </div>
+
+                      <div className="text-[11px] space-y-1 text-slate-300">
+                        <p className="flex justify-between">
+                          <span className="text-slate-400">Citizen:</span>
+                          <span className="font-semibold text-white">{promo.userName}</span>
+                        </p>
+                        <p className="flex justify-between">
+                          <span className="text-slate-400">Deposit Hub:</span>
+                          <span className="font-medium text-slate-300 truncate max-w-[150px]">{promo.shop}</span>
+                        </p>
+                        <p className="flex justify-between">
+                          <span className="text-slate-400">Validity:</span>
+                          <span className="text-teal-300">Valid 30 Days</span>
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => toggleRedeemCode(promo.promoCode)}
+                        className={`w-full mt-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          promo.isRedeemed
+                            ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                            : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow'
+                        }`}
+                      >
+                        {promo.isRedeemed ? 'Undo Claim Status' : '✓ Mark Redeemed at Chemist'}
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= TAB 5: SHOPS PROFIT & CITY IMPACT ================= */}
+        {activeTab === 'impact' && (
+          <div className="space-y-4">
+            
+            {/* 1. Partner Shops Profitability */}
+            <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800 space-y-4">
+              <div className="border-b border-slate-800 pb-3">
+                <span className="text-xs font-bold uppercase text-emerald-400 tracking-wider block">Commercial Partnership Model</span>
+                <h3 className="text-lg font-black text-white">How Partner Medical Shops Profit from Eco-Blisters</h3>
+                <p className="text-xs text-slate-400">Blister collection drop-boxes convert local citizen footfall into high-margin pharmacy retail sales</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800">
+                  <span className="text-xs text-slate-400 block font-medium">Active Partner Stores</span>
+                  <span className="text-2xl font-black text-white">8 Hubs</span>
+                  <span className="text-[10px] text-emerald-400 mt-1 block">Bengaluru Network</span>
+                </div>
+                <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800">
+                  <span className="text-xs text-slate-400 block font-medium">New Customer Footfall</span>
+                  <span className="text-2xl font-black text-emerald-400">+24.8%</span>
+                  <span className="text-[10px] text-slate-400 mt-1 block">Walk-in deposit visitors</span>
+                </div>
+                <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800">
+                  <span className="text-xs text-slate-400 block font-medium">Avg Basket Additions</span>
+                  <span className="text-2xl font-black text-amber-400">₹340 / visit</span>
+                  <span className="text-[10px] text-slate-400 mt-1 block">Vitamins, skincare & OTC</span>
+                </div>
+                <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800">
+                  <span className="text-xs text-slate-400 block font-medium">Store Retention Rate</span>
+                  <span className="text-2xl font-black text-teal-300">100%</span>
+                  <span className="text-[10px] text-slate-400 mt-1 block">Zero partner churn</span>
+                </div>
+              </div>
+
+              {/* Chemist Profit Mechanism Breakdown */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div className="p-3.5 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+                    Footfall to Prescription Conversion
+                  </span>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Citizens visiting to drop empty foils stay to refill prescriptions and redeem their 10%–25% voucher on spot.
+                  </p>
+                </div>
+                <div className="p-3.5 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <DollarSign className="w-3.5 h-3.5 text-amber-400" />
+                    FMCG & OTC Basket Upsell
+                  </span>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Chemist stores earn full gross margin on supplementary products bought alongside the discounted items.
+                  </p>
+                </div>
+                <div className="p-3.5 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <Award className="w-3.5 h-3.5 text-teal-400" />
+                    Zero Capital Cost for Chemist
+                  </span>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Eco-Blisters provides drop-boxes, real-time fleet collection, and marketing collateral 100% free of charge.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. How We Collect - Standard Operating Procedure */}
+            <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800 space-y-4">
+              <div className="border-b border-slate-800 pb-3">
+                <span className="text-xs font-bold uppercase text-teal-400 tracking-wider block">Standard Operating Procedure</span>
+                <h3 className="text-lg font-black text-white">How We Collect & Recover Blister Waste</h3>
+                <p className="text-xs text-slate-400">Step-by-step reverse logistics pipeline from patient drop-off to scientific recovery</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-2">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 font-black text-sm flex items-center justify-center">
+                    01
+                  </div>
+                  <h4 className="text-xs font-bold text-white">In-Store Drop-Box Deposit</h4>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Citizens drop empty medicine foils into dedicated tamper-evident Eco-Blister bins inside partner pharmacies.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-2">
+                  <div className="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-400 font-black text-sm flex items-center justify-center">
+                    02
+                  </div>
+                  <h4 className="text-xs font-bold text-white">EV Fleet Sweeps</h4>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Low-emission electric collection vans route through Bengaluru clusters on scheduled geo-optimized sweeps.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 font-black text-sm flex items-center justify-center">
+                    03
+                  </div>
+                  <h4 className="text-xs font-bold text-white">QR Batch Verification</h4>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Fleet officers scan the bin QR code, weigh batches, and update live collection timestamps on the Fleet app.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-2">
+                  <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 font-black text-sm flex items-center justify-center">
+                    04
+                  </div>
+                  <h4 className="text-xs font-bold text-white">Scientific Delamination</h4>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    At our facility, foils undergo low-temperature delamination to separate 99.2% pure aluminum powder & polymer pellets.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. How Much We Clean the City (Environmental Footprint) */}
+            <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800 space-y-4">
+              <div className="border-b border-slate-800 pb-3">
+                <span className="text-xs font-bold uppercase text-emerald-400 tracking-wider block">Environmental Health & Cleanliness</span>
+                <h3 className="text-lg font-black text-white">How Much We Clean Bengaluru City</h3>
+                <p className="text-xs text-slate-400">Preventing toxic landfilling, drain clogs, and open incineration across the city</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-1.5">
+                  <span className="text-xs font-bold text-white flex items-center gap-2">
+                    <Leaf className="w-4 h-4 text-emerald-400" />
+                    100% Landfill Diversion
+                  </span>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Zero collected blister packaging enters municipal landfills (Mandur/Mittaganahalli), eliminating non-degradable composite foil waste.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-1.5">
+                  <span className="text-xs font-bold text-white flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-teal-400" />
+                    Drainage & Lake Protection
+                  </span>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Prevents microplastics and non-degradable film from choking Bengaluru storm water drains (Rajakaluves) and water bodies like Bellandur lake.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-1.5">
+                  <span className="text-xs font-bold text-white flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    Toxic Dioxin Prevention
+                  </span>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Diverts PVC blister plastics from open street garbage burning, halting emissions of carcinogenic chlorinated dioxins.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ================= TAB 6: UNIT ECONOMICS CALCULATOR ================= */}
+        {activeTab === 'economics' && (
+          <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800 space-y-5">
+            <div className="border-b border-slate-800 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                  <Calculator className="w-5 h-5 text-emerald-400" />
+                  Blister Recovery Unit Economics Calculator
+                </h3>
+                <p className="text-xs text-slate-400">Interactive financial model simulating circular material recovery revenue, OPEX, and net margins</p>
+              </div>
+
+              {/* Scenario Presets */}
+              <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => applyScenario(10000, 'Pilot')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${
+                    stripsMonthly === 10000 ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🚀 Pilot (10k)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyScenario(50000, 'City')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${
+                    stripsMonthly === 50000 ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🏙️ City (50k)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyScenario(200000, 'Scale')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${
+                    stripsMonthly === 200000 ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🇮🇳 Scale (200k)
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+              {/* Sliders & Inputs Column */}
+              <div className="lg:col-span-6 space-y-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block">Operational & Pricing Parameters</span>
+                
+                {/* Monthly Strips Slider */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs font-medium">
+                    <span className="text-slate-300">Monthly Strips Collected:</span>
+                    <span className="font-bold text-emerald-400 font-mono">{stripsMonthly.toLocaleString()} strips</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5000"
+                    max="500000"
+                    step="5000"
+                    value={stripsMonthly}
+                    onChange={(e) => setStripsMonthly(Number(e.target.value))}
+                    className="w-full accent-emerald-500 cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                    <span>5,000</span>
+                    <span>250,000</span>
+                    <span>500,000</span>
+                  </div>
+                </div>
+
+                {/* Aluminum Scrap Price */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs font-medium">
+                    <span className="text-slate-300">Aluminum Scrap Value:</span>
+                    <span className="font-bold text-teal-300 font-mono">₹{aluPricePerKg} / kg</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="150"
+                    max="350"
+                    step="5"
+                    value={aluPricePerKg}
+                    onChange={(e) => setAluPricePerKg(Number(e.target.value))}
+                    className="w-full accent-teal-500 cursor-pointer"
+                  />
+                </div>
+
+                {/* Polymer Scrap Price */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs font-medium">
+                    <span className="text-slate-300">Polymer Pellets Value:</span>
+                    <span className="font-bold text-amber-300 font-mono">₹{polymerPricePerKg} / kg</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="20"
+                    max="80"
+                    step="2"
+                    value={polymerPricePerKg}
+                    onChange={(e) => setPolymerPricePerKg(Number(e.target.value))}
+                    className="w-full accent-amber-500 cursor-pointer"
+                  />
+                </div>
+
+                {/* Affiliate Fee per Voucher */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs font-medium">
+                    <span className="text-slate-300">Chemist / Brand Affiliate Fee:</span>
+                    <span className="font-bold text-purple-300 font-mono">₹{affiliateFeePerVoucher} / voucher</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5"
+                    max="30"
+                    step="1"
+                    value={affiliateFeePerVoucher}
+                    onChange={(e) => setAffiliateFeePerVoucher(Number(e.target.value))}
+                    className="w-full accent-purple-500 cursor-pointer"
+                  />
+                </div>
+
+                {/* Costs */}
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+                  <div className="space-y-1">
+                    <label className="text-[11px] text-slate-400 block">EV Logistics Cost/Strip</label>
+                    <input
+                      type="number"
+                      step="0.05"
+                      value={logisticsCostPerStrip}
+                      onChange={(e) => setLogisticsCostPerStrip(Number(e.target.value))}
+                      className="w-full bg-slate-950 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] text-slate-400 block">Processing Cost/Strip</label>
+                    <input
+                      type="number"
+                      step="0.05"
+                      value={processingCostPerStrip}
+                      onChange={(e) => setProcessingCostPerStrip(Number(e.target.value))}
+                      className="w-full bg-slate-950 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Real-time Financial Breakdown Output */}
+              <div className="lg:col-span-6 space-y-4">
+                
+                {/* Net Profit Card */}
+                <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-950/80 via-slate-950 to-teal-950/80 border border-emerald-500/40 space-y-2">
+                  <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">Estimated Monthly Net Profit</span>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-3xl font-black text-white">
+                      ₹{netMonthlyProfit.toLocaleString()}
+                    </span>
+                    <span className="text-sm font-bold text-emerald-400 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                      {profitMarginPercent}% Margin
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300">
+                    Yields <strong className="text-white">₹{unitProfitPerStrip} net profit per strip</strong> collected & recovered.
+                  </p>
+                </div>
+
+                {/* Financial Breakdown Grid */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {/* Revenue Stream */}
+                  <div className="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block">Revenue Streams</span>
+                    <div className="flex justify-between text-slate-300">
+                      <span>Pure Aluminum ({Math.round(aluWeightKg)} kg):</span>
+                      <span className="font-mono font-bold text-white">₹{revenueAlu.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-300">
+                      <span>Polymer Pellets ({Math.round(polymerWeightKg)} kg):</span>
+                      <span className="font-mono font-bold text-white">₹{revenuePolymer.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-300">
+                      <span>Chemist Affiliate Vouchers:</span>
+                      <span className="font-mono font-bold text-white">₹{revenueAffiliate.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between pt-1 border-t border-slate-800 font-bold text-emerald-400">
+                      <span>Total Gross Revenue:</span>
+                      <span className="font-mono">₹{totalMonthlyRevenue.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {/* OPEX */}
+                  <div className="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span className="text-[11px] font-bold text-rose-400 uppercase tracking-wider block">Monthly OPEX</span>
+                    <div className="flex justify-between text-slate-300">
+                      <span>EV Logistics & Sweeps:</span>
+                      <span className="font-mono font-bold text-white">₹{costLogistics.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-300">
+                      <span>Delamination Processing:</span>
+                      <span className="font-mono font-bold text-white">₹{costProcessing.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between pt-1 border-t border-slate-800 font-bold text-rose-400 mt-4">
+                      <span>Total Operating Cost:</span>
+                      <span className="font-mono">₹{totalMonthlyCost.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Environmental Bonus Output */}
+                <div className="p-3 bg-slate-900/60 rounded-2xl border border-slate-800 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <Leaf className="w-4 h-4 text-emerald-400" />
+                    <span className="text-slate-300">City Landfill Diverted:</span>
+                    <span className="font-bold text-white font-mono">{Math.round(totalWeightKg).toLocaleString()} kg/mo</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-mono text-teal-300">
+                    <span>🌱 {co2AvoidedKg.toLocaleString()} kg CO₂e Offset</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
 
-  // If phone mockup mode is activated on desktop, render inside an authentic Android phone frame!
-  if (phoneFrameMode) {
-    return (
-      <div className="py-6 flex flex-col items-center justify-center min-h-screen bg-slate-950">
-        <div className="mb-4 text-center">
-          <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-            📱 ANDROID DEVICE SIMULATION
-          </span>
-          <button
-            onClick={() => setPhoneFrameMode(false)}
-            className="ml-3 text-xs text-slate-400 hover:text-white underline"
-          >
-            Switch to Full Screen
-          </button>
-        </div>
-
-        {/* Smartphone Shell */}
-        <div className="relative w-[390px] h-[820px] bg-black rounded-[48px] p-3 shadow-2xl border-4 border-slate-700 ring-1 ring-slate-800 overflow-hidden flex flex-col">
-          {/* Top Speaker & Camera Notch */}
-          <div className="absolute top-0 inset-x-0 h-6 flex items-center justify-center z-50">
-            <div className="w-20 h-4 bg-black rounded-b-xl flex items-center justify-center">
-              <div className="w-3 h-3 rounded-full bg-slate-900 border border-slate-800 mr-2"></div>
-              <div className="w-8 h-1 bg-slate-800 rounded-full"></div>
-            </div>
+  return (
+    <div className="w-full flex justify-center bg-slate-950 min-h-screen">
+      {phoneFrameMode ? (
+        <div className="w-full max-w-sm my-6 border-[8px] border-slate-800 rounded-[44px] overflow-hidden shadow-2xl bg-slate-900 relative">
+          <div className="w-32 h-4 bg-slate-800 absolute top-0 left-1/2 -translate-x-1/2 rounded-b-xl z-50 flex items-center justify-center">
+            <div className="w-3 h-3 rounded-full bg-slate-950 mr-2" />
+            <div className="w-10 h-1 bg-slate-900 rounded-full" />
           </div>
-
-          {/* Android Screen */}
-          <div className="w-full h-full rounded-[38px] overflow-y-auto overflow-x-hidden bg-slate-900">
-            {content}
-          </div>
+          {content}
         </div>
-      </div>
-    );
-  }
-
-  return content;
+      ) : (
+        <div className="w-full">{content}</div>
+      )}
+    </div>
+  );
 }

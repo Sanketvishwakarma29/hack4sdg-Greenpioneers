@@ -1,5 +1,51 @@
 [
   {
+    "id": "rep-1792836441367",
+    "token": "ECO-PHTH-367",
+    "promoCode": "ECOBLISTER-15OFF-DBCX",
+    "userName": "Sanket Kumar Vishwakarma",
+    "userEmail": "sankubabu29@gmail.com",
+    "userPhone": "+919117472155",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "6 – 15 Strips (Monthly Prescription)",
+    "exactStrips": 10,
+    "latitude": 12.93429695898998,
+    "longitude": 77.53526520615318,
+    "address": "Pie R Cube, Hosakerehalli",
+    "date": "2026-10-24T10:05:00.000Z",
+    "status": "Resolved",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": "Officer R. Sharma (Truck #07)",
+    "resolutionPhotoUrl": "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=500&auto=format&fit=crop&q=60",
+    "discountPercentage": 15,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-24T10:07:21.367Z",
+        "note": "Deposit of 10 strips registered. 15% OFF Promo code issued."
+      },
+      {
+        "status": "Assigned",
+        "time": "2026-10-24T10:09:27.797Z",
+        "note": "Status updated to Assigned by Officer R. Sharma (Truck #07)"
+      },
+      {
+        "status": "In Progress",
+        "time": "2026-10-24T10:09:29.580Z",
+        "note": "Status updated to In Progress by Officer R. Sharma (Truck #07)"
+      },
+      {
+        "status": "Resolved",
+        "time": "2026-10-24T10:09:31.020Z",
+        "note": "Status updated to Resolved by Officer R. Sharma (Truck #07)"
+      }
+    ]
+  },
+  {
     "id": "rep-1792786244238",
     "token": "ECO-CZF2-238",
     "promoCode": "ECOBLISTER-10OFF-VQHU",
