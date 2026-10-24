@@ -22,6 +22,7 @@ export default function Navbar({
   t 
 }) {
   const [isConnected, setIsConnected] = useState(socket.connected);
+  const [isLangOpen, setIsLangOpen] = useState(false);
 
   useEffect(() => {
     const onConnect = () => setIsConnected(true);
@@ -48,6 +49,8 @@ export default function Navbar({
     { code: 'mr', label: 'मराठी', flag: '🇮🇳' }
   ];
 
+  const activeLangObj = languages.find((l) => l.code === currentLang) || languages[0];
+
   return (
     <header className="sticky top-0 z-40 w-full shadow-md">
       {/* Top Refined Announcement Strip */}
@@ -56,10 +59,10 @@ export default function Navbar({
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 font-bold text-[#bef264]">
               <Sparkles className="w-3 h-3 text-[#bef264] shrink-0" />
-              <span>Bengaluru Blister Foil Recovery Network:</span>
+              <span>{t.appTitle || "Eco-Blisters"}:</span>
             </span>
             <span className="text-slate-300 hidden sm:inline">
-              Deposit empty tablet strips at 100+ partner chemists & earn 10%–25% OFF
+              {t.bengaluruLiveNotice || "Deposit empty tablet strips at 100+ partner chemists & earn 10%–25% OFF"}
             </span>
           </div>
 
@@ -69,7 +72,7 @@ export default function Navbar({
               className="flex items-center gap-1.5 text-[#bef264] hover:text-white transition-colors font-bold"
             >
               <Phone className="w-3 h-3 text-[#bef264]" />
-              <span>Helpline: +91 9117472155</span>
+              <span>{t.helplineText || "Helpline"}: +91 9117472155</span>
             </a>
 
             <div className="hidden md:flex items-center gap-2.5 border-l border-emerald-800/80 pl-3">
@@ -126,7 +129,7 @@ export default function Navbar({
                 }`}
               >
                 <Search className={`w-3.5 h-3.5 ${currentTab === 'track' ? 'text-[#bef264]' : 'text-slate-400'}`} />
-                <span>Track Voucher</span>
+                <span>{t.trackStatusNav || 'Track Voucher'}</span>
               </button>
 
               {/* Admin Fleet Portal */}
@@ -142,7 +145,7 @@ export default function Navbar({
                     }`}
                   >
                     <Shield className="w-3.5 h-3.5" />
-                    <span>Fleet Admin</span>
+                    <span>{t.driverModeBtn || 'Fleet Admin'}</span>
                   </button>
                   <button
                     type="button"
@@ -161,7 +164,7 @@ export default function Navbar({
                   title="Staff & Logistics Login"
                 >
                   <Lock className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Fleet Login</span>
+                  <span>{t.fleetLogin || 'Fleet Login'}</span>
                 </button>
               )}
 
@@ -178,7 +181,7 @@ export default function Navbar({
                     }`}
                   >
                     <Factory className="w-3.5 h-3.5" />
-                    <span>Refinery Partner</span>
+                    <span>{t.partnerPortalBtn || 'Refinery Partner'}</span>
                   </button>
                   <button
                     type="button"
@@ -197,28 +200,67 @@ export default function Navbar({
                   title="Recycling & Refinery Unit Login"
                 >
                   <Factory className="w-3.5 h-3.5 text-teal-400" />
-                  <span>Recycler Partner</span>
+                  <span>{t.recyclerPartner || 'Recycler Partner'}</span>
                 </button>
               )}
             </nav>
 
-            {/* Right Tools: Language & QR Action (Matching Reference Lime Pill) */}
+            {/* Right Tools: HIGH-VISIBILITY LANGUAGE SELECTOR & QR ACTION */}
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Language Switcher in Dark Emerald Glass */}
+              
+              {/* HIGH VISIBILITY CUSTOM LANGUAGE DROPDOWN (Always shows active language clearly in box) */}
               <div className="relative">
-                <select
-                  value={currentLang}
-                  onChange={(e) => setCurrentLang(e.target.value)}
-                  className="appearance-none pl-8 pr-6 py-2 bg-emerald-950/90 hover:bg-emerald-900/90 border border-emerald-700/70 rounded-full text-xs font-bold text-emerald-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-lime-400 transition-colors shadow-xs"
+                <button
+                  type="button"
+                  onClick={() => setIsLangOpen(!isLangOpen)}
+                  className="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-[#022112] hover:bg-[#073620] border-2 border-[#bef264] text-[#bef264] rounded-full text-xs font-black flex items-center gap-1.5 shadow-md shadow-lime-400/10 transition-all cursor-pointer"
+                  title="Select Language / भाषा चुनें"
                 >
-                  {languages.map((l) => (
-                    <option key={l.code} value={l.code} className="bg-slate-900 text-white">
-                      {l.flag} {l.label}
-                    </option>
-                  ))}
-                </select>
-                <Globe className="w-3.5 h-3.5 text-emerald-300 absolute left-2.5 top-2.5 pointer-events-none" />
-                <ChevronDown className="w-3 h-3 text-emerald-400 absolute right-2.5 top-3 pointer-events-none" />
+                  <Globe className="w-3.5 h-3.5 text-[#bef264] shrink-0" />
+                  <span className="text-white font-extrabold text-xs whitespace-nowrap">
+                    {activeLangObj.flag} {activeLangObj.label}
+                  </span>
+                  <ChevronDown className={`w-3 h-3 text-[#bef264] transition-transform duration-200 shrink-0 ${isLangOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu with all 8 Indian Languages */}
+                {isLangOpen && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setIsLangOpen(false)} 
+                    />
+                    <div className="absolute right-0 mt-2 w-48 bg-[#041c10] border-2 border-[#bef264] rounded-2xl shadow-2xl py-1.5 z-50 text-xs font-bold divide-y divide-emerald-900/50 animate-fade-in-up">
+                      <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-emerald-400 font-black">
+                        Select Language
+                      </div>
+                      {languages.map((l) => {
+                        const isSelected = l.code === currentLang;
+                        return (
+                          <button
+                            key={l.code}
+                            type="button"
+                            onClick={() => {
+                              setCurrentLang(l.code);
+                              setIsLangOpen(false);
+                            }}
+                            className={`w-full px-3.5 py-2.5 text-left flex items-center justify-between transition-colors cursor-pointer ${
+                              isSelected 
+                                ? 'bg-[#bef264] text-emerald-950 font-black' 
+                                : 'text-slate-100 hover:bg-emerald-900/90 hover:text-[#bef264]'
+                            }`}
+                          >
+                            <span className="flex items-center gap-2">
+                              <span>{l.flag}</span>
+                              <span className="text-xs">{l.label}</span>
+                            </span>
+                            {isSelected && <span className="text-emerald-950 font-black text-xs">✓ Active</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Mobile Quick Auth Icons */}
@@ -250,7 +292,7 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={onOpenQrModal}
-                className="px-4 py-2 bg-[#bef264] hover:bg-[#a3e635] text-emerald-950 rounded-full text-xs font-black flex items-center gap-2 shadow-md shadow-lime-400/20 cursor-pointer active:scale-95 transition-all"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-[#bef264] hover:bg-[#a3e635] text-emerald-950 rounded-full text-xs font-black flex items-center gap-2 shadow-md shadow-lime-400/20 cursor-pointer active:scale-95 transition-all"
                 title="Open mobile website QR code"
               >
                 <span>{t.scanQrBtn || 'Scan QR'}</span>
