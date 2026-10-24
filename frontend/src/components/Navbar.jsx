@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  QrCode, Globe, PlusCircle, Phone, Tag,
+  QrCode, Globe, PlusCircle, Phone, Tag, Store,
   Lock, Shield, LogOut, Factory, Search, ChevronDown, Sparkles
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
@@ -17,6 +17,9 @@ export default function Navbar({
   onOpenPartnerLogin,
   isPartnerLoggedIn,
   onPartnerLogout,
+  onOpenPharmacyLogin,
+  isPharmacyLoggedIn,
+  onPharmacyLogout,
   currentLang, 
   setCurrentLang, 
   t 
@@ -131,6 +134,42 @@ export default function Navbar({
                 <Search className={`w-3.5 h-3.5 ${currentTab === 'track' ? 'text-[#bef264]' : 'text-slate-400'}`} />
                 <span>{t.trackStatusNav || 'Track Voucher'}</span>
               </button>
+
+              {/* Chemist / Pharmacy Validator Portal */}
+              {isPharmacyLoggedIn ? (
+                <div className="flex items-center bg-emerald-900/90 rounded-xl shadow-xs border border-emerald-600/70 pl-1 pr-1.5 py-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentTab('pharmacy')}
+                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                      currentTab === 'pharmacy'
+                        ? 'bg-emerald-600 text-[#bef264]'
+                        : 'text-emerald-200 hover:text-white'
+                    }`}
+                  >
+                    <Store className="w-3.5 h-3.5 text-[#bef264]" />
+                    <span>{t.chemistPortal || 'Chemist Portal'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onPharmacyLogout}
+                    className="p-1.5 text-rose-400 hover:bg-rose-950/60 rounded-lg cursor-pointer ml-1"
+                    title="Sign Out of Chemist Portal"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onOpenPharmacyLogin}
+                  className="px-3.5 py-2 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 text-slate-300 hover:text-[#bef264] hover:bg-emerald-900/40"
+                  title="Pharmacy Chemist Verification & Promo Issuance"
+                >
+                  <Store className="w-3.5 h-3.5 text-amber-300" />
+                  <span>{t.chemistPortal || 'Chemist Portal'}</span>
+                </button>
+              )}
 
               {/* Admin Fleet Portal */}
               {isAdminLoggedIn ? (
@@ -265,6 +304,17 @@ export default function Navbar({
 
               {/* Mobile Quick Auth Icons */}
               <div className="flex items-center gap-1.5 lg:hidden">
+                <button
+                  type="button"
+                  onClick={isPharmacyLoggedIn ? () => setCurrentTab('pharmacy') : onOpenPharmacyLogin}
+                  className={`p-2 rounded-full text-xs font-bold flex items-center ${
+                    isPharmacyLoggedIn ? 'bg-emerald-800 text-[#bef264]' : 'bg-emerald-950 border border-emerald-800 text-amber-300'
+                  }`}
+                  title="Chemist Portal"
+                >
+                  <Store className="w-4 h-4" />
+                </button>
+
                 <button
                   type="button"
                   onClick={isAdminLoggedIn ? () => setCurrentTab('driver') : onOpenAdminLogin}

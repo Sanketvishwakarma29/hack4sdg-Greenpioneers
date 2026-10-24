@@ -9,7 +9,9 @@ export default function Footer({
   onOpenAdminLogin, 
   isAdminLoggedIn,
   onOpenPartnerLogin,
-  isPartnerLoggedIn
+  isPartnerLoggedIn,
+  onOpenPharmacyLogin,
+  isPharmacyLoggedIn
 }) {
   return (
     <footer className="bg-[#041c10] text-slate-300 border-t border-emerald-900/60 pt-12 pb-8 mt-16 font-sans">
@@ -148,6 +150,14 @@ export default function Footer({
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3">
           <p>© 2026 Ecoblister Inc. All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-4">
+            <button
+              type="button"
+              onClick={onOpenPharmacyLogin}
+              className="text-slate-400 hover:text-amber-400 flex items-center gap-1 cursor-pointer transition-colors"
+            >
+              🏪 <span>{isPharmacyLoggedIn ? 'Chemist Validator (Logged In)' : 'Chemist Validator Portal'}</span>
+            </button>
+            <span className="text-slate-700">|</span>
             <button
               type="button"
               onClick={onOpenPartnerLogin}

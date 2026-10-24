@@ -52,9 +52,14 @@ export default async function handler(req, res) {
     }
 
     const report = reports[index];
-    const { status, driverName, note, resolutionPhotoUrl } = req.body || {};
+    const { status, driverName, note, resolutionPhotoUrl, validationStatus, promoCodeIssued, rejectionReason, validatedBy, validatedStore } = req.body || {};
 
     if (status) report.status = status;
+    if (validationStatus) report.validationStatus = validationStatus;
+    if (promoCodeIssued !== undefined) report.promoCodeIssued = promoCodeIssued;
+    if (rejectionReason !== undefined) report.rejectionReason = rejectionReason;
+    if (validatedBy) report.validatedBy = validatedBy;
+    if (validatedStore) report.validatedStore = validatedStore;
     if (driverName) report.assignedDriver = driverName;
     if (resolutionPhotoUrl) report.resolutionPhotoUrl = resolutionPhotoUrl;
 

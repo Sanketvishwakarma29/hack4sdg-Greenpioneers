@@ -204,15 +204,21 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
     const video = videoElementRef.current;
     if (!video) return;
 
-    const width = video.videoWidth || 1280;
-    const height = video.videoHeight || 720;
+    // Proportional downscale to max 960px (ensures rapid upload under 200KB and eliminates 413 errors)
+    const maxDim = 960;
+    let width = video.videoWidth || 960;
+    let height = video.videoHeight || 720;
+    if (width > maxDim) {
+      height = Math.round((height * maxDim) / width);
+      width = maxDim;
+    }
 
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
 
-    // Draw active camera frame
+    // Draw active camera frame scaled
     ctx.drawImage(video, 0, 0, width, height);
 
     // Burn Anti-Fraud Live Watermark directly onto image
@@ -234,13 +240,13 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
 
     // Green verification text
     ctx.fillStyle = '#10b981';
-    ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('🌿 ECO-BLISTERS VERIFIED LIVE CAMERA SHOT', 18, height - 22);
+    ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.fillText('🌿 ECO-BLISTERS VERIFIED LIVE CAMERA SHOT', 16, height - 22);
 
     // Timestamp & Live ID
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 14px monospace';
-    ctx.fillText(`${timeStr} IST • #LIVE-${uniqueShotId}`, Math.max(18, width - 360), height - 22);
+    ctx.font = 'bold 13px monospace';
+    ctx.fillText(`${timeStr} IST • #LIVE-${uniqueShotId}`, Math.max(16, width - 360), height - 22);
 
     // Compute perceptual hash to detect identical re-uploads
     const hash = generateImageHash(canvas);
@@ -253,7 +259,7 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
       return;
     }
 
-    const photoDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+    const photoDataUrl = canvas.toDataURL('image/jpeg', 0.72);
 
     stopStream();
     setIsLivePhoto(true);
@@ -287,11 +293,25 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
       const dataUrl = event.target.result;
       const img = new Image();
       img.onload = () => {
+        // Downscale large phone camera photos to max 960px
+        const maxDim = 960;
+        let w = img.width || 960;
+        let h = img.height || 720;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+
         const canvas = document.createElement('canvas');
-        canvas.width = img.width || 1280;
-        canvas.height = img.height || 720;
+        canvas.width = w;
+        canvas.height = h;
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, w, h);
 
         // Burn verified live shot watermark
         const now = new Date();
@@ -305,12 +325,12 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
         ctx.fillRect(0, canvas.height - 52, canvas.width, 52);
 
         ctx.fillStyle = '#10b981';
-        ctx.font = 'bold 18px sans-serif';
-        ctx.fillText('🌿 ECO-BLISTERS VERIFIED CAMERA SHOT', 18, canvas.height - 22);
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText('🌿 ECO-BLISTERS VERIFIED CAMERA SHOT', 16, canvas.height - 22);
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 14px monospace';
-        ctx.fillText(`${timeStr} IST • #CAM-${uniqueShotId}`, Math.max(18, canvas.width - 340), canvas.height - 22);
+        ctx.font = 'bold 13px monospace';
+        ctx.fillText(`${timeStr} IST • #CAM-${uniqueShotId}`, Math.max(16, canvas.width - 340), canvas.height - 22);
 
         const hash = generateImageHash(canvas);
         const storedHashes = JSON.parse(localStorage.getItem('ecoblister_submitted_hashes') || '[]');
@@ -320,7 +340,7 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
           return;
         }
 
-        const watermarkedUrl = canvas.toDataURL('image/jpeg', 0.88);
+        const watermarkedUrl = canvas.toDataURL('image/jpeg', 0.72);
         setIsLivePhoto(true);
         setPhotoTimestamp(timeStr);
 

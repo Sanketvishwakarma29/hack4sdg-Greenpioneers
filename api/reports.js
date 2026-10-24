@@ -92,7 +92,14 @@ export default async function handler(req, res) {
         longitude: parseFloat(body.longitude) || 77.6412,
         address: body.address || 'Bengaluru Medical Center',
         date: body.date || new Date().toISOString(),
-        status: 'Pending',
+        status: 'Pending Verification',
+        validationStatus: 'Pending',
+        promoCodeIssued: false,
+        isPhoneVerified: Boolean(body.isPhoneVerified || body.phoneVerified),
+        validatedBy: null,
+        validatedStore: null,
+        validatedAt: null,
+        rejectionReason: null,
         notes: body.notes || '',
         photoUrl: body.photoBase64 || body.photoUrl || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
         photoBase64: body.photoBase64 || null,
@@ -107,7 +114,7 @@ export default async function handler(req, res) {
         redeemedAt: null,
         redeemedStore: null,
         history: [
-          { status: 'Pending', time: new Date().toISOString(), note: 'Deposited in Pharmacy Collection Bin' }
+          { status: 'Pending Verification', time: new Date().toISOString(), note: 'Deposited in Pharmacy Collection Bin. Awaiting Chemist physical inspection.' }
         ]
       };
 
@@ -130,13 +137,18 @@ export default async function handler(req, res) {
   // PATCH: Update status
   if (req.method === 'PATCH') {
     try {
-      const { token, status, driverName, note, isRedeemed, redeemedPhone, redeemedStore } = req.body || {};
+      const { token, status, driverName, note, isRedeemed, redeemedPhone, redeemedStore, validationStatus, promoCodeIssued, rejectionReason, validatedBy, validatedStore } = req.body || {};
       const report = reports.find(r => r.token === token || r.id === token);
       if (!report) {
         return res.status(404).json({ error: 'Report not found' });
       }
 
       if (status) report.status = status;
+      if (validationStatus) report.validationStatus = validationStatus;
+      if (promoCodeIssued !== undefined) report.promoCodeIssued = promoCodeIssued;
+      if (rejectionReason !== undefined) report.rejectionReason = rejectionReason;
+      if (validatedBy) report.validatedBy = validatedBy;
+      if (validatedStore) report.validatedStore = validatedStore;
       if (driverName) report.assignedDriver = driverName;
       if (isRedeemed !== undefined) report.isRedeemed = isRedeemed;
       if (redeemedPhone) report.redeemedPhone = redeemedPhone;

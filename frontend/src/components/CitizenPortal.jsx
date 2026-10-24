@@ -9,6 +9,7 @@ import {
 import MapPicker from './MapPicker';
 import CameraCapture from './CameraCapture';
 import WebAudioAssist from './WebAudioAssist';
+import OtpVerificationModal from './OtpVerificationModal';
 import { playNotificationSound } from '../services/socket';
 
 export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentLang, t }) {
@@ -17,6 +18,7 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
 
   // Drop-off points across Bengaluru
   const bengaluruLocations = [
@@ -91,13 +93,22 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setFormError(null);
 
     // Validate Mandatory Name
     if (!fullName.trim()) {
       setFormError(tr.nameMissingAlert || 'Please enter your Full Name (mandatory to issue your personalized medical discount voucher).');
+      const formEl = document.getElementById('deposit-form-card');
+      if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    // Validate Mandatory Phone (minimum 10 digits for OTP verification)
+    const cleanPhone = (phone || '').trim().replace(/[^0-9]/g, '');
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setFormError(tr.phoneMissingAlert || 'Please enter a valid 10-digit Mobile Phone Number. Required for OTP verification before promo code issuance.');
       const formEl = document.getElementById('deposit-form-card');
       if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
@@ -119,13 +130,24 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
       return;
     }
 
+    // Open Mobile OTP Verification Modal
+    setIsOtpModalOpen(true);
+  };
+
+  // Called once citizen verifies their 4-digit phone OTP
+  const handleOtpVerified = async () => {
+    setIsOtpModalOpen(false);
     setSubmitting(true);
+    setFormError(null);
 
     try {
+      const dropPointName = isCustomPoint ? customPointText.trim() : selectedDropPoint;
       const payload = {
         userName: fullName.trim(),
         userEmail: email.trim() || null,
         userPhone: phone.trim() || null,
+        phoneVerified: true,
+        isPhoneVerified: true,
         binId: dropPointName,
         materialType,
         stripCount: `${stripCountInput} Strips`,
@@ -164,7 +186,7 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
       }
 
       playNotificationSound('success');
-      onReportSuccess(result.promoCode || result.token);
+      onReportSuccess(result.token, result.report);
     } catch (err) {
       console.error('Submission error:', err);
       setFormError(err.message);
@@ -649,7 +671,7 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
                   </>
                 ) : (
                   <>
-                    <span>{tr.submitBtnText || `Submit Deposit & Generate ${currentTier.percent}% OFF Voucher`}</span>
+                    <span>{tr.submitBtnText || `Submit Deposit & Verify via Phone OTP (${currentTier.percent}% OFF)`}</span>
                     <span className="w-6 h-6 rounded-full bg-[#bef264] text-emerald-950 inline-flex items-center justify-center text-xs font-black transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                       ↗
                     </span>
@@ -659,7 +681,7 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
 
               <p className="text-center text-[11px] text-slate-500 font-medium flex items-center justify-center gap-1.5 pt-1">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{tr.voucherNotice || "Your personalized discount voucher is generated instantly with barcode and promo code for chemist checkout."}</span>
+                <span>{tr.voucherNotice || "Fast 4-digit phone OTP verification. In-store chemist then validates your physical strips to activate your discount promo code."}</span>
               </p>
             </div>
 
@@ -908,6 +930,15 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
         </div>
 
       </section>
+
+      {/* Mandatory Mobile Phone OTP Verification Modal */}
+      <OtpVerificationModal
+        isOpen={isOtpModalOpen}
+        onClose={() => setIsOtpModalOpen(false)}
+        phone={phone}
+        onVerifySuccess={handleOtpVerified}
+        t={tr}
+      />
 
     </div>
   );

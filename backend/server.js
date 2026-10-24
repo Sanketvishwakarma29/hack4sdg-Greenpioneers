@@ -479,7 +479,14 @@ app.post('/api/reports', upload.single('photo'), async (req, res) => {
       longitude: parseFloat(body.longitude) || 77.6412,
       address: body.address || 'Bengaluru Medical Center',
       date: body.date || new Date().toISOString(),
-      status: 'Pending',
+      status: 'Pending Verification',
+      validationStatus: 'Pending',
+      promoCodeIssued: false,
+      isPhoneVerified: Boolean(body.isPhoneVerified || body.phoneVerified),
+      validatedBy: null,
+      validatedStore: null,
+      validatedAt: null,
+      rejectionReason: null,
       notes: body.notes || '',
       photoUrl: savedPhotoUrl || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
       photoBase64: rawPhoto || null,
@@ -497,9 +504,9 @@ app.post('/api/reports', upload.single('photo'), async (req, res) => {
       partnerPharmacy: 'Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru',
       history: [
         {
-          status: 'Pending',
+          status: 'Pending Verification',
           time: new Date().toISOString(),
-          note: `Deposit of ${body.exactStrips || 10} strips registered. ${discountPercentage}% OFF Promo code issued.`
+          note: `Deposit of ${body.exactStrips || 10} strips registered with phone OTP verification. Awaiting Chemist physical inspection.`
         }
       ]
     };
@@ -543,10 +550,15 @@ function handleReportStatusUpdate(rawIdentifier, body, res) {
       return res.status(404).json({ error: 'Deposit record not found' });
     }
 
-    const { status, driverName, note, resolutionPhotoUrl } = body;
+    const { status, driverName, note, resolutionPhotoUrl, validationStatus, promoCodeIssued, rejectionReason, validatedBy, validatedStore } = body;
     const report = reports[index];
 
     if (status) report.status = status;
+    if (validationStatus) report.validationStatus = validationStatus;
+    if (promoCodeIssued !== undefined) report.promoCodeIssued = promoCodeIssued;
+    if (rejectionReason !== undefined) report.rejectionReason = rejectionReason;
+    if (validatedBy) report.validatedBy = validatedBy;
+    if (validatedStore) report.validatedStore = validatedStore;
     if (driverName) report.assignedDriver = driverName;
     if (resolutionPhotoUrl) report.resolutionPhotoUrl = resolutionPhotoUrl;
 
@@ -579,6 +591,106 @@ function handleReportStatusUpdate(rawIdentifier, body, res) {
     return res.status(500).json({ error: 'Failed to update status' });
   }
 }
+
+// Chemist Blister Verification & Promo Issuance Endpoint
+app.post('/api/pharmacy/validate', (req, res) => {
+  try {
+    const { token, action, pharmacistName, storeName, rejectionReason } = req.body || {};
+    if (!token) {
+      return res.status(400).json({ error: 'Deposit token is required' });
+    }
+
+    const cleanToken = String(token).trim().toUpperCase();
+    const report = reports.find(
+      r => (r.token && r.token.toUpperCase() === cleanToken) ||
+           (r.promoCode && r.promoCode.toUpperCase() === cleanToken) ||
+           (r.id && r.id.toUpperCase() === cleanToken)
+    );
+
+    if (!report) {
+      return res.status(404).json({ error: `Deposit record #${cleanToken} not found` });
+    }
+
+    const pName = pharmacistName || 'Lead Chemist';
+    const sName = storeName || report.binId || 'Partner Pharmacy';
+
+    if (action === 'approve') {
+      report.validationStatus = 'Verified';
+      report.promoCodeIssued = true;
+      report.validatedBy = pName;
+      report.validatedStore = sName;
+      report.validatedAt = new Date().toISOString();
+      report.status = 'Verified & Promo Issued';
+
+      if (!report.history) report.history = [];
+      report.history.push({
+        status: 'Verified & Promo Issued',
+        time: new Date().toISOString(),
+        note: `Physical blister strips inspected and verified by ${pName} at ${sName}. Promo code activated.`
+      });
+
+      saveReports(reports);
+
+      // Broadcast real-time event to socket so customer screen immediately updates
+      io.emit('report:validated', report);
+      io.emit('report:status_changed', {
+        token: report.token,
+        id: report.id,
+        status: report.status,
+        report
+      });
+
+      console.log(`[✓] Deposit ${report.token} verified by ${pName}. Promo Code activated.`);
+
+      return res.json({
+        success: true,
+        message: 'Deposit verified and Promo Code officially issued to customer',
+        report
+      });
+    }
+
+    if (action === 'reject') {
+      const reason = rejectionReason || 'Blister strips in bin did not match submitted photo proof';
+      report.validationStatus = 'Rejected';
+      report.promoCodeIssued = false;
+      report.validatedBy = pName;
+      report.validatedStore = sName;
+      report.validatedAt = new Date().toISOString();
+      report.rejectionReason = reason;
+      report.status = 'Rejected (Fake Proof)';
+
+      if (!report.history) report.history = [];
+      report.history.push({
+        status: 'Rejected (Fake Proof)',
+        time: new Date().toISOString(),
+        note: `Deposit flagged as fake/invalid by ${pName} at ${sName}: ${reason}. Promo code blocked.`
+      });
+
+      saveReports(reports);
+
+      io.emit('report:rejected', report);
+      io.emit('report:status_changed', {
+        token: report.token,
+        id: report.id,
+        status: report.status,
+        report
+      });
+
+      console.log(`[✕] Deposit ${report.token} rejected by ${pName}: ${reason}`);
+
+      return res.json({
+        success: true,
+        message: 'Deposit flagged as fake/invalid. Promo code blocked.',
+        report
+      });
+    }
+
+    return res.status(400).json({ error: 'Invalid action. Expected "approve" or "reject"' });
+  } catch (err) {
+    console.error('Error in /api/pharmacy/validate:', err);
+    return res.status(500).json({ error: 'Server error during pharmacy validation' });
+  }
+});
 
 // Update report status (supports /api/reports/:token/status, /api/reports/:token, and /api/reports)
 app.patch('/api/reports/:token/status', (req, res) => {
