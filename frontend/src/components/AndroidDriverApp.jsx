@@ -393,7 +393,7 @@ export default function AndroidDriverApp({ t }) {
   // Export CSV Helper (Includes Photo type, Customer phone & Redemption Timestamp)
   const downloadCSV = () => {
     const headers = [
-      'Batch Token', 'Citizen Name', 'Drop-off Shop', 'Zone', 'Packaging Material', 
+      'Batch Token', 'Citizen Name', 'Citizen Email', 'Drop-off Shop', 'Zone', 'Packaging Material', 
       'Strips Count', 'Alu Recovered (g)', 'Polymer Recovered (g)', 'Issued Voucher', 
       'Voucher Status', 'Redemption Phone', 'Redemption Date', 'Redeeming Store',
       'Photo Status', 'Pipeline Status', 'Date'
@@ -404,6 +404,7 @@ export default function AndroidDriverApp({ t }) {
       return [
         `"${r.token}"`,
         `"${r.userName || 'Citizen'}"`,
+        `"${r.userEmail || ''}"`,
         `"${r.binId}"`,
         `"${getZone(r)}"`,
         `"${r.materialType || 'PVC Blister'}"`,
@@ -744,6 +745,12 @@ export default function AndroidDriverApp({ t }) {
                     <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-800">
                       <span className="text-slate-400 block text-[10px]">Citizen</span>
                       <span className="font-bold text-white truncate block">{selectedReport.userName || 'Citizen'}</span>
+                      {selectedReport.userEmail && (
+                        <span className="text-[10px] text-cyan-300 truncate block">{selectedReport.userEmail}</span>
+                      )}
+                      {selectedReport.userPhone && (
+                        <span className="text-[10px] text-emerald-400 truncate block">{selectedReport.userPhone}</span>
+                      )}
                     </div>
                     <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-800">
                       <span className="text-slate-400 block text-[10px]">Material</span>
@@ -1129,7 +1136,12 @@ export default function AndroidDriverApp({ t }) {
                         </td>
 
                         <td className="py-2.5 px-3 font-mono font-bold text-emerald-400 whitespace-nowrap">{row.token}</td>
-                        <td className="py-2.5 px-3 font-semibold text-white whitespace-nowrap">{row.userName || 'Citizen'}</td>
+                        <td className="py-2.5 px-3 font-semibold text-white whitespace-nowrap">
+                          <div>{row.userName || 'Citizen'}</div>
+                          {row.userEmail && (
+                            <div className="text-[10px] text-cyan-300 font-normal">{row.userEmail}</div>
+                          )}
+                        </td>
                         <td className="py-2.5 px-3 text-slate-300 max-w-xs truncate">{row.binId}</td>
                         <td className="py-2.5 px-3 text-teal-300 text-[11px] whitespace-nowrap">{row.materialType || 'PVC Blister'}</td>
                         <td className="py-2.5 px-3 font-bold text-white whitespace-nowrap">{row.stripCount}</td>

@@ -232,12 +232,20 @@ export default function TokenTracker({ initialToken, onNewReport, t }) {
                       <span className="text-emerald-200">Issued To:</span>
                       <span className="font-bold text-white text-sm">{report.userName || 'Valued Recycler'}</span>
                     </div>
-                    {report.userPhone && (
-                      <div className="text-[11px] text-emerald-200 flex items-center gap-1">
-                        <Phone className="w-3 h-3" />
-                        <span>{report.userPhone}</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-3">
+                      {report.userPhone && (
+                        <div className="text-[11px] text-emerald-200 flex items-center gap-1">
+                          <Phone className="w-3 h-3" />
+                          <span>{report.userPhone}</span>
+                        </div>
+                      )}
+                      {report.userEmail && (
+                        <div className="text-[11px] text-emerald-200 flex items-center gap-1">
+                          <Mail className="w-3 h-3" />
+                          <span>{report.userEmail}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-4 text-[11px] text-emerald-200/90 pt-0.5">
                     <span>Strips Deposited: <strong className="text-white">{report.stripCount}</strong></span>

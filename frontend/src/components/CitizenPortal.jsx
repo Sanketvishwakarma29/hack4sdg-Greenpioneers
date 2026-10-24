@@ -11,6 +11,8 @@ import WebAudioAssist from './WebAudioAssist';
 import { playNotificationSound } from '../services/socket';
 
 export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentLang, t }) {
+  const tr = t || {};
+
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -47,8 +49,8 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
   const [customPointText, setCustomPointText] = useState('');
   
   const [materialType, setMaterialType] = useState('PVC / PVDC Transparent + Aluminum Foil');
-  const [stripCount, setStripCount] = useState('6 – 15 Strips');
   const [exactStrips, setExactStrips] = useState('12');
+  const [selectedPresetId, setSelectedPresetId] = useState('medium');
 
   const [date, setDate] = useState(() => {
     const now = new Date();
@@ -67,12 +69,12 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState(null);
 
-  // Strip Count presets
+  // Strip Count presets dynamically mapped to i18n
   const stripPresets = [
-    { label: "1 – 5 Strips", sub: "Quick Deposit", count: 5, discount: "10% OFF", percent: 10 },
-    { label: "6 – 15 Strips", sub: "Monthly Prescription", count: 12, discount: "15% OFF", percent: 15 },
-    { label: "16 – 30 Strips", sub: "Family Medical Pack", count: 25, discount: "20% OFF", percent: 20 },
-    { label: "30+ Bulk Strips", sub: "Bulk Recovery", count: 45, discount: "25% OFF", percent: 25 }
+    { id: 'few', label: tr.stripOptions?.few || "1 – 5 Strips", sub: "Quick Deposit", count: 5, discount: "10% OFF", percent: 10 },
+    { id: 'medium', label: tr.stripOptions?.medium || "6 – 15 Strips", sub: "Monthly Prescription", count: 12, discount: "15% OFF", percent: 15 },
+    { id: 'bulk', label: tr.stripOptions?.bulk || "16 – 30 Strips", sub: "Family Medical Pack", count: 25, discount: "20% OFF", percent: 20 },
+    { id: 'heavy', label: tr.stripOptions?.heavy || "30+ Bulk Strips", sub: "Bulk Recovery", count: 45, discount: "25% OFF", percent: 25 }
   ];
 
   // Calculate discount tier strictly based on strips count
@@ -92,20 +94,20 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
 
     // Validate Mandatory Name
     if (!fullName.trim()) {
-      setFormError('Please enter your Full Name (mandatory to issue your personalized medical discount voucher).');
-      window.scrollTo({ top: 350, behavior: 'smooth' });
+      setFormError(tr.nameMissingAlert || 'Please enter your Full Name (mandatory to issue your personalized medical discount voucher).');
+      window.scrollTo({ top: 320, behavior: 'smooth' });
       return;
     }
 
     const dropPointName = isCustomPoint ? customPointText.trim() : selectedDropPoint;
     if (!dropPointName) {
-      setFormError('Please select or specify a drop-off location / pharmacy store.');
+      setFormError(tr.storeMissingAlert || 'Please select or specify a drop-off location / pharmacy store.');
       return;
     }
 
     // Validate Mandatory Camera Photo Verification
     if (!photo) {
-      setFormError('📷 Camera photo is strictly mandatory! Please open the camera and take a photo of the empty medicine blister packs before submitting.');
+      setFormError(tr.photoMandatoryAlert || '📷 Camera photo is strictly mandatory! Please open the camera and take a photo of the empty medicine blister packs before submitting.');
       const cameraEl = document.getElementById('camera-section');
       if (cameraEl) {
         cameraEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -116,13 +118,14 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
     setSubmitting(true);
 
     try {
+      const activePreset = stripPresets.find(p => p.id === selectedPresetId);
       const payload = {
         userName: fullName.trim(),
         userEmail: email.trim() || null,
         userPhone: phone.trim() || null,
         binId: dropPointName,
         materialType,
-        stripCount: `${stripCount}`,
+        stripCount: activePreset ? activePreset.label : `${exactStrips} Strips`,
         exactStrips: Number(exactStrips) || 12,
         date: new Date(date).toISOString(),
         latitude: location.latitude,
@@ -147,7 +150,7 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
       }
 
       const result = await res.json();
-      
+
       // Save hash locally to prevent immediate reuse
       if (photoMeta.hash) {
         try {
@@ -168,124 +171,124 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8 animate-fade-in pb-16">
+    <div className="w-full max-w-4xl mx-auto space-y-8 animate-fade-in-up pb-16">
       
       {/* ============================================================== */}
-      {/* 1. HERO SECTION: CLEAN, CONFIDENT & MINIMALIST                 */}
+      {/* 1. HERO SECTION: CONFIDENT, MODERN & HIGH-CONTRAST             */}
       {/* ============================================================== */}
       <section className="text-center space-y-4 pt-2 sm:pt-6">
-        {/* Pill Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold shadow-2xs">
-          <Pill className="w-3.5 h-3.5 text-emerald-600" />
-          <span>India's Specialized Blister Foil Recovery Network</span>
-          <span className="text-emerald-400">•</span>
-          <span className="text-emerald-700">Bengaluru Live</span>
+        {/* Floating Pill Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/90 text-emerald-900 text-xs font-black shadow-sm transition-all hover:bg-emerald-100/80">
+          <Pill className="w-4 h-4 text-emerald-600 animate-pulse" />
+          <span>{tr.badge || "India's Specialized Blister Foil Recovery Network"}</span>
+          <span className="text-emerald-400 font-bold">•</span>
+          <span className="text-emerald-700 font-bold">{tr.bengaluruLive || "Bengaluru Live"}</span>
         </div>
 
-        {/* Headline */}
-        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight max-w-3xl mx-auto">
-          Turn Empty Blister Packs Into <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">Medicine Discounts</span>.
+        {/* Dynamic Localized Headline */}
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-snug sm:leading-tight max-w-3xl mx-auto">
+          {tr.heroHeading || "Turn Empty Blister Packs Into Medicine Discounts."}
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-normal">
-          Drop off used medicine tablet foils at verified pharmacies across Bengaluru. Help extract pure aluminum and polymers while receiving <strong className="text-slate-900 font-bold">10%–25% OFF</strong> your next prescription purchase.
+        {/* Dynamic Localized Subtitle */}
+        <p className="text-slate-700 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-medium">
+          {tr.heroSub || "Drop off used medicine tablet foils at verified pharmacies across Bengaluru. Help extract pure aluminum and polymers while receiving 10%–25% OFF your next prescription purchase."}
         </p>
 
-        {/* Stat Badges Row */}
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 pt-2 text-xs font-semibold text-slate-600">
-          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
-            🏥 <strong className="text-slate-900">100+</strong> Drop Hubs
+        {/* Stat Badges Row with High Contrast */}
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 pt-2 text-xs font-bold text-slate-800">
+          <span className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 rounded-xl shadow-xs hover:border-emerald-300 transition-colors">
+            🏥 <strong className="text-slate-900">{tr.statDropHubs || "100+ Drop Hubs"}</strong>
           </span>
-          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs text-emerald-700">
-            🎁 <strong className="text-emerald-800">10%–25%</strong> Store Voucher
+          <span className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-50 border border-emerald-300 rounded-xl shadow-xs text-emerald-900">
+            🎁 <strong className="text-emerald-800">{tr.statVoucher || "10%–25% Store Voucher"}</strong>
           </span>
-          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
-            ♻️ <strong className="text-slate-900">99.2%</strong> Foil Delamination
+          <span className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 rounded-xl shadow-xs hover:border-emerald-300 transition-colors">
+            ♻️ <strong className="text-slate-900">{tr.statDelamination || "99.2% Foil Delamination"}</strong>
           </span>
-          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
-            🌱 Zero Toxic Landfill
+          <span className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 rounded-xl shadow-xs hover:border-emerald-300 transition-colors">
+            🌱 <span className="text-slate-800">{tr.statZeroLandfill || "Zero Toxic Landfill"}</span>
           </span>
         </div>
       </section>
 
       {/* ============================================================== */}
-      {/* 2. UNIFIED MAIN DEPOSIT CARD                                   */}
+      {/* 2. UNIFIED MAIN DEPOSIT FORM CARD                              */}
       {/* ============================================================== */}
       <form 
         onSubmit={handleSubmit} 
-        className="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200/90 space-y-8 text-left"
+        className="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200/90 space-y-8 text-left transition-all"
       >
         {/* Card Header with Live Reward Preview */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-slate-100">
           <div>
-            <h2 className="text-lg sm:text-xl font-black text-slate-900">
-              Record Your Blister Drop-Off
+            <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
+              {tr.depositSectionTitle || "Record Your Blister Drop-Off"}
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Fill in your drop-off details to receive your instant pharmacy discount promo code.
+            <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1">
+              {tr.depositSectionSub || "Fill in your drop-off details to receive your instant pharmacy discount promo code."}
             </p>
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
-            <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-50 text-emerald-800 border border-emerald-200/80 shadow-2xs flex items-center gap-1.5">
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-black bg-emerald-50 text-emerald-900 border border-emerald-300 shadow-xs flex items-center gap-2 animate-pulse">
               <Award className="w-4 h-4 text-emerald-600" />
-              <span>Current Reward: <strong>{currentTier.percent}% OFF</strong></span>
+              <span>{tr.stripTierBadge || "Reward"}: <strong className="text-emerald-700 font-black">{currentTier.percent}% OFF</strong></span>
             </span>
           </div>
         </div>
 
         {/* Error Alert */}
         {formError && (
-          <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 text-xs text-rose-800 animate-shake">
+          <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 text-xs text-rose-900 animate-shake">
             <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
             <div className="flex-1">
-              <span className="font-bold block">Submission Requirement Missing</span>
-              <span>{formError}</span>
+              <span className="font-extrabold block text-rose-950">Missing Requirement</span>
+              <span className="font-medium">{formError}</span>
             </div>
           </div>
         )}
 
         {/* ------------------------------------------------------------ */}
-        {/* STEP 1: RECYCLER IDENTITY                                    */}
+        {/* STEP 1: RECYCLER IDENTITY (WITH RESTORED EMAIL FIELD)        */}
         {/* ------------------------------------------------------------ */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-2.5">
+            <span className="w-7 h-7 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shadow-xs shrink-0">
               1
             </span>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800">
-              Your Details (Voucher Identity)
+            <h3 className="text-sm font-extrabold uppercase tracking-wide text-slate-900">
+              {tr.step1Title || tr.citizenDetailsTitle || "Your Details (Voucher Identity)"}
             </h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Full Name */}
+            {/* Full Name (Mandatory) */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
+              <label className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Full Name</span>
-                <span className="text-rose-500 font-black">*</span>
+                <span>{tr.fullNameLabel || "Full Name"}</span>
+                <span className="text-rose-600 font-black">* {tr.requiredBadge || "(Required)"}</span>
               </label>
               <input
                 type="text"
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="e.g. Ramesh Sharma"
-                className="w-full px-4 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-2xs"
+                placeholder={tr.fullNamePlaceholder || "e.g. Ramesh Sharma"}
+                className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-xs"
               />
             </div>
 
-            {/* Phone Number */}
+            {/* Mobile Phone Number (Required for store redemption) */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
-                <span className="flex items-center gap-1">
+              <label className="text-xs font-bold text-slate-900 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
                   <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Mobile Phone Number</span>
+                  <span>{tr.phoneLabel || "Mobile Phone Number"}</span>
                 </span>
-                <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">
-                  Required to Redeem at Store
+                <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-2 py-0.5 rounded-md">
+                  {tr.phoneRedeemNote || "Required at Store"}
                 </span>
               </label>
               <input
@@ -293,7 +296,28 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91 98765 43210"
-                className="w-full px-4 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-2xs"
+                className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-xs"
+              />
+            </div>
+
+            {/* Email Address (RESTORED - Optional for digital copy & update) */}
+            <div className="space-y-1.5 sm:col-span-2">
+              <label className="text-xs font-bold text-slate-900 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>{tr.emailLabel || "Email Address"}</span>
+                  <span className="text-slate-500 font-normal text-[11px]">{tr.optionalBadge || "(Optional)"}</span>
+                </span>
+                <span className="text-[10px] text-slate-500 font-medium">
+                  {tr.emailReceiptNote || "Receive digital voucher copy"}
+                </span>
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g. yourname@example.com"
+                className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-xs"
               />
             </div>
           </div>
@@ -302,58 +326,67 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
         {/* ------------------------------------------------------------ */}
         {/* STEP 2: BLISTER QUANTITY & DROP-OFF POINT                     */}
         {/* ------------------------------------------------------------ */}
-        <div className="space-y-5 pt-2 border-t border-slate-100">
+        <div className="space-y-5 pt-3 border-t border-slate-100">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0">
+            <div className="flex items-center gap-2.5">
+              <span className="w-7 h-7 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shadow-xs shrink-0">
                 2
               </span>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800">
-                Blister Quantity & Drop-off Point
+              <h3 className="text-sm font-extrabold uppercase tracking-wide text-slate-900">
+                {tr.step2Title || tr.stripsLabel || "Blister Quantity & Drop-off Point"}
               </h3>
             </div>
-            <span className="text-xs font-bold text-emerald-700">
-              Reward Tier: <span className="font-mono">{currentTier.percent}% OFF</span>
+            <span className="text-xs font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+              {tr.stripTierBadge || "Tier"}: <span className="font-mono">{currentTier.percent}% OFF</span>
             </span>
           </div>
 
           {/* Quantity Tier Selector */}
           <div className="space-y-3">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-700">How many empty strips are you recycling?</span>
+              <span className="font-bold text-slate-900">{tr.stripsLabel || "Number of Blister Strips Deposited"}:</span>
               <div className="flex items-center gap-1.5 font-bold">
-                <span className="text-slate-500 text-[11px]">Exact count:</span>
+                <span className="text-slate-600 text-[11px]">{tr.exactStripsLabel || "Exact count"}:</span>
                 <input
                   type="number"
                   min="1"
                   max="500"
                   value={exactStrips}
-                  onChange={(e) => setExactStrips(e.target.value)}
-                  className="w-14 px-2 py-1 bg-slate-50 border border-slate-300 rounded-lg text-center font-black text-xs text-emerald-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setExactStrips(val);
+                    const num = Number(val);
+                    if (num >= 31) setSelectedPresetId('heavy');
+                    else if (num >= 16) setSelectedPresetId('bulk');
+                    else if (num >= 6) setSelectedPresetId('medium');
+                    else setSelectedPresetId('few');
+                  }}
+                  className="w-16 px-2 py-1 bg-white border border-slate-300 rounded-lg text-center font-black text-xs text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
                 />
               </div>
             </div>
 
+            {/* Micro-animated preset cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {stripPresets.map((opt) => {
-                const isSelected = stripCount === opt.label;
+                const isSelected = selectedPresetId === opt.id;
                 return (
                   <button
-                    key={opt.label}
+                    key={opt.id}
                     type="button"
                     onClick={() => {
-                      setStripCount(opt.label);
+                      setSelectedPresetId(opt.id);
                       setExactStrips(opt.count.toString());
                     }}
-                    className={`p-3.5 rounded-2xl border text-center transition-all cursor-pointer relative overflow-hidden ${
+                    className={`p-3.5 rounded-2xl border text-center transition-all duration-200 cursor-pointer relative overflow-hidden group hover:-translate-y-1 hover:shadow-md ${
                       isSelected
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20 scale-[1.01]'
-                        : 'bg-slate-50/70 hover:bg-slate-100/80 border-slate-200 text-slate-700'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-600/25 scale-[1.02]'
+                        : 'bg-slate-50/90 hover:bg-white border-slate-200 text-slate-800'
                     }`}
                   >
-                    <div className="text-xs font-bold">{opt.label}</div>
-                    <div className={`text-xs font-black mt-1 px-2 py-0.5 rounded-full inline-block ${
-                      isSelected ? 'bg-white text-emerald-800 shadow-2xs' : 'bg-emerald-100 text-emerald-800'
+                    <div className="text-xs font-extrabold">{opt.label}</div>
+                    <div className={`text-xs font-black mt-1.5 px-2.5 py-0.5 rounded-full inline-block transition-transform duration-200 group-hover:scale-105 ${
+                      isSelected ? 'bg-white text-emerald-800 shadow-xs' : 'bg-emerald-100 text-emerald-900'
                     }`}>
                       {opt.discount}
                     </div>
@@ -363,21 +396,21 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
             </div>
 
             {/* Dynamic Progress Bar to Next Discount Tier */}
-            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 space-y-1.5 text-xs">
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5 text-xs">
               <div className="flex items-center justify-between font-bold">
-                <span className="text-slate-700 flex items-center gap-1.5">
+                <span className="text-slate-800 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Tier Status: <strong>{currentTier.label}</strong></span>
+                  <span>{tr.stripTierBadge || "Tier Status"}: <strong className="text-slate-900">{currentTier.label}</strong></span>
                 </span>
-                <span className="text-emerald-700 text-[11px]">
+                <span className="text-emerald-800 text-[11px] font-extrabold">
                   {currentTier.nextNeeded > 0
-                    ? `+${currentTier.nextNeeded} more strips to unlock ${currentTier.nextTier}!`
-                    : '🏆 Maximum 25% Discount Tier Unlocked!'}
+                    ? `+${currentTier.nextNeeded} ${tr.moreStripsNeeded || 'more strips to unlock'} ${currentTier.nextTier}!`
+                    : `🏆 ${tr.unlockedTier || 'Maximum 25% Discount Tier Unlocked!'}`}
                 </span>
               </div>
-              <div className="w-full h-2 bg-slate-200/80 rounded-full overflow-hidden">
+              <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden p-0.5">
                 <div 
-                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500 rounded-full"
+                  className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 transition-all duration-700 ease-out rounded-full shadow-xs"
                   style={{ width: `${currentTier.progress}%` }}
                 />
               </div>
@@ -387,18 +420,18 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
           {/* Pharmacy Drop-off Point Selector */}
           <div className="space-y-2 pt-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <label className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Drop-off Pharmacy / Medical Store</span>
-                <span className="text-rose-500 font-black">*</span>
+                <span>{tr.binIdLabel || "Drop-off Pharmacy / Medical Store"}</span>
+                <span className="text-rose-600 font-black">*</span>
               </label>
 
               <button
                 type="button"
                 onClick={() => setIsCustomPoint(!isCustomPoint)}
-                className="text-xs text-emerald-700 font-bold hover:underline cursor-pointer"
+                className="text-xs text-emerald-700 hover:text-emerald-800 font-bold hover:underline cursor-pointer transition-colors"
               >
-                {isCustomPoint ? "Choose from Drop-box List" : "+ Other Medical Store"}
+                {isCustomPoint ? (tr.chooseFromList || "Choose from Drop-box List") : (tr.otherMedicalStore || "+ Other Medical Store")}
               </button>
             </div>
 
@@ -406,7 +439,7 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
               <select
                 value={selectedDropPoint}
                 onChange={(e) => setSelectedDropPoint(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-2xs"
+                className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-xs"
               >
                 {bengaluruLocations.map((group) => (
                   <optgroup key={group.group} label={group.group}>
@@ -424,14 +457,14 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
                 required
                 value={customPointText}
                 onChange={(e) => setCustomPointText(e.target.value)}
-                placeholder="e.g. Sanjeevani Medicals, Near Malleshwaram 8th Cross"
-                className="w-full px-4 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-2xs"
+                placeholder={tr.binIdPlaceholder || "e.g. Sanjeevani Medicals, Near Malleshwaram 8th Cross"}
+                className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-xs"
               />
             )}
 
             {/* Quick Chips for Bengaluru */}
             <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              <span className="text-[11px] text-slate-400 font-semibold mr-1">Quick Select:</span>
+              <span className="text-[11px] text-slate-500 font-bold mr-1">{tr.quickSelectHub || "Quick Select:"}</span>
               {["Victoria Hospital", "Apollo Pharmacy Indiranagar", "Manipal Hospital", "Majestic Metro Hub"].map((name) => (
                 <button
                   key={name}
@@ -441,7 +474,7 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
                     const found = bengaluruLocations.flatMap(g => g.items).find(i => i.label.includes(name));
                     if (found) setSelectedDropPoint(found.id);
                   }}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold border border-slate-200/80 transition-colors cursor-pointer"
+                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-[11px] font-bold border border-slate-200/90 transition-all hover:scale-105 cursor-pointer shadow-2xs"
                 >
                   {name}
                 </button>
@@ -449,21 +482,29 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
             </div>
           </div>
 
-          {/* Material Type */}
+          {/* Material Type (Dynamic localized) */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+            <label className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Blister Foil Packaging Material</span>
+              <span>{tr.materialLabel || "Blister Foil Packaging Material"}</span>
             </label>
             <select
               value={materialType}
               onChange={(e) => setMaterialType(e.target.value)}
-              className="w-full px-4 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-2xs"
+              className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-xs"
             >
-              <option value="Alu-Alu Blister Foil (Cold Form Opaque)">Alu-Alu Cold-Form Opaque Foil (Highest Aluminum Yield)</option>
-              <option value="PVC / PVDC Transparent + Aluminum Backing">PVC / PVDC Transparent + Aluminum Backing Foil</option>
-              <option value="High-Barrier Aclar / Alu Pharmaceutical Strip">High-Barrier Aclar / Aluminum Foil Strip</option>
-              <option value="Mixed Pharmaceutical Blister Packs">Mixed Medical Blister Packaging</option>
+              <option value="Alu-Alu Blister Foil (Cold Form Opaque)">
+                {tr.materials?.aluAlu || "Alu-Alu Cold-Form Opaque Foil (Highest Aluminum Yield)"}
+              </option>
+              <option value="PVC / PVDC Transparent + Aluminum Foil">
+                {tr.materials?.pvcAlu || "PVC / PVDC Transparent + Aluminum Backing Foil"}
+              </option>
+              <option value="High-Barrier Aclar / Alu Pharmaceutical Strip">
+                {tr.materials?.highBarrier || "High-Barrier Aclar / Aluminum Foil Strip"}
+              </option>
+              <option value="Mixed Pharmaceutical Blister Packs">
+                {tr.materials?.mixed || "Mixed Medical Blister Packaging"}
+              </option>
             </select>
           </div>
         </div>
@@ -471,14 +512,14 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
         {/* ------------------------------------------------------------ */}
         {/* STEP 3: MANDATORY CAMERA PHOTO PROOF                         */}
         {/* ------------------------------------------------------------ */}
-        <div id="camera-section" className="space-y-4 pt-2 border-t border-slate-100 scroll-mt-24">
-          <div className="flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0">
+        <div id="camera-section" className="space-y-4 pt-3 border-t border-slate-100 scroll-mt-24">
+          <div className="flex items-center gap-2.5">
+            <span className="w-7 h-7 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shadow-xs shrink-0">
               3
             </span>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-              <span>Photo Verification</span>
-              <span className="text-rose-500 font-black">* (Mandatory)</span>
+            <h3 className="text-sm font-extrabold uppercase tracking-wide text-slate-900 flex items-center gap-1.5">
+              <span>{tr.step3Title || tr.photoProofTitle || "Photo Verification"}</span>
+              <span className="text-rose-600 font-black">* ({tr.photoOptionalBadge || "Mandatory"})</span>
             </h3>
           </div>
 
@@ -490,20 +531,20 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
             }}
             currentPhoto={photo}
             isRequired={true}
-            t={t}
+            t={tr}
           />
         </div>
 
         {/* ------------------------------------------------------------ */}
         {/* STEP 4: LOCATION & OPTIONAL AUDIO ASSIST                      */}
         {/* ------------------------------------------------------------ */}
-        <div className="space-y-4 pt-2 border-t border-slate-100">
-          <div className="flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-black flex items-center justify-center shrink-0">
+        <div className="space-y-4 pt-3 border-t border-slate-100">
+          <div className="flex items-center gap-2.5">
+            <span className="w-7 h-7 rounded-full bg-slate-200 text-slate-800 text-xs font-black flex items-center justify-center shrink-0">
               4
             </span>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800">
-              Location & Audio Assistance (Optional)
+            <h3 className="text-sm font-extrabold uppercase tracking-wide text-slate-900">
+              {tr.step4Title || tr.audioSectionLabel || "Location & Audio Assistance (Optional)"}
             </h3>
           </div>
 
@@ -513,7 +554,7 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
             longitude={location.longitude}
             address={location.address}
             onLocationChange={setLocation}
-            t={t}
+            t={tr}
           />
 
           {/* Voice Notes */}
@@ -521,36 +562,36 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
             notes={notes}
             onNotesChange={setNotes}
             currentLang={currentLang}
-            t={t}
+            t={tr}
           />
         </div>
 
         {/* ------------------------------------------------------------ */}
-        {/* SUBMIT ACTION BAR                                            */}
+        {/* SUBMIT ACTION BAR WITH HOVER & GLOW ANIMATIONS               */}
         {/* ------------------------------------------------------------ */}
         <div className="pt-4 border-t border-slate-100 space-y-3">
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-4 px-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-black text-sm sm:text-base rounded-2xl shadow-xl shadow-emerald-700/25 flex items-center justify-center gap-2.5 transform active:scale-[0.99] transition-all cursor-pointer"
+            className="w-full py-4 px-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-black text-sm sm:text-base rounded-2xl shadow-xl shadow-emerald-700/25 flex items-center justify-center gap-2.5 transform hover:-translate-y-0.5 active:scale-[0.99] transition-all duration-200 cursor-pointer group"
           >
             {submitting ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Generating {currentTier.percent}% OFF Medical Voucher...</span>
+                <span>{tr.generatingVoucher || `Generating ${currentTier.percent}% OFF Medical Voucher...`}</span>
               </>
             ) : (
               <>
-                <Award className="w-5 h-5 text-amber-300" />
-                <span>Submit Deposit & Generate {currentTier.percent}% OFF Voucher</span>
-                <ArrowRight className="w-4 h-4 ml-1" />
+                <Award className="w-5 h-5 text-amber-300 animate-pulse" />
+                <span>{tr.submitAndGetDiscount || `Submit Deposit & Generate ${currentTier.percent}% OFF Voucher`}</span>
+                <ArrowRight className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" />
               </>
             )}
           </button>
 
-          <p className="text-center text-xs text-slate-500 flex items-center justify-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Your discount voucher is generated instantly with barcode & promo code for chemist checkout.</span>
+          <p className="text-center text-xs text-slate-600 font-medium flex items-center justify-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{tr.instantVoucherNotice || "Your discount voucher is generated instantly with barcode & promo code for chemist checkout."}</span>
           </p>
         </div>
 
