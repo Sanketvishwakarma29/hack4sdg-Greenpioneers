@@ -7,7 +7,8 @@ import {
   Shield, Check, ArrowUpRight, Camera, Smartphone, ChevronRight,
   BarChart3, PieChart, TrendingUp, DollarSign, Calculator,
   FileSpreadsheet, Download, Search, Tag, Building2, Leaf,
-  Sparkles, CheckCircle, Info, Award, Factory, Eye, X, Phone, Lock
+  Sparkles, CheckCircle, Info, Award, Factory, Eye, X, Phone, Lock,
+  Loader2
 } from 'lucide-react';
 import { socket, playNotificationSound } from '../services/socket';
 import BrandLogo from './BrandLogo';
@@ -55,6 +56,7 @@ export default function AndroidDriverApp({ t }) {
   const [adminRedeemPhone, setAdminRedeemPhone] = useState('');
   const [adminRedeemError, setAdminRedeemError] = useState(null);
   const [adminRedeeming, setAdminRedeeming] = useState(false);
+  const [statusUpdating, setStatusUpdating] = useState(null);
 
   // Unit Economics Calculator Inputs
   const [stripsMonthly, setStripsMonthly] = useState(50000);
@@ -70,9 +72,15 @@ export default function AndroidDriverApp({ t }) {
     try {
       const res = await fetch('/api/reports');
       const data = await res.json();
-      setReports(data);
-      if (data.length > 0 && !selectedReport) {
-        setSelectedReport(data[0]);
+      if (Array.isArray(data)) {
+        setReports(data);
+        setSelectedReport((prevSelected) => {
+          if (!prevSelected) return data[0] || null;
+          const fresh = data.find(
+            (r) => r.token === prevSelected.token || r.id === prevSelected.id
+          );
+          return fresh ? { ...prevSelected, ...fresh } : prevSelected;
+        });
       }
     } catch (e) {
       console.error('Error fetching reports:', e);
@@ -165,44 +173,75 @@ export default function AndroidDriverApp({ t }) {
     };
   }, []);
 
-  // Update status with immediate optimistic UI update (No manual refresh needed)
-  const updateStatus = async (token, newStatus) => {
+  // Update status with immediate optimistic UI update & rock-solid sync
+  const updateStatus = async (tokenOrId, newStatus) => {
+    if (!tokenOrId) return;
+    setStatusUpdating(tokenOrId);
+
+    // 1. Instant Optimistic Local Update
     setReports((prev) =>
       prev.map((r) =>
-        r.token === token || r.id === token
+        r.token === tokenOrId || r.id === tokenOrId
           ? { ...r, status: newStatus }
           : r
       )
     );
-    if (selectedReport && (selectedReport.token === token || selectedReport.id === token)) {
-      setSelectedReport((prev) => ({ ...prev, status: newStatus }));
-    }
+    setSelectedReport((prev) => {
+      if (!prev) return null;
+      if (prev.token === tokenOrId || prev.id === tokenOrId) {
+        return { ...prev, status: newStatus };
+      }
+      return prev;
+    });
 
     try {
-      const res = await fetch(`/api/reports/${encodeURIComponent(token)}/status`, {
+      const payload = {
+        token: tokenOrId,
+        id: tokenOrId,
+        status: newStatus,
+        driverName: driverName,
+        note: `Status updated to ${newStatus} by ${driverName}`,
+        resolutionPhotoUrl: newStatus === 'Resolved' 
+          ? 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60' 
+          : null
+      };
+
+      // Try dedicated status endpoint first
+      let res = await fetch(`/api/reports/${encodeURIComponent(tokenOrId)}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: newStatus,
-          driverName: driverName,
-          note: `Status updated to ${newStatus} by ${driverName}`,
-          resolutionPhotoUrl: newStatus === 'Resolved' 
-            ? 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60' 
-            : null
-        })
+        body: JSON.stringify(payload)
       });
-      const data = await res.json();
-      playNotificationSound('success');
-      if (data.report) {
-        setSelectedReport(data.report);
-        setReports((prev) =>
-          prev.map((r) =>
-            r.token === token || r.id === token ? { ...r, ...data.report } : r
-          )
-        );
+
+      // If status endpoint 404s, fallback to root /api/reports PATCH
+      if (!res.ok) {
+        res = await fetch('/api/reports', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      if (res.ok) {
+        const data = await res.json();
+        playNotificationSound('success');
+        if (data.report) {
+          setReports((prev) =>
+            prev.map((r) =>
+              r.token === tokenOrId || r.id === tokenOrId ? { ...r, ...data.report } : r
+            )
+          );
+          setSelectedReport((prev) =>
+            prev && (prev.token === tokenOrId || prev.id === tokenOrId)
+              ? { ...prev, ...data.report }
+              : prev
+          );
+        }
       }
     } catch (err) {
       console.error('Error updating status:', err);
+    } finally {
+      setStatusUpdating(null);
     }
   };
 
@@ -636,9 +675,10 @@ export default function AndroidDriverApp({ t }) {
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                             item.status === 'Resolved' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
                             item.status === 'In Progress' ? 'bg-amber-950 text-amber-400 border border-amber-800' :
+                            item.status === 'Assigned' ? 'bg-blue-950 text-blue-400 border border-blue-800' :
                             'bg-rose-950 text-rose-400 border border-rose-800'
                           }`}>
-                            {item.status}
+                            {item.status || 'Pending'}
                           </span>
                         </div>
                         <span className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
@@ -692,9 +732,10 @@ export default function AndroidDriverApp({ t }) {
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                       selectedReport.status === 'Resolved' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
                       selectedReport.status === 'In Progress' ? 'bg-amber-950 text-amber-300 border border-amber-800' :
+                      selectedReport.status === 'Assigned' ? 'bg-blue-950 text-blue-300 border border-blue-800' :
                       'bg-rose-950 text-rose-300 border border-rose-800'
                     }`}>
-                      Pipeline: {selectedReport.status}
+                      Status: {selectedReport.status || 'Pending'}
                     </span>
                   </div>
 
@@ -796,43 +837,52 @@ export default function AndroidDriverApp({ t }) {
                     </div>
                   )}
 
-                  {/* Pipeline Actions */}
-                  <div className="space-y-2 pt-2 border-t border-slate-800">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Update Fleet Recovery Status:</span>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => updateStatus(selectedReport.token, 'Assigned')}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          selectedReport.status === 'Assigned'
-                            ? 'bg-blue-600 text-white shadow-lg ring-2 ring-blue-400'
-                            : 'bg-slate-800 hover:bg-slate-700 text-blue-300'
-                        }`}
-                      >
-                        1. Assign Route
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => updateStatus(selectedReport.token, 'In Progress')}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          selectedReport.status === 'In Progress'
-                            ? 'bg-amber-600 text-white shadow-lg ring-2 ring-amber-400'
-                            : 'bg-slate-800 hover:bg-slate-700 text-amber-300'
-                        }`}
-                      >
-                        2. Picked up from Bin
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => updateStatus(selectedReport.token, 'Resolved')}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          selectedReport.status === 'Resolved'
-                            ? 'bg-emerald-600 text-white shadow-lg ring-2 ring-emerald-400'
-                            : 'bg-slate-800 hover:bg-slate-700 text-emerald-300'
-                        }`}
-                      >
-                        3. Foil Recovered
-                      </button>
+                  {/* Pipeline Actions: 4 Smooth Stages */}
+                  <div className="space-y-3 pt-3 border-t border-slate-800">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <Truck className="w-4 h-4 text-emerald-400" />
+                        Update Fleet Recovery Status:
+                      </span>
+                      {statusUpdating === (selectedReport.token || selectedReport.id) && (
+                        <span className="text-[11px] text-emerald-400 flex items-center gap-1 font-bold animate-pulse">
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          Updating...
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {[
+                        { key: 'Pending', label: '1. Pending Pickup', icon: '⏳', activeBg: 'bg-rose-600 text-white ring-2 ring-rose-400 shadow-rose-900/40' },
+                        { key: 'Assigned', label: '2. Route Assigned', icon: '🚚', activeBg: 'bg-blue-600 text-white ring-2 ring-blue-400 shadow-blue-900/40' },
+                        { key: 'In Progress', label: '3. Picked Up (In Transit)', icon: '📦', activeBg: 'bg-amber-600 text-white ring-2 ring-amber-400 shadow-amber-900/40' },
+                        { key: 'Resolved', label: '4. Foil Recovered', icon: '🌿', activeBg: 'bg-emerald-600 text-white ring-2 ring-emerald-400 shadow-emerald-900/40' }
+                      ].map((stage) => {
+                        const isCurrent = selectedReport.status === stage.key;
+                        const isSaving = statusUpdating === (selectedReport.token || selectedReport.id);
+                        return (
+                          <button
+                            key={stage.key}
+                            type="button"
+                            disabled={isSaving}
+                            onClick={() => updateStatus(selectedReport.token || selectedReport.id, stage.key)}
+                            className={`py-2.5 px-3 rounded-2xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 shadow cursor-pointer transform active:scale-95 ${
+                              isCurrent
+                                ? `${stage.activeBg} shadow-lg scale-[1.02]`
+                                : 'bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800'
+                            }`}
+                          >
+                            <span className="text-sm">{stage.icon}</span>
+                            <span className="line-clamp-1">{stage.label}</span>
+                            {isCurrent && (
+                              <span className="text-[9px] bg-white/20 px-1.5 py-0.2 rounded-full uppercase font-black tracking-wider">
+                                Current
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -1109,13 +1159,22 @@ export default function AndroidDriverApp({ t }) {
                         </td>
 
                         <td className="py-2.5 px-3 whitespace-nowrap">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            row.status === 'Resolved' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
-                            row.status === 'In Progress' ? 'bg-amber-950 text-amber-400 border border-amber-800' :
-                            'bg-rose-950 text-rose-400 border border-rose-800'
-                          }`}>
-                            {row.status}
-                          </span>
+                          <select
+                            value={row.status || 'Pending'}
+                            disabled={statusUpdating === (row.token || row.id)}
+                            onChange={(e) => updateStatus(row.token || row.id, e.target.value)}
+                            className={`px-2.5 py-1 rounded-xl text-xs font-bold cursor-pointer transition-all border outline-none shadow-xs ${
+                              row.status === 'Resolved' ? 'bg-emerald-950 text-emerald-300 border-emerald-800 hover:border-emerald-500' :
+                              row.status === 'In Progress' ? 'bg-amber-950 text-amber-300 border-amber-800 hover:border-amber-500' :
+                              row.status === 'Assigned' ? 'bg-blue-950 text-blue-300 border-blue-800 hover:border-blue-500' :
+                              'bg-rose-950 text-rose-300 border-rose-800 hover:border-rose-500'
+                            }`}
+                          >
+                            <option value="Pending" className="bg-slate-900 text-rose-300">⏳ Pending</option>
+                            <option value="Assigned" className="bg-slate-900 text-blue-300">🚚 Assigned</option>
+                            <option value="In Progress" className="bg-slate-900 text-amber-300">📦 In Progress</option>
+                            <option value="Resolved" className="bg-slate-900 text-emerald-300">🌿 Resolved</option>
+                          </select>
                         </td>
                         <td className="py-2.5 px-3 text-slate-400 text-[11px] whitespace-nowrap">
                           {new Date(row.date).toLocaleDateString()}

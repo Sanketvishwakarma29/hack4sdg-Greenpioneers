@@ -1,11 +1,5 @@
 // Vercel Serverless Function: /api/reports
-import { initialReports } from './seedData.js';
-
-// In-memory reports store for serverless instance
-let reports = [...initialReports];
-
-// Track submitted photo hashes to prevent duplicate photo uploads
-const submittedPhotoHashes = new Set();
+import { reports, submittedPhotoHashes } from './store.js';
 
 function calculateDiscountFromStrips(stripCountStr, exactCountNum) {
   let count = Number(exactCountNum);

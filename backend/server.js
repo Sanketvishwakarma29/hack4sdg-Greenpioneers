@@ -525,23 +525,32 @@ app.post('/api/reports', upload.single('photo'), async (req, res) => {
   }
 });
 
-// Update report status (Logistics agent action)
-app.patch('/api/reports/:token/status', (req, res) => {
+// Helper to handle report status updates
+function handleReportStatusUpdate(rawIdentifier, body, res) {
   try {
-    const token = req.params.token.toUpperCase();
-    const index = reports.findIndex(r => r.token === token || r.id === req.params.token);
+    const raw = (rawIdentifier || body.token || body.id || '').trim();
+    if (!raw) {
+      return res.status(400).json({ error: 'Report token or ID is required' });
+    }
+
+    const index = reports.findIndex(
+      r => (r.token && r.token.toUpperCase() === raw.toUpperCase()) ||
+           (r.id && r.id.toLowerCase() === raw.toLowerCase()) ||
+           r.id === raw
+    );
 
     if (index === -1) {
       return res.status(404).json({ error: 'Deposit record not found' });
     }
 
-    const { status, driverName, note, resolutionPhotoUrl } = req.body;
+    const { status, driverName, note, resolutionPhotoUrl } = body;
     const report = reports[index];
 
     if (status) report.status = status;
     if (driverName) report.assignedDriver = driverName;
     if (resolutionPhotoUrl) report.resolutionPhotoUrl = resolutionPhotoUrl;
 
+    if (!report.history) report.history = [];
     report.history.push({
       status: status || report.status,
       time: new Date().toISOString(),
@@ -550,7 +559,7 @@ app.patch('/api/reports/:token/status', (req, res) => {
 
     saveReports(reports);
 
-    // Broadcast status change in real time
+    // Broadcast status change in real time via socket
     io.emit('report:status_changed', {
       token: report.token,
       id: report.id,
@@ -558,17 +567,30 @@ app.patch('/api/reports/:token/status', (req, res) => {
       report
     });
 
-    console.log(`[~] Deposit ${token} status updated to: ${status}`);
+    console.log(`[~] Deposit ${report.token} status updated to: ${status}`);
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Status updated',
       report
     });
   } catch (err) {
     console.error('Error updating status:', err);
-    res.status(500).json({ error: 'Failed to update status' });
+    return res.status(500).json({ error: 'Failed to update status' });
   }
+}
+
+// Update report status (supports /api/reports/:token/status, /api/reports/:token, and /api/reports)
+app.patch('/api/reports/:token/status', (req, res) => {
+  handleReportStatusUpdate(req.params.token, req.body, res);
+});
+
+app.patch('/api/reports/:token', (req, res) => {
+  handleReportStatusUpdate(req.params.token, req.body, res);
+});
+
+app.patch('/api/reports', (req, res) => {
+  handleReportStatusUpdate(req.body.token || req.body.id, req.body, res);
 });
 
 // ============================================================================

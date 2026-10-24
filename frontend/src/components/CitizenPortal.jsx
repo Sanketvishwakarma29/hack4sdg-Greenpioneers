@@ -104,6 +104,16 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
       return;
     }
 
+    // Validate Mandatory Camera Photo Verification
+    if (!photo) {
+      setFormError('📷 Camera photo is strictly mandatory! Please open the camera and take a photo of the empty medicine blister packs before submitting.');
+      const cameraEl = document.getElementById('camera-section');
+      if (cameraEl) {
+        cameraEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -530,14 +540,16 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
               />
             </div>
 
-            {/* 6. Photo Evidence (Optional) */}
-            <div className="space-y-1">
+            {/* 6. Photo Evidence (Mandatory) */}
+            <div id="camera-section" className="space-y-1 scroll-mt-24">
               <CameraCapture
                 onPhotoCapture={(dataUrl, meta) => {
                   setPhoto(dataUrl);
                   if (meta) setPhotoMeta(meta);
+                  if (dataUrl) setFormError(null);
                 }}
                 currentPhoto={photo}
+                isRequired={true}
                 t={t}
               />
             </div>

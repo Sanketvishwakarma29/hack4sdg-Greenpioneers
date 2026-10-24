@@ -25,7 +25,7 @@ function generateImageHash(canvas) {
   }
 }
 
-export default function CameraCapture({ onPhotoCapture, currentPhoto, t }) {
+export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired = true, t }) {
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraLoading, setCameraLoading] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
@@ -353,15 +353,20 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, t }) {
     <div className="space-y-3">
       {/* Label and Verified Status Badge */}
       <div className="flex items-center justify-between">
-        <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+        <label className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
           <Camera className="w-4 h-4 text-emerald-600" />
-          {t.cameraLabel || 'Blister Pack Photo Verification'}
+          <span>{t.cameraLabel || 'Blister Pack Camera Photo'}</span>
+          {isRequired && <span className="text-rose-500 font-black text-sm">*</span>}
         </label>
 
-        {currentPhoto && (
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+        {currentPhoto ? (
+          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Camera Verified</span>
+            <span>✓ Camera Verified</span>
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200">
+            * Required
           </span>
         )}
       </div>
