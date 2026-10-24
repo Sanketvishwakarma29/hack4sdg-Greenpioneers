@@ -9,3 +9,5 @@ mobile-expo-android/.expo/
 .DS_Store
 *.log
 /tmp/
+.vercel
+.env*
