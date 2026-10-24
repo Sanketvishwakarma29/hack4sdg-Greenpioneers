@@ -3,8 +3,10 @@ import Navbar from './components/Navbar';
 import CitizenPortal from './components/CitizenPortal';
 import TokenTracker from './components/TokenTracker';
 import AndroidDriverApp from './components/AndroidDriverApp';
+import RecoveryPartnerPortal from './components/RecoveryPartnerPortal';
 import QRCodeModal from './components/QRCodeModal';
 import AdminLoginModal from './components/AdminLoginModal';
+import PartnerLoginModal from './components/PartnerLoginModal';
 import Footer from './components/Footer';
 import { translations } from './translations/i18n';
 
@@ -15,6 +17,8 @@ export default function App() {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
+  const [isPartnerLoggedIn, setIsPartnerLoggedIn] = useState(false);
   const [currentLang, setCurrentLang] = useState('en');
 
   const t = translations[currentLang] || translations.en;
@@ -25,6 +29,12 @@ export default function App() {
     const savedAdmin = sessionStorage.getItem('ecoblister_admin');
     if (savedAdmin === 'true') {
       setIsAdminLoggedIn(true);
+    }
+
+    // Check if partner is authenticated in this browser session
+    const savedPartner = sessionStorage.getItem('ecoblister_partner');
+    if (savedPartner === 'true') {
+      setIsPartnerLoggedIn(true);
     }
 
     // Always reset to a clean new deposit form on page refresh / load
@@ -41,6 +51,14 @@ export default function App() {
         setCurrentTab('report');
         setIsAdminModalOpen(true);
       }
+    } else if (window.location.hash.startsWith('#partner') || window.location.hash.startsWith('#refinery')) {
+      if (savedPartner === 'true') {
+        setCurrentTab('partner');
+      } else {
+        window.history.replaceState(null, '', window.location.pathname);
+        setCurrentTab('report');
+        setIsPartnerModalOpen(true);
+      }
     } else {
       setCurrentTab('report');
     }
@@ -54,6 +72,14 @@ export default function App() {
           setCurrentTab('driver');
         } else {
           setIsAdminModalOpen(true);
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      } else if (hash.startsWith('#partner') || hash.startsWith('#refinery')) {
+        const isPartner = sessionStorage.getItem('ecoblister_partner') === 'true';
+        if (isPartner) {
+          setCurrentTab('partner');
+        } else {
+          setIsPartnerModalOpen(true);
           window.history.replaceState(null, '', window.location.pathname);
         }
       }
@@ -95,6 +121,32 @@ export default function App() {
     }
   };
 
+  // Partner login handler
+  const handlePartnerLoginSuccess = () => {
+    sessionStorage.setItem('ecoblister_partner', 'true');
+    setIsPartnerLoggedIn(true);
+    setCurrentTab('partner');
+    window.location.hash = '#partner';
+  };
+
+  // Partner logout handler
+  const handlePartnerLogout = () => {
+    sessionStorage.removeItem('ecoblister_partner');
+    setIsPartnerLoggedIn(false);
+    setCurrentTab('report');
+    window.history.replaceState(null, '', window.location.pathname);
+  };
+
+  // Attempting to open Partner tab
+  const handleOpenPartnerTab = () => {
+    if (isPartnerLoggedIn) {
+      setCurrentTab('partner');
+      window.location.hash = '#partner';
+    } else {
+      setIsPartnerModalOpen(true);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
       {/* Top Navigation Bar */}
@@ -105,6 +157,9 @@ export default function App() {
         onOpenAdminLogin={handleOpenAdminTab}
         isAdminLoggedIn={isAdminLoggedIn}
         onAdminLogout={handleAdminLogout}
+        onOpenPartnerLogin={handleOpenPartnerTab}
+        isPartnerLoggedIn={isPartnerLoggedIn}
+        onPartnerLogout={handlePartnerLogout}
         currentLang={currentLang}
         setCurrentLang={setCurrentLang}
         t={t}
@@ -162,13 +217,42 @@ export default function App() {
             </div>
           )
         )}
+
+        {/* Tab 4: Recovery Partner & Refinery Portal (Dedicated Recycler Authentication) */}
+        {currentTab === 'partner' && (
+          isPartnerLoggedIn ? (
+            <RecoveryPartnerPortal 
+              t={t} 
+              onLogout={handlePartnerLogout}
+            />
+          ) : (
+            <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl border border-teal-200 shadow-xl text-center space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center mx-auto text-teal-600">
+                🏭
+              </div>
+              <h2 className="text-lg font-black text-slate-900">Recovery Partner Authentication Required</h2>
+              <p className="text-xs text-slate-500">
+                Dedicated terminal for industrial smelters, hydrometallurgical recycling units, and blister foil separators.
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsPartnerModalOpen(true)}
+                className="w-full py-2.5 bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs rounded-xl shadow cursor-pointer"
+              >
+                Sign In to Partner Portal
+              </button>
+            </div>
+          )
+        )}
       </main>
 
       {/* Global Footer */}
-      {currentTab !== 'driver' && (
+      {currentTab !== 'driver' && currentTab !== 'partner' && (
         <Footer 
           onOpenAdminLogin={handleOpenAdminTab}
           isAdminLoggedIn={isAdminLoggedIn}
+          onOpenPartnerLogin={handleOpenPartnerTab}
+          isPartnerLoggedIn={isPartnerLoggedIn}
         />
       )}
 
@@ -183,6 +267,13 @@ export default function App() {
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
         onLoginSuccess={handleAdminLoginSuccess}
+      />
+
+      {/* Recovery Partner Login Modal */}
+      <PartnerLoginModal
+        isOpen={isPartnerModalOpen}
+        onClose={() => setIsPartnerModalOpen(false)}
+        onLoginSuccess={handlePartnerLoginSuccess}
       />
     </div>
   );

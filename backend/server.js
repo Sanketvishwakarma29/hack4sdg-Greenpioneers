@@ -21,6 +21,8 @@ const PORT = process.env.PORT || 5001;
 const DATA_DIR = path.join(__dirname, 'data');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const DB_FILE = path.join(DATA_DIR, 'reports.json');
+const PARTNER_FILE = path.join(DATA_DIR, 'partner_recovery.json');
+const REDEMPTIONS_FILE = path.join(DATA_DIR, 'redemptions.json');
 
 // Ensure directories exist
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -204,6 +206,165 @@ function saveReports(reports) {
 
 let reports = loadReports();
 
+// Helper: Load & Save Partner Recovery Records
+function loadPartnerRecords() {
+  try {
+    if (fs.existsSync(PARTNER_FILE)) {
+      return JSON.parse(fs.readFileSync(PARTNER_FILE, 'utf-8'));
+    }
+  } catch (e) {
+    console.error('Error loading partner records:', e);
+  }
+
+  const seed = [
+    {
+      id: 'rec-batch-2026-10-04',
+      batchId: 'REC-BLISTER-2026-104',
+      date: new Date(Date.now() - 3600000 * 3).toISOString(), // 3 hours ago
+      facilityName: 'EcoMetals Hydrometallurgical Refinery Hub (Peenya Industrial Area, Bengaluru)',
+      operatorName: 'Rajesh Varma (Lead Metallurgy Engineer)',
+      materialType: 'Alu-Alu Blister Foil (Cold Form Opaque)',
+      sourceHub: 'Victoria Hospital & Bowring Hospital Aggregate',
+      inflowKg: 142.5,
+      recycledAluminumKg: 45.6,
+      recycledPolymerKg: 94.2,
+      residueKg: 2.7,
+      recoveryEfficiencyPercent: 98.1,
+      purityGrade: '99.2% Secondary Aluminum Ingot Quality',
+      notes: 'Delamination solvent recovery cycle #44 completed. 0% toxic gas emission.'
+    },
+    {
+      id: 'rec-batch-2026-10-03',
+      batchId: 'REC-BLISTER-2026-103',
+      date: new Date(Date.now() - 3600000 * 10).toISOString(), // 10 hours ago
+      facilityName: 'EcoMetals Hydrometallurgical Refinery Hub (Peenya Industrial Area, Bengaluru)',
+      operatorName: 'Anita Deshmukh (Recovery Specialist)',
+      materialType: 'PVC / PVDC Transparent + Aluminum Foil',
+      sourceHub: 'Apollo Pharmacy & MedPlus Indiranagar Collection',
+      inflowKg: 198.0,
+      recycledAluminumKg: 63.4,
+      recycledPolymerKg: 130.8,
+      residueKg: 3.8,
+      recoveryEfficiencyPercent: 98.0,
+      purityGrade: '99.4% Aluminum Flakes + Clean PVC Granulate',
+      notes: 'High-purity PVC granulate sent to industrial conduit pipe manufacturer.'
+    },
+    {
+      id: 'rec-batch-2026-10-02',
+      batchId: 'REC-BLISTER-2026-102',
+      date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+      facilityName: 'EcoMetals Hydrometallurgical Refinery Hub (Peenya Industrial Area, Bengaluru)',
+      operatorName: 'Suresh Patil (Refinery Supervisor)',
+      materialType: 'High-Barrier Aclar / Alu Pharmaceutical Strip',
+      sourceHub: 'Manipal Hospital & Fortis Hospital Consignment',
+      inflowKg: 220.0,
+      recycledAluminumKg: 70.4,
+      recycledPolymerKg: 145.2,
+      residueKg: 4.4,
+      recoveryEfficiencyPercent: 98.0,
+      purityGrade: '99.1% High Purity Aluminum Ingot',
+      notes: 'Special high-barrier delamination temperature profile applied successfully.'
+    },
+    {
+      id: 'rec-batch-2026-10-01',
+      batchId: 'REC-BLISTER-2026-101',
+      date: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
+      facilityName: 'EcoMetals Hydrometallurgical Refinery Hub (Peenya Industrial Area, Bengaluru)',
+      operatorName: 'Rajesh Varma (Lead Metallurgy Engineer)',
+      materialType: 'Mixed Pharmaceutical Blister Packs',
+      sourceHub: 'Kempegowda Majestic Metro & Central Hub Drop-boxes',
+      inflowKg: 175.5,
+      recycledAluminumKg: 56.2,
+      recycledPolymerKg: 115.8,
+      residueKg: 3.5,
+      recoveryEfficiencyPercent: 98.0,
+      purityGrade: 'Commercial Secondary Alloy Grade',
+      notes: 'Mixed blister packs mechanically shredded and electrostatically separated.'
+    },
+    {
+      id: 'rec-batch-2026-09-28',
+      batchId: 'REC-BLISTER-2026-098',
+      date: '2026-09-28T11:00:00.000Z',
+      facilityName: 'EcoMetals Hydrometallurgical Refinery Hub (Peenya Industrial Area, Bengaluru)',
+      operatorName: 'Anita Deshmukh (Recovery Specialist)',
+      materialType: 'PVC / PVDC Transparent + Aluminum Foil',
+      sourceHub: 'Bengaluru September Month-End Pharmacy Sweep',
+      inflowKg: 640.0,
+      recycledAluminumKg: 204.8,
+      recycledPolymerKg: 422.4,
+      residueKg: 12.8,
+      recoveryEfficiencyPercent: 98.0,
+      purityGrade: '99.3% Secondary Aluminum Ingot',
+      notes: 'Month-end bulk recovery cycle complete.'
+    },
+    {
+      id: 'rec-batch-2026-08-30',
+      batchId: 'REC-BLISTER-2026-085',
+      date: '2026-08-30T10:00:00.000Z',
+      facilityName: 'EcoMetals Hydrometallurgical Refinery Hub (Peenya Industrial Area, Bengaluru)',
+      operatorName: 'Rajesh Varma (Lead Metallurgy Engineer)',
+      materialType: 'Alu-Alu Blister Foil (Cold Form Opaque)',
+      sourceHub: 'August Month-End Hospital Sweep',
+      inflowKg: 580.0,
+      recycledAluminumKg: 185.6,
+      recycledPolymerKg: 382.8,
+      residueKg: 11.6,
+      recoveryEfficiencyPercent: 98.0,
+      purityGrade: '99.5% High Grade Ingot',
+      notes: 'August refinery batch passed all metallurgy tests.'
+    }
+  ];
+
+  savePartnerRecords(seed);
+  return seed;
+}
+
+function savePartnerRecords(records) {
+  try {
+    fs.writeFileSync(PARTNER_FILE, JSON.stringify(records, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('Error saving partner records:', e);
+  }
+}
+
+let partnerRecords = loadPartnerRecords();
+
+// Helper: Load & Save Redemptions
+function loadRedemptions() {
+  try {
+    if (fs.existsSync(REDEMPTIONS_FILE)) {
+      return JSON.parse(fs.readFileSync(REDEMPTIONS_FILE, 'utf-8'));
+    }
+  } catch (e) {
+    console.error('Error loading redemptions:', e);
+  }
+
+  const seed = [
+    {
+      promoCode: 'ECOBLISTER-25OFF-R99Z',
+      phone: '+91 98451 23456',
+      redeemedAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+      storeName: 'Manipal Hospital Chemist (HAL Airport Rd)',
+      discountPercentage: 25,
+      userName: 'Kavitha Hegde',
+      binId: 'Manipal Hospital - Old Airport Road'
+    }
+  ];
+
+  saveRedemptions(seed);
+  return seed;
+}
+
+function saveRedemptions(records) {
+  try {
+    fs.writeFileSync(REDEMPTIONS_FILE, JSON.stringify(records, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('Error saving redemptions:', e);
+  }
+}
+
+let redemptions = loadRedemptions();
+
 // REST Endpoints
 
 // Network and QR Info
@@ -266,19 +427,33 @@ app.get('/api/reports/:token', (req, res) => {
 app.post('/api/reports', upload.single('photo'), async (req, res) => {
   try {
     const body = req.body;
-    let photoUrl = body.photoBase64 || null;
+
+    // 1. Anti-Duplicate Photo Verification
+    if (body.photoHash) {
+      const duplicate = reports.find(r => r.photoHash && r.photoHash === body.photoHash);
+      if (duplicate) {
+        return res.status(400).json({
+          error: `Duplicate photo detected! This exact blister pack image was already submitted in deposit #${duplicate.token}. Please use Live Photography to snap a fresh photo of your actual blister packs.`
+        });
+      }
+    }
+
+    // 2. High-Fidelity Photo Persistence (Ensures photo always displays in admin portal)
+    const rawPhoto = body.photoBase64 || null;
+    let savedPhotoUrl = rawPhoto;
 
     if (req.file) {
-      photoUrl = `http://${LOCAL_IP}:${PORT}/uploads/${req.file.filename}`;
-    } else if (body.photoBase64 && body.photoBase64.startsWith('data:image')) {
+      savedPhotoUrl = `/uploads/${req.file.filename}`;
+    } else if (rawPhoto && rawPhoto.startsWith('data:image')) {
       try {
-        const matches = body.photoBase64.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
+        const matches = rawPhoto.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
         if (matches && matches.length === 3) {
           const ext = matches[1].split('/')[1] || 'jpg';
           const filename = `blister-${Date.now()}-${Math.round(Math.random() * 1e4)}.${ext}`;
           const filepath = path.join(UPLOADS_DIR, filename);
           fs.writeFileSync(filepath, Buffer.from(matches[2], 'base64'));
-          photoUrl = `http://${LOCAL_IP}:${PORT}/uploads/${filename}`;
+          // Keep rawPhoto as fallback data URI for 100% reliable rendering across serverless & all networks
+          savedPhotoUrl = rawPhoto;
         }
       } catch (e) {
         console.error('Error saving base64 photo:', e);
@@ -306,7 +481,15 @@ app.post('/api/reports', upload.single('photo'), async (req, res) => {
       date: body.date || new Date().toISOString(),
       status: 'Pending',
       notes: body.notes || '',
-      photoUrl: photoUrl || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
+      photoUrl: savedPhotoUrl || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
+      photoBase64: rawPhoto || null,
+      isLivePhoto: !!body.isLivePhoto,
+      photoTimestamp: body.photoTimestamp || new Date().toISOString(),
+      photoHash: body.photoHash || null,
+      isRedeemed: false,
+      redeemedPhone: null,
+      redeemedAt: null,
+      redeemedStore: null,
       audioNoteUrl: body.audioNoteUrl || null,
       assignedDriver: null,
       resolutionPhotoUrl: null,
@@ -385,6 +568,251 @@ app.patch('/api/reports/:token/status', (req, res) => {
   } catch (err) {
     console.error('Error updating status:', err);
     res.status(500).json({ error: 'Failed to update status' });
+  }
+});
+
+// ============================================================================
+// PROMO CODE REDEMPTION API (MANDATORY PHONE NUMBER REQUIRED)
+// ============================================================================
+
+app.post('/api/promocodes/redeem', (req, res) => {
+  try {
+    const { promoCode, phone, storeName } = req.body;
+
+    if (!promoCode) {
+      return res.status(400).json({ error: 'Promo Code / Voucher ID is required.' });
+    }
+
+    // Phone number is strictly mandatory
+    const cleanPhone = (phone || '').trim().replace(/[^0-9+ -]/g, '');
+    const digitsOnly = cleanPhone.replace(/[^0-9]/g, '');
+    if (!cleanPhone || digitsOnly.length < 10) {
+      return res.status(400).json({
+        error: 'Customer phone number (at least 10 digits) is strictly mandatory to redeem this discount voucher.'
+      });
+    }
+
+    const codeUpper = promoCode.trim().toUpperCase();
+    const reportIndex = reports.findIndex(r =>
+      (r.promoCode && r.promoCode.toUpperCase() === codeUpper) ||
+      (r.token && r.token.toUpperCase() === codeUpper)
+    );
+
+    if (reportIndex === -1) {
+      return res.status(404).json({ error: 'Discount voucher not found. Please verify your promo code.' });
+    }
+
+    const report = reports[reportIndex];
+
+    if (report.isRedeemed) {
+      return res.status(400).json({
+        error: `This voucher has already been redeemed on ${new Date(report.redeemedAt).toLocaleString('en-IN')} with phone number ${report.redeemedPhone}. It cannot be reused.`
+      });
+    }
+
+    const redemptionDate = new Date().toISOString();
+    report.isRedeemed = true;
+    report.redeemedPhone = cleanPhone;
+    report.redeemedAt = redemptionDate;
+    report.redeemedStore = storeName || report.binId || 'Partner Pharmacy (Bengaluru)';
+
+    report.history.push({
+      status: report.status,
+      time: redemptionDate,
+      note: `Voucher redeemed by customer (Phone: ${cleanPhone}) at ${report.redeemedStore}.`
+    });
+
+    saveReports(reports);
+
+    // Save to redemptions master log
+    const redemptionRecord = {
+      promoCode: report.promoCode || report.token,
+      phone: cleanPhone,
+      redeemedAt: redemptionDate,
+      storeName: report.redeemedStore,
+      discountPercentage: report.discountPercentage || 20,
+      userName: report.userName || 'Citizen',
+      binId: report.binId
+    };
+
+    redemptions.unshift(redemptionRecord);
+    saveRedemptions(redemptions);
+
+    // Broadcast in real-time
+    io.emit('promocode:redeemed', {
+      promoCode: report.promoCode,
+      token: report.token,
+      phone: cleanPhone,
+      redeemedAt: redemptionDate,
+      storeName: report.redeemedStore,
+      report
+    });
+
+    console.log(`[✓] Voucher Redeemed: ${report.promoCode} | Phone: ${cleanPhone} | Store: ${report.redeemedStore}`);
+
+    res.json({
+      success: true,
+      message: 'Voucher successfully redeemed!',
+      redemption: redemptionRecord,
+      report
+    });
+  } catch (err) {
+    console.error('Error redeeming promo code:', err);
+    res.status(500).json({ error: 'Failed to redeem promo code' });
+  }
+});
+
+app.get('/api/promocodes/redemptions', (req, res) => {
+  res.json(redemptions);
+});
+
+// ============================================================================
+// RECOVERY PARTNER & REFINERY FACILITY API (DAILY, MONTHLY, YEARLY DATA)
+// ============================================================================
+
+// Get all recovery partner batch records
+app.get('/api/partner/records', (req, res) => {
+  res.json(partnerRecords);
+});
+
+// Create new batch record from recovery partner
+app.post('/api/partner/records', (req, res) => {
+  try {
+    const {
+      date,
+      facilityName,
+      operatorName,
+      materialType,
+      sourceHub,
+      inflowKg,
+      recycledAluminumKg,
+      recycledPolymerKg,
+      purityGrade,
+      notes
+    } = req.body;
+
+    const inflow = Number(inflowKg) || 0;
+    const alu = Number(recycledAluminumKg) || 0;
+    const polymer = Number(recycledPolymerKg) || 0;
+
+    if (inflow <= 0) {
+      return res.status(400).json({ error: 'Inflow material weight (kg) must be greater than zero.' });
+    }
+
+    const residue = Math.max(0, parseFloat((inflow - (alu + polymer)).toFixed(1)));
+    const efficiency = inflow > 0 ? Math.min(100, parseFloat(((alu + polymer) / inflow * 100).toFixed(1))) : 98.0;
+
+    const newRecord = {
+      id: `rec-batch-${Date.now()}`,
+      batchId: `REC-BLISTER-${Date.now().toString().slice(-4)}`,
+      date: date || new Date().toISOString(),
+      facilityName: facilityName || 'EcoMetals Hydrometallurgical Refinery Hub (Peenya, Bengaluru)',
+      operatorName: operatorName || 'Recovery Technician',
+      materialType: materialType || 'PVC / PVDC Transparent + Aluminum Foil',
+      sourceHub: sourceHub || 'City Logistics Sweep',
+      inflowKg: inflow,
+      recycledAluminumKg: alu,
+      recycledPolymerKg: polymer,
+      residueKg: residue,
+      recoveryEfficiencyPercent: efficiency,
+      purityGrade: purityGrade || '99.2% Secondary Aluminum Ingot Quality',
+      notes: notes || 'Delamination and recovery cycle completed successfully.'
+    };
+
+    partnerRecords.unshift(newRecord);
+    savePartnerRecords(partnerRecords);
+
+    // Broadcast in real-time to admin and partner dashboards
+    io.emit('partner:new_batch', newRecord);
+
+    console.log(`[⚙️] New Recovery Partner Batch: ${newRecord.batchId} | Inflow: ${inflow}kg | Alu: ${alu}kg`);
+
+    res.status(201).json({
+      success: true,
+      message: 'Recovery partner batch logged successfully',
+      record: newRecord
+    });
+  } catch (err) {
+    console.error('Error logging partner batch:', err);
+    res.status(500).json({ error: 'Failed to record batch' });
+  }
+});
+
+// Aggregated Summary: Daily, Monthly, Yearly Metrics
+app.get('/api/partner/summary', (req, res) => {
+  try {
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+    const thisMonthStr = now.toISOString().slice(0, 7); // YYYY-MM
+    const thisYearStr = now.toISOString().slice(0, 4); // YYYY
+
+    // 1. Daily (Today)
+    const dailyRecords = partnerRecords.filter(r => (r.date || '').slice(0, 10) === todayStr);
+    const dailyInflow = dailyRecords.reduce((sum, r) => sum + (Number(r.inflowKg) || 0), 0);
+    const dailyAlu = dailyRecords.reduce((sum, r) => sum + (Number(r.recycledAluminumKg) || 0), 0);
+    const dailyPolymer = dailyRecords.reduce((sum, r) => sum + (Number(r.recycledPolymerKg) || 0), 0);
+
+    // 2. Monthly (This Month)
+    const monthlyRecords = partnerRecords.filter(r => (r.date || '').slice(0, 7) === thisMonthStr);
+    const monthlyInflow = monthlyRecords.reduce((sum, r) => sum + (Number(r.inflowKg) || 0), 0);
+    const monthlyAlu = monthlyRecords.reduce((sum, r) => sum + (Number(r.recycledAluminumKg) || 0), 0);
+    const monthlyPolymer = monthlyRecords.reduce((sum, r) => sum + (Number(r.recycledPolymerKg) || 0), 0);
+
+    // 3. Yearly (This Year)
+    const yearlyRecords = partnerRecords.filter(r => (r.date || '').slice(0, 4) === thisYearStr);
+    const yearlyInflow = yearlyRecords.reduce((sum, r) => sum + (Number(r.inflowKg) || 0), 0);
+    const yearlyAlu = yearlyRecords.reduce((sum, r) => sum + (Number(r.recycledAluminumKg) || 0), 0);
+    const yearlyPolymer = yearlyRecords.reduce((sum, r) => sum + (Number(r.recycledPolymerKg) || 0), 0);
+
+    // 4. Monthly Trend (Jan - Dec this year)
+    const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlyBreakdown = months.map((m, idx) => {
+      const ym = `${thisYearStr}-${m}`;
+      const recs = partnerRecords.filter(r => (r.date || '').slice(0, 7) === ym);
+      const inf = recs.reduce((s, r) => s + (Number(r.inflowKg) || 0), 0);
+      const al = recs.reduce((s, r) => s + (Number(r.recycledAluminumKg) || 0), 0);
+      const pol = recs.reduce((s, r) => s + (Number(r.recycledPolymerKg) || 0), 0);
+      return {
+        month: monthNames[idx],
+        yearMonth: ym,
+        inflowKg: parseFloat(inf.toFixed(1)),
+        aluminumKg: parseFloat(al.toFixed(1)),
+        polymerKg: parseFloat(pol.toFixed(1)),
+        batchCount: recs.length
+      };
+    });
+
+    res.json({
+      daily: {
+        date: todayStr,
+        inflowKg: parseFloat(dailyInflow.toFixed(1)),
+        aluminumKg: parseFloat(dailyAlu.toFixed(1)),
+        polymerKg: parseFloat(dailyPolymer.toFixed(1)),
+        batchesCount: dailyRecords.length,
+        records: dailyRecords
+      },
+      monthly: {
+        month: thisMonthStr,
+        inflowKg: parseFloat(monthlyInflow.toFixed(1)),
+        aluminumKg: parseFloat(monthlyAlu.toFixed(1)),
+        polymerKg: parseFloat(monthlyPolymer.toFixed(1)),
+        batchesCount: monthlyRecords.length,
+        records: monthlyRecords
+      },
+      yearly: {
+        year: thisYearStr,
+        inflowKg: parseFloat(yearlyInflow.toFixed(1)),
+        aluminumKg: parseFloat(yearlyAlu.toFixed(1)),
+        polymerKg: parseFloat(yearlyPolymer.toFixed(1)),
+        batchesCount: yearlyRecords.length,
+        co2SavedKg: Math.round(yearlyAlu * 3.2),
+        monthlyBreakdown
+      }
+    });
+  } catch (err) {
+    console.error('Error compiling partner summary:', err);
+    res.status(500).json({ error: 'Failed to compile partner summary' });
   }
 });
 

@@ -7,7 +7,7 @@ import {
   Shield, Check, ArrowUpRight, Camera, Smartphone, ChevronRight,
   BarChart3, PieChart, TrendingUp, DollarSign, Calculator,
   FileSpreadsheet, Download, Search, Tag, Building2, Leaf,
-  Sparkles, CheckCircle, Info, Award
+  Sparkles, CheckCircle, Info, Award, Factory, Eye, X, Phone, Lock
 } from 'lucide-react';
 import { socket, playNotificationSound } from '../services/socket';
 import BrandLogo from './BrandLogo';
@@ -31,7 +31,7 @@ const driverTruckIcon = new L.DivIcon({
 export default function AndroidDriverApp({ t }) {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('feed'); // 'feed', 'analytics', 'table', 'promocodes', 'impact', 'economics', 'map'
+  const [activeTab, setActiveTab] = useState('feed'); // 'feed', 'analytics', 'table', 'promocodes', 'impact', 'economics', 'partner', 'map'
   const [selectedReport, setSelectedReport] = useState(null);
   const [newAlert, setNewAlert] = useState(null);
   const [driverName, setDriverName] = useState('Kiran Gowda (Eco-Blisters Van #01)');
@@ -43,6 +43,18 @@ export default function AndroidDriverApp({ t }) {
   const [tableStatusFilter, setTableStatusFilter] = useState('ALL');
   const [promoSearch, setPromoSearch] = useState('');
   const [redeemedCodes, setRedeemedCodes] = useState({});
+
+  // Recovery Partner Data (Shared across partner & admin portals)
+  const [partnerRecords, setPartnerRecords] = useState([]);
+  const [partnerSummary, setPartnerSummary] = useState(null);
+  const [partnerTimeframe, setPartnerTimeframe] = useState('daily');
+
+  // Lightbox & Admin Redeem Modal
+  const [previewPhoto, setPreviewPhoto] = useState(null);
+  const [adminRedeemModal, setAdminRedeemModal] = useState(null);
+  const [adminRedeemPhone, setAdminRedeemPhone] = useState('');
+  const [adminRedeemError, setAdminRedeemError] = useState(null);
+  const [adminRedeeming, setAdminRedeeming] = useState(false);
 
   // Unit Economics Calculator Inputs
   const [stripsMonthly, setStripsMonthly] = useState(50000);
@@ -69,8 +81,31 @@ export default function AndroidDriverApp({ t }) {
     }
   };
 
+  // Load partner data
+  const fetchPartnerData = async () => {
+    try {
+      const [recRes, sumRes] = await Promise.all([
+        fetch('/api/partner/records'),
+        fetch('/api/partner/summary')
+      ]);
+      const recs = await recRes.json();
+      const sum = await sumRes.json();
+      setPartnerRecords(recs);
+      setPartnerSummary(sum);
+    } catch (e) {
+      console.error('Error fetching partner data:', e);
+    }
+  };
+
   useEffect(() => {
     fetchReports();
+    fetchPartnerData();
+
+    // AUTO-POLL: Refreshes state automatically every 5 seconds so admin NEVER needs to manually refresh!
+    const pollInterval = setInterval(() => {
+      fetchReports();
+      fetchPartnerData();
+    }, 5000);
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -101,16 +136,48 @@ export default function AndroidDriverApp({ t }) {
       }
     };
 
+    const handlePromocodeRedeemed = (data) => {
+      setReports((prev) =>
+        prev.map((r) =>
+          r.promoCode === data.promoCode || r.token === data.token
+            ? { ...r, isRedeemed: true, redeemedPhone: data.phone, redeemedAt: data.redeemedAt, redeemedStore: data.storeName }
+            : r
+        )
+      );
+    };
+
+    const handlePartnerBatch = (newBatch) => {
+      setPartnerRecords((prev) => [newBatch, ...prev]);
+      fetchPartnerData();
+    };
+
     socket.on('report:new', handleNewReport);
     socket.on('report:status_changed', handleStatusChanged);
+    socket.on('promocode:redeemed', handlePromocodeRedeemed);
+    socket.on('partner:new_batch', handlePartnerBatch);
 
     return () => {
+      clearInterval(pollInterval);
       socket.off('report:new', handleNewReport);
       socket.off('report:status_changed', handleStatusChanged);
+      socket.off('promocode:redeemed', handlePromocodeRedeemed);
+      socket.off('partner:new_batch', handlePartnerBatch);
     };
   }, []);
 
+  // Update status with immediate optimistic UI update (No manual refresh needed)
   const updateStatus = async (token, newStatus) => {
+    setReports((prev) =>
+      prev.map((r) =>
+        r.token === token || r.id === token
+          ? { ...r, status: newStatus }
+          : r
+      )
+    );
+    if (selectedReport && (selectedReport.token === token || selectedReport.id === token)) {
+      setSelectedReport((prev) => ({ ...prev, status: newStatus }));
+    }
+
     try {
       const res = await fetch(`/api/reports/${encodeURIComponent(token)}/status`, {
         method: 'PATCH',
@@ -128,6 +195,11 @@ export default function AndroidDriverApp({ t }) {
       playNotificationSound('success');
       if (data.report) {
         setSelectedReport(data.report);
+        setReports((prev) =>
+          prev.map((r) =>
+            r.token === token || r.id === token ? { ...r, ...data.report } : r
+          )
+        );
       }
     } catch (err) {
       console.error('Error updating status:', err);
@@ -209,8 +281,13 @@ export default function AndroidDriverApp({ t }) {
       discount: r.discountPercentage || 15,
       shop: r.binId || 'Apollo Pharmacy Indiranagar',
       date: r.date || new Date().toISOString(),
-      isRedeemed: !!redeemedCodes[r.promoCode || r.token],
-      strips: r.stripCount || '10 Strips'
+      isRedeemed: !!r.isRedeemed || !!redeemedCodes[r.promoCode || r.token],
+      redeemedPhone: r.redeemedPhone || null,
+      redeemedAt: r.redeemedAt || null,
+      redeemedStore: r.redeemedStore || null,
+      strips: r.stripCount || '10 Strips',
+      photoUrl: r.photoBase64 || r.photoUrl || null,
+      isLivePhoto: !!r.isLivePhoto
     }));
   }, [reports, redeemedCodes]);
 
@@ -220,12 +297,43 @@ export default function AndroidDriverApp({ t }) {
     ? Math.round(promocodesList.reduce((acc, p) => acc + (p.discount || 15), 0) / promocodesList.length)
     : 17;
 
-  // Toggle Promo Code Redeemed state
-  const toggleRedeemCode = (code) => {
-    setRedeemedCodes(prev => ({
-      ...prev,
-      [code]: !prev[code]
-    }));
+  // Admin action: Redeem voucher with mandatory phone number
+  const handleAdminRedeemSubmit = async (e) => {
+    e.preventDefault();
+    if (!adminRedeemModal) return;
+    setAdminRedeemError(null);
+
+    const clean = (adminRedeemPhone || '').trim();
+    const digits = clean.replace(/[^0-9]/g, '');
+    if (!clean || digits.length < 10) {
+      setAdminRedeemError('Customer Phone Number (minimum 10 digits) is strictly mandatory to claim discount.');
+      return;
+    }
+
+    setAdminRedeeming(true);
+    try {
+      const res = await fetch('/api/promocodes/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          promoCode: adminRedeemModal.promoCode,
+          phone: clean,
+          storeName: adminRedeemModal.shop || 'Central Pharmacy Fleet Desk'
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to redeem voucher');
+      }
+      playNotificationSound('success');
+      setAdminRedeemModal(null);
+      setAdminRedeemPhone('');
+      fetchReports();
+    } catch (err) {
+      setAdminRedeemError(err.message);
+    } finally {
+      setAdminRedeeming(false);
+    }
   };
 
   // Master Table Filtering
@@ -235,23 +343,25 @@ export default function AndroidDriverApp({ t }) {
         (r.token && r.token.toLowerCase().includes(tableSearch.toLowerCase())) ||
         (r.binId && r.binId.toLowerCase().includes(tableSearch.toLowerCase())) ||
         (r.userName && r.userName.toLowerCase().includes(tableSearch.toLowerCase())) ||
-        (r.materialType && r.materialType.toLowerCase().includes(tableSearch.toLowerCase()));
+        (r.materialType && r.materialType.toLowerCase().includes(tableSearch.toLowerCase())) ||
+        (r.redeemedPhone && r.redeemedPhone.includes(tableSearch));
       
       const matchesStatus = tableStatusFilter === 'ALL' || r.status === tableStatusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [reports, tableSearch, tableStatusFilter]);
 
-  // Export CSV Helper
+  // Export CSV Helper (Includes Photo type, Customer phone & Redemption Timestamp)
   const downloadCSV = () => {
     const headers = [
       'Batch Token', 'Citizen Name', 'Drop-off Shop', 'Zone', 'Packaging Material', 
       'Strips Count', 'Alu Recovered (g)', 'Polymer Recovered (g)', 'Issued Voucher', 
-      'Voucher Status', 'Pipeline Status', 'Date'
+      'Voucher Status', 'Redemption Phone', 'Redemption Date', 'Redeeming Store',
+      'Photo Status', 'Pipeline Status', 'Date'
     ];
     const rows = filteredTableData.map(r => {
       const exact = Number(r.exactStrips) || 12;
-      const isRedeemed = !!redeemedCodes[r.promoCode || r.token];
+      const isRedeemed = !!r.isRedeemed || !!redeemedCodes[r.promoCode || r.token];
       return [
         `"${r.token}"`,
         `"${r.userName || 'Citizen'}"`,
@@ -263,6 +373,10 @@ export default function AndroidDriverApp({ t }) {
         (exact * 1.1).toFixed(1),
         `"${r.promoCode || 'ECOBLISTER-VOUCHER'}"`,
         `"${isRedeemed ? 'Redeemed' : 'Active'}"`,
+        `"${r.redeemedPhone || (isRedeemed ? 'Verified' : 'Not Redeemed')}"`,
+        `"${r.redeemedAt ? new Date(r.redeemedAt).toLocaleString('en-IN') : 'N/A'}"`,
+        `"${r.redeemedStore || 'N/A'}"`,
+        `"${r.isLivePhoto ? 'Live Camera Verified' : (r.photoUrl || r.photoBase64 ? 'Uploaded Photo' : 'No Photo')}"`,
         `"${r.status || 'Pending'}"`,
         `"${new Date(r.date).toLocaleDateString()}"`
       ];
@@ -462,6 +576,18 @@ export default function AndroidDriverApp({ t }) {
             <Calculator className="w-3.5 h-3.5 text-emerald-400" />
             <span>Unit Economics Calculator</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab('partner')}
+            className={`px-3 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'partner'
+                ? 'bg-teal-600 text-white shadow'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Factory className="w-3.5 h-3.5 text-teal-300" />
+            <span>Partner & Refinery Data ({partnerRecords.length})</span>
+          </button>
         </div>
 
         {/* ================= TAB 1: RECOVERY FLEET DISPATCH ================= */}
@@ -524,9 +650,29 @@ export default function AndroidDriverApp({ t }) {
                       <h4 className="font-bold text-xs text-white mt-1.5 line-clamp-1">{item.binId}</h4>
                       <p className="text-[11px] text-slate-400 line-clamp-1">📍 {item.address}</p>
 
-                      <div className="flex items-center justify-between text-[11px] mt-2 pt-2 border-t border-slate-800/80">
-                        <span className="text-emerald-300 font-semibold">💊 {item.stripCount}</span>
-                        <span className="text-slate-400">👤 {item.userName || 'Citizen'}</span>
+                      <div className="flex items-center gap-2.5 mt-2 pt-2 border-t border-slate-800/80">
+                        {(item.photoBase64 || item.photoUrl) && (
+                          <img
+                            src={item.photoBase64 || item.photoUrl}
+                            alt="Blister proof"
+                            className="w-10 h-10 rounded-lg object-cover border border-slate-700 shrink-0 bg-slate-900"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-emerald-300 font-semibold truncate">💊 {item.stripCount}</span>
+                            <span className="text-slate-400 truncate">👤 {item.userName || 'Citizen'}</span>
+                          </div>
+                          {item.isLivePhoto ? (
+                            <span className="text-[9px] text-emerald-400 font-bold flex items-center gap-1 mt-0.5">
+                              ● Live Camera Verified
+                            </span>
+                          ) : (item.photoBase64 || item.photoUrl) ? (
+                            <span className="text-[9px] text-slate-400 flex items-center gap-1 mt-0.5">
+                              📷 Photo Attached
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
                   );
@@ -589,6 +735,58 @@ export default function AndroidDriverApp({ t }) {
                         <span>Google Maps Turn-by-Turn</span>
                       </a>
                     </div>
+                  </div>
+
+                  {/* Customer Uploaded Blister Photo */}
+                  <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs uppercase font-extrabold text-slate-300 flex items-center gap-1.5">
+                        <Camera className="w-4 h-4 text-emerald-400" />
+                        Customer Uploaded Blister Photo
+                      </span>
+                      {selectedReport.isLivePhoto ? (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-950 text-emerald-300 border border-emerald-800 flex items-center gap-1 shadow-xs">
+                          <Shield className="w-3 h-3 text-emerald-400" />
+                          Live Camera Verified Shot
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                          {(selectedReport.photoBase64 || selectedReport.photoUrl) ? '📁 File / Gallery Upload' : 'No Photo Uploaded'}
+                        </span>
+                      )}
+                    </div>
+
+                    {(selectedReport.photoBase64 || selectedReport.photoUrl) ? (
+                      <div 
+                        onClick={() => setPreviewPhoto({
+                          url: selectedReport.photoBase64 || selectedReport.photoUrl,
+                          title: `Deposit Proof: ${selectedReport.token} (${selectedReport.binId})`,
+                          subtitle: `Citizen: ${selectedReport.userName || 'Citizen'} • ${selectedReport.stripCount} deposited`,
+                          isLive: selectedReport.isLivePhoto
+                        })}
+                        className="relative rounded-2xl overflow-hidden border border-slate-700 group cursor-pointer bg-black"
+                        title="Click to view full photo"
+                      >
+                        <img
+                          src={selectedReport.photoBase64 || selectedReport.photoUrl}
+                          alt="Citizen Uploaded Waste"
+                          className="w-full max-h-64 object-cover rounded-2xl transition-transform group-hover:scale-[1.02]"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white text-xs font-bold">
+                          <Eye className="w-4 h-4" />
+                          <span>Click to Enlarge Full Photo</span>
+                        </div>
+                        {selectedReport.photoTimestamp && (
+                          <span className="absolute bottom-2 left-2 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-mono text-emerald-300 border border-white/10">
+                            Capture Timestamp: {new Date(selectedReport.photoTimestamp).toLocaleString('en-IN')}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="p-6 bg-slate-950/60 rounded-xl border border-dashed border-slate-800 text-center text-xs text-slate-500">
+                        Citizen did not upload a photo for this drop-off.
+                      </div>
+                    )}
                   </div>
 
                   {selectedReport.notes && (
@@ -832,6 +1030,7 @@ export default function AndroidDriverApp({ t }) {
               <table className="w-full text-left text-xs text-slate-300">
                 <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800">
                   <tr>
+                    <th className="py-3 px-3">Photo</th>
                     <th className="py-3 px-3">Batch Token</th>
                     <th className="py-3 px-3">Citizen Name</th>
                     <th className="py-3 px-3">Drop-off Shop</th>
@@ -839,7 +1038,8 @@ export default function AndroidDriverApp({ t }) {
                     <th className="py-3 px-3">Quantity</th>
                     <th className="py-3 px-3">Yield (Alu / Poly)</th>
                     <th className="py-3 px-3">Issued Voucher</th>
-                    <th className="py-3 px-3">Status</th>
+                    <th className="py-3 px-3">Redemption Status</th>
+                    <th className="py-3 px-3">Pipeline</th>
                     <th className="py-3 px-3">Date</th>
                   </tr>
                 </thead>
@@ -848,8 +1048,36 @@ export default function AndroidDriverApp({ t }) {
                     const exact = Number(row.exactStrips) || 12;
                     const alu = (exact * 0.5).toFixed(1);
                     const poly = (exact * 1.1).toFixed(1);
+                    const hasPhoto = !!(row.photoBase64 || row.photoUrl);
                     return (
                       <tr key={row.token || row.id} className="hover:bg-slate-900/50 transition-colors">
+                        {/* Photo Thumbnail Column */}
+                        <td className="py-2 px-3 whitespace-nowrap">
+                          {hasPhoto ? (
+                            <div 
+                              onClick={() => setPreviewPhoto({
+                                url: row.photoBase64 || row.photoUrl,
+                                title: `${row.token} - ${row.userName || 'Citizen'}`,
+                                subtitle: `${row.binId} • ${new Date(row.date).toLocaleString('en-IN')}`,
+                                isLive: row.isLivePhoto
+                              })}
+                              className="relative w-10 h-10 rounded-xl overflow-hidden border border-slate-700 cursor-pointer group shadow-xs bg-black"
+                              title="Click to view full photo"
+                            >
+                              <img
+                                src={row.photoBase64 || row.photoUrl}
+                                alt="Blister proof"
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                              />
+                              {row.isLivePhoto ? (
+                                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 ring-1 ring-black" title="Live Camera Verified"></span>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-slate-500 font-mono">No Photo</span>
+                          )}
+                        </td>
+
                         <td className="py-2.5 px-3 font-mono font-bold text-emerald-400 whitespace-nowrap">{row.token}</td>
                         <td className="py-2.5 px-3 font-semibold text-white whitespace-nowrap">{row.userName || 'Citizen'}</td>
                         <td className="py-2.5 px-3 text-slate-300 max-w-xs truncate">{row.binId}</td>
@@ -861,6 +1089,25 @@ export default function AndroidDriverApp({ t }) {
                         <td className="py-2.5 px-3 font-mono font-bold text-amber-300 whitespace-nowrap">
                           {row.promoCode || 'ECOBLISTER-VOUCHER'}
                         </td>
+
+                        {/* Customer Phone & Redemption Status Column */}
+                        <td className="py-2.5 px-3 whitespace-nowrap">
+                          {row.isRedeemed ? (
+                            <div className="space-y-0.5">
+                              <span className="text-emerald-400 font-mono font-bold block text-[11px]">
+                                ✓ {row.redeemedPhone || 'Redeemed'}
+                              </span>
+                              {row.redeemedAt && (
+                                <span className="text-slate-400 text-[10px] block font-mono">
+                                  {new Date(row.redeemedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-amber-400/90 font-semibold text-[11px]">● Unclaimed Voucher</span>
+                          )}
+                        </td>
+
                         <td className="py-2.5 px-3 whitespace-nowrap">
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                             row.status === 'Resolved' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
@@ -976,17 +1223,35 @@ export default function AndroidDriverApp({ t }) {
                         </p>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => toggleRedeemCode(promo.promoCode)}
-                        className={`w-full mt-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          promo.isRedeemed
-                            ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                            : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow'
-                        }`}
-                      >
-                        {promo.isRedeemed ? 'Undo Claim Status' : '✓ Mark Redeemed at Chemist'}
-                      </button>
+                      {promo.isRedeemed ? (
+                        <div className="mt-3 p-2.5 bg-emerald-950/70 border border-emerald-800 rounded-xl space-y-1 text-[11px]">
+                          <div className="flex justify-between items-center">
+                            <span className="text-emerald-400 font-bold flex items-center gap-1">
+                              <Phone className="w-3 h-3" /> Customer Phone:
+                            </span>
+                            <span className="font-mono font-black text-white">{promo.redeemedPhone || 'Recorded'}</span>
+                          </div>
+                          {promo.redeemedAt && (
+                            <div className="flex justify-between text-[10px] text-emerald-300/80">
+                              <span>Redeemed Date:</span>
+                              <span>{new Date(promo.redeemedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAdminRedeemModal(promo);
+                            setAdminRedeemPhone('');
+                            setAdminRedeemError(null);
+                          }}
+                          className="w-full mt-3 py-2 rounded-xl text-xs font-black transition-all bg-emerald-600 hover:bg-emerald-500 text-white shadow cursor-pointer flex items-center justify-center gap-1.5"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Mark Redeemed (Req. Phone)</span>
+                        </button>
+                      )}
                     </div>
                   ))}
               </div>
@@ -1380,7 +1645,274 @@ export default function AndroidDriverApp({ t }) {
           </div>
         )}
 
+        {/* ================= TAB 7: REFINERY & RECOVERY PARTNER DATA ================= */}
+        {activeTab === 'partner' && (
+          <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800 space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div>
+                <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                  <Factory className="w-5 h-5 text-teal-400" />
+                  Smelting & Recovery Partner Refinery Feed
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Live data submitted by EcoMetals Hydrometallurgical Refinery Hub (Peenya, Bengaluru). Synchronized with Partner Portal.
+                </p>
+              </div>
+
+              {/* Timeframe switch */}
+              <div className="inline-flex p-1 bg-slate-900 rounded-xl border border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setPartnerTimeframe('daily')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    partnerTimeframe === 'daily' ? 'bg-teal-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Daily
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPartnerTimeframe('monthly')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    partnerTimeframe === 'monthly' ? 'bg-teal-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPartnerTimeframe('yearly')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    partnerTimeframe === 'yearly' ? 'bg-teal-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Yearly
+                </button>
+              </div>
+            </div>
+
+            {/* Partner Summary Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="p-3.5 bg-slate-900 rounded-2xl border border-slate-800">
+                <span className="text-[11px] text-slate-400 block">Total Material Inflow</span>
+                <span className="text-xl font-black text-white font-mono">
+                  {partnerSummary?.[partnerTimeframe]?.inflowKg || 0} kg
+                </span>
+                <span className="text-[10px] text-teal-400 font-semibold block mt-0.5">
+                  {partnerSummary?.[partnerTimeframe]?.batchesCount || 0} Batches Processed
+                </span>
+              </div>
+
+              <div className="p-3.5 bg-slate-900 rounded-2xl border border-slate-800">
+                <span className="text-[11px] text-slate-400 block">Aluminum Recovered</span>
+                <span className="text-xl font-black text-amber-500 font-mono">
+                  {partnerSummary?.[partnerTimeframe]?.aluminumKg || 0} kg
+                </span>
+                <span className="text-[10px] text-slate-400 block mt-0.5">99.2% Pure Ingot Flakes</span>
+              </div>
+
+              <div className="p-3.5 bg-slate-900 rounded-2xl border border-slate-800">
+                <span className="text-[11px] text-slate-400 block">Polymer Granulate</span>
+                <span className="text-xl font-black text-emerald-400 font-mono">
+                  {partnerSummary?.[partnerTimeframe]?.polymerKg || 0} kg
+                </span>
+                <span className="text-[10px] text-slate-400 block mt-0.5">Clean PVC/PVDC Flakes</span>
+              </div>
+
+              <div className="p-3.5 bg-slate-900 rounded-2xl border border-slate-800">
+                <span className="text-[11px] text-slate-400 block">Carbon Abatement</span>
+                <span className="text-xl font-black text-blue-400 font-mono">
+                  {Math.round((partnerSummary?.[partnerTimeframe]?.aluminumKg || 0) * 3.2)} kg
+                </span>
+                <span className="text-[10px] text-slate-400 block mt-0.5">CO₂e emissions saved</span>
+              </div>
+            </div>
+
+            {/* Partner Batches Table in Admin */}
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Batches Logged by Recovery Partner
+                </h4>
+                <button
+                  type="button"
+                  onClick={fetchPartnerData}
+                  className="text-xs text-teal-400 hover:text-teal-300 flex items-center gap-1 cursor-pointer font-semibold"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Refresh Partner Feed</span>
+                </button>
+              </div>
+
+              <div className="overflow-x-auto rounded-2xl border border-slate-800">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800">
+                    <tr>
+                      <th className="py-2.5 px-3">Batch ID</th>
+                      <th className="py-2.5 px-3">Date</th>
+                      <th className="py-2.5 px-3">Material Category</th>
+                      <th className="py-2.5 px-3">Source Hub</th>
+                      <th className="py-2.5 px-3 text-right">Inflow (kg)</th>
+                      <th className="py-2.5 px-3 text-right">Alu Output</th>
+                      <th className="py-2.5 px-3 text-right">Polymer Output</th>
+                      <th className="py-2.5 px-3 text-center">Efficiency</th>
+                      <th className="py-2.5 px-3">Operator</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 font-medium">
+                    {partnerRecords.length > 0 ? (
+                      partnerRecords.map((r) => (
+                        <tr key={r.id} className="hover:bg-slate-900/50">
+                          <td className="py-2.5 px-3 font-mono font-bold text-teal-400">{r.batchId}</td>
+                          <td className="py-2.5 px-3 text-slate-400 whitespace-nowrap">
+                            {new Date(r.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                          </td>
+                          <td className="py-2.5 px-3 text-white">{r.materialType}</td>
+                          <td className="py-2.5 px-3 text-slate-400 truncate max-w-[140px]">{r.sourceHub}</td>
+                          <td className="py-2.5 px-3 text-right font-black text-white">{r.inflowKg} kg</td>
+                          <td className="py-2.5 px-3 text-right font-bold text-amber-500">{r.recycledAluminumKg} kg</td>
+                          <td className="py-2.5 px-3 text-right font-bold text-emerald-400">{r.recycledPolymerKg} kg</td>
+                          <td className="py-2.5 px-3 text-center">
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 text-[10px] font-bold border border-emerald-800">
+                              {r.recoveryEfficiencyPercent}%
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-300 whitespace-nowrap">{r.operatorName}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={9} className="py-6 text-center text-slate-500">
+                          No refinery batch records available.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        )}
+
       </div>
+
+      {/* ================================================================ */}
+      {/* LIGHTBOX MODAL: FULL-SCREEN CUSTOMER PHOTO PREVIEW               */}
+      {/* ================================================================ */}
+      {previewPhoto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
+          <div className="relative max-w-3xl w-full bg-slate-900 rounded-3xl border border-slate-700 overflow-hidden shadow-2xl space-y-3">
+            <div className="p-4 bg-slate-950 flex items-center justify-between border-b border-slate-800">
+              <div>
+                <h4 className="text-sm font-extrabold text-white flex items-center gap-2">
+                  <Camera className="w-4 h-4 text-emerald-400" />
+                  {previewPhoto.title || 'Customer Deposit Photo Proof'}
+                </h4>
+                <p className="text-[11px] text-slate-400 mt-0.5">{previewPhoto.subtitle}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewPhoto(null)}
+                className="p-1.5 rounded-full hover:bg-slate-800 text-slate-300 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 flex flex-col items-center justify-center">
+              <img
+                src={previewPhoto.url}
+                alt="Enlarged Blister Photo"
+                className="max-h-[70vh] w-auto max-w-full rounded-2xl object-contain border border-slate-800 shadow-2xl"
+              />
+            </div>
+
+            <div className="p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+              <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                {previewPhoto.isLive ? 'Live Camera Snapshot with Watermark' : 'File Upload Verification'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPreviewPhoto(null)}
+                className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs cursor-pointer"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================ */}
+      {/* ADMIN REDEEM MODAL: MANDATORY PHONE NUMBER VERIFICATION         */}
+      {/* ================================================================ */}
+      {adminRedeemModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="relative max-w-md w-full bg-slate-900 rounded-3xl border border-slate-700 overflow-hidden shadow-2xl text-left">
+            <div className="p-5 bg-gradient-to-r from-emerald-800 to-slate-950 text-white flex items-center justify-between">
+              <div>
+                <h4 className="text-base font-black">Chemist Redemption Verification</h4>
+                <p className="text-xs text-emerald-200">Customer Phone Number is Strictly Mandatory</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAdminRedeemModal(null)}
+                className="p-1 rounded-full hover:bg-white/20 text-white cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAdminRedeemSubmit} className="p-5 space-y-4">
+              {adminRedeemError && (
+                <div className="p-3 bg-red-950/80 border border-red-800 rounded-xl text-xs text-red-300">
+                  {adminRedeemError}
+                </div>
+              )}
+
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Voucher Code</span>
+                <span className="text-base font-black font-mono text-emerald-400">{adminRedeemModal.promoCode}</span>
+                <span className="text-xs text-slate-300 block">{adminRedeemModal.userName} • {adminRedeemModal.discount}% OFF</span>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-300 flex items-center gap-1">
+                  <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                  Customer Phone Number <span className="text-red-400">* (Mandatory)</span>
+                </label>
+                <input
+                  type="tel"
+                  required
+                  value={adminRedeemPhone}
+                  onChange={(e) => setAdminRedeemPhone(e.target.value)}
+                  placeholder="e.g. +91 98765 43210"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setAdminRedeemModal(null)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={adminRedeeming}
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl shadow cursor-pointer flex items-center gap-1.5"
+                >
+                  {adminRedeeming ? 'Validating...' : 'Confirm & Redeem Voucher'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 

@@ -4,7 +4,8 @@ import confetti from 'canvas-confetti';
 import { 
   Check, Copy, Search, ArrowRight, MapPin, Calendar, 
   Sparkles, AlertCircle, Tag, Gift, Store, ShieldCheck, 
-  Pill, User, Phone, Mail, Award, CheckCircle2, Share2, Printer
+  Pill, User, Phone, Mail, Award, CheckCircle2, Share2, Printer,
+  Lock, CheckCircle, Clock, AlertTriangle, Building2
 } from 'lucide-react';
 
 export default function TokenTracker({ initialToken, onNewReport, t }) {
@@ -15,11 +16,20 @@ export default function TokenTracker({ initialToken, onNewReport, t }) {
   const [copiedPromo, setCopiedPromo] = useState(false);
   const [tokenQrUrl, setTokenQrUrl] = useState('');
 
+  // Redemption state
+  const [redeemPhone, setRedeemPhone] = useState('');
+  const [redeemStore, setRedeemStore] = useState('Apollo Pharmacy - Indiranagar 100ft Rd');
+  const [redeeming, setRedeeming] = useState(false);
+  const [redeemError, setRedeemError] = useState(null);
+  const [redeemSuccess, setRedeemSuccess] = useState(null);
+
   // Fetch report / voucher by token or promoCode
   const fetchReport = async (codeToFetch) => {
     if (!codeToFetch) return;
     setLoading(true);
     setError(null);
+    setRedeemError(null);
+    setRedeemSuccess(null);
     try {
       const res = await fetch(`/api/reports/${encodeURIComponent(codeToFetch.trim())}`);
       if (!res.ok) {
@@ -27,6 +37,11 @@ export default function TokenTracker({ initialToken, onNewReport, t }) {
       }
       const data = await res.json();
       setReport(data);
+
+      // Pre-fill phone if customer provided during deposit
+      if (data.userPhone && !data.isRedeemed) {
+        setRedeemPhone(data.userPhone);
+      }
 
       // Generate counter QR Code for direct chemist redemption
       const directUrl = `${window.location.origin}/#track=${data.promoCode || data.token}`;
@@ -49,7 +64,6 @@ export default function TokenTracker({ initialToken, onNewReport, t }) {
   useEffect(() => {
     if (initialToken) {
       fetchReport(initialToken);
-      // Trigger festive celebratory confetti
       try {
         confetti({
           particleCount: 120,
@@ -72,6 +86,52 @@ export default function TokenTracker({ initialToken, onNewReport, t }) {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  // Redeem Promo Code handler (Mandatory Phone Number)
+  const handleRedeem = async (e) => {
+    e.preventDefault();
+    setRedeemError(null);
+    setRedeemSuccess(null);
+
+    const clean = (redeemPhone || '').trim();
+    const digitsOnly = clean.replace(/[^0-9]/g, '');
+    if (!clean || digitsOnly.length < 10) {
+      setRedeemError('Customer Phone Number (minimum 10 digits) is strictly mandatory to redeem this discount voucher.');
+      return;
+    }
+
+    setRedeeming(true);
+    try {
+      const res = await fetch('/api/promocodes/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          promoCode: report?.promoCode || report?.token,
+          phone: clean,
+          storeName: redeemStore
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to redeem voucher');
+      }
+
+      setReport(data.report);
+      setRedeemSuccess(`Voucher successfully redeemed for ${clean} at ${redeemStore}!`);
+      try {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } catch (e) {}
+    } catch (err) {
+      setRedeemError(err.message);
+    } finally {
+      setRedeeming(false);
+    }
   };
 
   return (
@@ -115,7 +175,7 @@ export default function TokenTracker({ initialToken, onNewReport, t }) {
         )}
       </div>
 
-      {/* EXCLUSIVE MEDICAL STORE DISCOUNT PROMO VOUCHER (NO TRACKING STEPS) */}
+      {/* EXCLUSIVE MEDICAL STORE DISCOUNT PROMO VOUCHER */}
       {report && (
         <div className="space-y-6 animate-fade-in">
           
@@ -125,16 +185,25 @@ export default function TokenTracker({ initialToken, onNewReport, t }) {
             <div className="absolute -top-12 -right-12 w-64 h-64 bg-amber-400/20 rounded-full blur-3xl pointer-events-none"></div>
             <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-teal-400/20 rounded-full blur-3xl pointer-events-none"></div>
 
-            {/* Top Badge: Verified Reward */}
+            {/* Top Badge: Verified Reward & Redemption Status */}
             <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-6 border-b border-white/20">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-black uppercase tracking-wider shadow-xs">
                 <Gift className="w-4 h-4 text-amber-300 animate-bounce" />
                 OFFICIAL PHARMACY DISCOUNT VOUCHER
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-emerald-100 font-medium">
-                <ShieldCheck className="w-4 h-4 text-emerald-200" />
-                <span>Verified by Ecoblister</span>
+              <div className="flex items-center gap-2">
+                {report.isRedeemed ? (
+                  <span className="px-3 py-1 bg-amber-400 text-slate-950 rounded-full text-xs font-black uppercase tracking-wider shadow flex items-center gap-1.5">
+                    <CheckCircle className="w-4 h-4 text-slate-950" />
+                    Claimed / Redeemed
+                  </span>
+                ) : (
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-100 font-semibold bg-white/10 px-3 py-1 rounded-full">
+                    <ShieldCheck className="w-4 h-4 text-emerald-200" />
+                    <span>Active & Verified by Ecoblister</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -147,7 +216,7 @@ export default function TokenTracker({ initialToken, onNewReport, t }) {
                   <span className="text-xs font-bold text-amber-300 uppercase tracking-widest block mb-1">
                     Special Reward Tier
                   </span>
-                  <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none">
+                  <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-none">
                     {report.discountPercentage || 20}% OFF
                     <span className="text-base sm:text-lg font-bold text-emerald-100 block sm:inline sm:ml-2">
                       on Next Medicine Bill
@@ -156,11 +225,19 @@ export default function TokenTracker({ initialToken, onNewReport, t }) {
                 </div>
 
                 {/* Recipient Details */}
-                <div className="p-3 bg-black/25 backdrop-blur-md rounded-2xl border border-white/10 text-xs space-y-1">
-                  <div className="flex items-center gap-2">
-                    <User className="w-3.5 h-3.5 text-emerald-300" />
-                    <span className="text-emerald-200">Issued To:</span>
-                    <span className="font-bold text-white text-sm">{report.userName || 'Valued Recycler'}</span>
+                <div className="p-3.5 bg-black/25 backdrop-blur-md rounded-2xl border border-white/10 text-xs space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <User className="w-3.5 h-3.5 text-emerald-300" />
+                      <span className="text-emerald-200">Issued To:</span>
+                      <span className="font-bold text-white text-sm">{report.userName || 'Valued Recycler'}</span>
+                    </div>
+                    {report.userPhone && (
+                      <div className="text-[11px] text-emerald-200 flex items-center gap-1">
+                        <Phone className="w-3 h-3" />
+                        <span>{report.userPhone}</span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-wrap items-center gap-4 text-[11px] text-emerald-200/90 pt-0.5">
                     <span>Strips Deposited: <strong className="text-white">{report.stripCount}</strong></span>
@@ -219,7 +296,7 @@ export default function TokenTracker({ initialToken, onNewReport, t }) {
                   )}
                 </div>
 
-                <span className="text-[11px] font-mono font-bold text-slate-700 mt-2 truncate max-w-[150px]">
+                <span className="text-[11px] font-mono font-bold text-slate-700 mt-2 truncate max-w-[160px]">
                   {report.promoCode || report.token}
                 </span>
                 <span className="text-[9px] text-slate-400 uppercase tracking-tighter">
@@ -246,6 +323,130 @@ export default function TokenTracker({ initialToken, onNewReport, t }) {
                 <span>Valid for 30 Days from Deposit</span>
               </div>
             </div>
+          </div>
+
+          {/* ================================================================ */}
+          {/* CHEMIST VOUCHER REDEMPTION COUNTER (PHONE NUMBER MANDATORY)     */}
+          {/* ================================================================ */}
+          <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-lg border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                  <Store className="w-5 h-5 text-emerald-600" />
+                  Chemist Store Redemption Counter
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Customer phone number is strictly required to verify, record, and apply discount at billing.
+                </p>
+              </div>
+              <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                Billing Verification
+              </span>
+            </div>
+
+            {/* If Already Redeemed */}
+            {report.isRedeemed ? (
+              <div className="p-5 bg-gradient-to-r from-emerald-50 via-teal-50 to-slate-50 border-2 border-emerald-300 rounded-2xl space-y-2">
+                <div className="flex items-center gap-2 text-emerald-900 font-extrabold text-sm sm:text-base">
+                  <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <span>VOUCHER SUCCESSFULLY REDEEMED</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
+                  <div className="p-3 bg-white rounded-xl border border-emerald-100 shadow-xs">
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Redeemed To Phone</span>
+                    <strong className="text-slate-900 font-mono text-sm">{report.redeemedPhone || 'N/A'}</strong>
+                  </div>
+                  <div className="p-3 bg-white rounded-xl border border-emerald-100 shadow-xs">
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Redemption Date & Time</span>
+                    <strong className="text-slate-900 text-xs">
+                      {report.redeemedAt ? new Date(report.redeemedAt).toLocaleString('en-IN') : 'Verified'}
+                    </strong>
+                  </div>
+                  <div className="p-3 bg-white rounded-xl border border-emerald-100 shadow-xs">
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Redeemed Store</span>
+                    <strong className="text-slate-900 text-xs truncate block">{report.redeemedStore || 'Partner Pharmacy'}</strong>
+                  </div>
+                </div>
+                <p className="text-[11px] text-slate-500 pt-1">
+                  🔒 This voucher has been recorded in the central Eco-Blisters ledger and cannot be redeemed again.
+                </p>
+              </div>
+            ) : (
+              /* If Active: Redemption Form */
+              <form onSubmit={handleRedeem} className="space-y-4">
+                {redeemError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-xs text-red-700 animate-shake">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span className="font-semibold">{redeemError}</span>
+                  </div>
+                )}
+
+                {redeemSuccess && (
+                  <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-xl flex items-center gap-2 text-xs text-emerald-800">
+                    <CheckCircle className="w-4 h-4 shrink-0 text-emerald-600" />
+                    <span className="font-semibold">{redeemSuccess}</span>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Phone Number: Mandatory */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                      Customer Phone Number <span className="text-red-500 font-black">* (Required to Redeem)</span>
+                    </label>
+                    <div className="relative">
+                      <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                      <input
+                        type="tel"
+                        required
+                        value={redeemPhone}
+                        onChange={(e) => setRedeemPhone(e.target.value)}
+                        placeholder="e.g. +91 98765 43210"
+                        className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Store Name */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                      Redeeming Pharmacy / Hospital Store
+                    </label>
+                    <div className="relative">
+                      <Building2 className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                      <select
+                        value={redeemStore}
+                        onChange={(e) => setRedeemStore(e.target.value)}
+                        className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
+                      >
+                        <option value="Apollo Pharmacy - Indiranagar 100ft Rd">Apollo Pharmacy (100ft Rd, Indiranagar)</option>
+                        <option value="MedPlus Pharmacy - Koramangala 5th Block">MedPlus Pharmacy (Koramangala 5th Block)</option>
+                        <option value="Wellness Forever - Jayanagar 4th Block">Wellness Forever 24x7 (Jayanagar 4th Block)</option>
+                        <option value="Victoria Hospital Chemist Hall">Victoria Hospital Chemist Hall</option>
+                        <option value="Manipal Hospital Chemist Counter">Manipal Hospital Chemist Counter</option>
+                        <option value="Other Partner Medical Store">Other Partner Medical Store</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
+                  <button
+                    type="submit"
+                    disabled={redeeming}
+                    className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 transform active:scale-95"
+                  >
+                    <CheckCircle className="w-4 h-4 text-amber-300" />
+                    <span>{redeeming ? 'Verifying & Claiming...' : `Verify Phone & Redeem ${report.discountPercentage || 20}% OFF Voucher`}</span>
+                  </button>
+
+                  <span className="text-[11px] text-slate-500 flex items-center gap-1">
+                    <Lock className="w-3.5 h-3.5 text-emerald-600" />
+                    Phone and redemption timestamp are permanently stored in admin audit records.
+                  </span>
+                </div>
+              </form>
+            )}
           </div>
 
           {/* Action Bar */}

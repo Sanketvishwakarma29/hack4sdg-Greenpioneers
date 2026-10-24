@@ -63,6 +63,7 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
   });
 
   const [photo, setPhoto] = useState(null);
+  const [photoMeta, setPhotoMeta] = useState({ isLivePhoto: false, timestamp: null, hash: null });
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState(null);
@@ -119,7 +120,10 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
         longitude: location.longitude,
         address: location.address,
         notes,
-        photoBase64: photo
+        photoBase64: photo,
+        isLivePhoto: photoMeta.isLivePhoto,
+        photoTimestamp: photoMeta.timestamp,
+        photoHash: photoMeta.hash
       };
 
       const res = await fetch('/api/reports', {
@@ -129,10 +133,21 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
       });
 
       if (!res.ok) {
-        throw new Error('Failed to record blister deposit. Please try again.');
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to record blister deposit. Please try again.');
       }
 
       const result = await res.json();
+      
+      // Save hash locally to prevent immediate reuse
+      if (photoMeta.hash) {
+        try {
+          const currentHashes = JSON.parse(localStorage.getItem('ecoblister_submitted_hashes') || '[]');
+          currentHashes.push(photoMeta.hash);
+          localStorage.setItem('ecoblister_submitted_hashes', JSON.stringify(currentHashes.slice(-50)));
+        } catch (e) {}
+      }
+
       playNotificationSound('success');
       onReportSuccess(result.promoCode || result.token);
     } catch (err) {
@@ -518,7 +533,10 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
             {/* 6. Photo Evidence (Optional) */}
             <div className="space-y-1">
               <CameraCapture
-                onPhotoCapture={setPhoto}
+                onPhotoCapture={(dataUrl, meta) => {
+                  setPhoto(dataUrl);
+                  if (meta) setPhotoMeta(meta);
+                }}
                 currentPhoto={photo}
                 t={t}
               />

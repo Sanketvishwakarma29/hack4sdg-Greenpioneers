@@ -4,6 +4,9 @@ import { initialReports } from './seedData.js';
 // In-memory reports store for serverless instance
 let reports = [...initialReports];
 
+// Track submitted photo hashes to prevent duplicate photo uploads
+const submittedPhotoHashes = new Set();
+
 function calculateDiscountFromStrips(stripCountStr, exactCountNum) {
   let count = Number(exactCountNum);
   if (isNaN(count) || count <= 0) {
@@ -50,8 +53,14 @@ export default async function handler(req, res) {
     return;
   }
 
-  // GET: Fetch all reports
+  // GET: Fetch all reports or single report by token
   if (req.method === 'GET') {
+    const { token } = req.query || {};
+    if (token) {
+      const found = reports.find(r => r.token === token || r.id === token);
+      if (!found) return res.status(404).json({ error: 'Report not found' });
+      return res.status(200).json(found);
+    }
     return res.status(200).json(reports);
   }
 
@@ -59,6 +68,17 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const body = req.body || {};
+
+      // Anti-duplicate photo check
+      if (body.photoHash) {
+        if (submittedPhotoHashes.has(body.photoHash)) {
+          return res.status(400).json({
+            error: 'Duplicate photo detected. Please take a fresh live photo of the empty medicine blisters in the bin.'
+          });
+        }
+        submittedPhotoHashes.add(body.photoHash);
+      }
+
       const discountPercentage = calculateDiscountFromStrips(body.stripCount, body.exactStrips);
       const token = generateToken();
       const promoCode = generatePromoCode(discountPercentage);
@@ -80,10 +100,18 @@ export default async function handler(req, res) {
         date: body.date || new Date().toISOString(),
         status: 'Pending',
         notes: body.notes || '',
-        photoUrl: body.photoBase64 || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
+        photoUrl: body.photoBase64 || body.photoUrl || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
+        photoBase64: body.photoBase64 || null,
+        isLivePhoto: Boolean(body.isLivePhoto),
+        photoTimestamp: body.photoTimestamp || new Date().toISOString(),
+        photoHash: body.photoHash || null,
         assignedDriver: null,
         discountPercentage,
         partnerPharmacy: 'Apollo Pharmacy Bengaluru Network',
+        isRedeemed: false,
+        redeemedPhone: null,
+        redeemedAt: null,
+        redeemedStore: null,
         history: [
           { status: 'Pending', time: new Date().toISOString(), note: 'Deposited in Pharmacy Collection Bin' }
         ]
@@ -108,14 +136,18 @@ export default async function handler(req, res) {
   // PATCH: Update status
   if (req.method === 'PATCH') {
     try {
-      const { token, status, driverName, note } = req.body || {};
+      const { token, status, driverName, note, isRedeemed, redeemedPhone, redeemedStore } = req.body || {};
       const report = reports.find(r => r.token === token || r.id === token);
       if (!report) {
         return res.status(404).json({ error: 'Report not found' });
       }
 
-      report.status = status || report.status;
+      if (status) report.status = status;
       if (driverName) report.assignedDriver = driverName;
+      if (isRedeemed !== undefined) report.isRedeemed = isRedeemed;
+      if (redeemedPhone) report.redeemedPhone = redeemedPhone;
+      if (redeemedStore) report.redeemedStore = redeemedStore;
+
       report.history.push({
         status: report.status,
         time: new Date().toISOString(),

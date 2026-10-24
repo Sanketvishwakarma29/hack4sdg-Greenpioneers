@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   QrCode, Smartphone, Globe, 
   Search, PlusCircle, Wifi, WifiOff, Phone, Tag,
-  Lock, Shield, LogOut
+  Lock, Shield, LogOut, Factory
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 import { InstagramIcon, FacebookIcon, XTwitterIcon } from './SocialIcons';
@@ -15,6 +15,9 @@ export default function Navbar({
   onOpenAdminLogin,
   isAdminLoggedIn,
   onAdminLogout,
+  onOpenPartnerLogin,
+  isPartnerLoggedIn,
+  onPartnerLogout,
   currentLang, 
   setCurrentLang, 
   t 
@@ -88,7 +91,7 @@ export default function Navbar({
           />
 
           {/* Navigation Tabs */}
-          <nav className="hidden md:flex items-center p-1 bg-slate-100 rounded-2xl border border-slate-200/80">
+          <nav className="hidden md:flex items-center p-1 bg-slate-100 rounded-2xl border border-slate-200/80 gap-0.5">
             <button
               onClick={() => setCurrentTab('report')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
@@ -106,22 +109,22 @@ export default function Navbar({
               <>
                 <button
                   onClick={() => setCurrentTab('driver')}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                     currentTab === 'driver'
                       ? 'bg-emerald-600 text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   <Shield className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>Fleet Portal (Admin)</span>
+                  <span>Fleet Admin</span>
                 </button>
                 <button
                   onClick={onAdminLogout}
-                  className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-1 cursor-pointer"
+                  className="px-2 py-1.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-1 cursor-pointer"
                   title="Sign out of Admin Fleet"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>Sign Out</span>
+                  <LogOut className="w-3 h-3" />
+                  <span>Out</span>
                 </button>
               </>
             ) : (
@@ -132,6 +135,40 @@ export default function Navbar({
               >
                 <Lock className="w-3.5 h-3.5 text-slate-400" />
                 <span>Staff / Admin</span>
+              </button>
+            )}
+
+            {/* Recovery Partner Tab */}
+            {isPartnerLoggedIn ? (
+              <>
+                <button
+                  onClick={() => setCurrentTab('partner')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    currentTab === 'partner'
+                      ? 'bg-teal-700 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Factory className="w-3.5 h-3.5 text-teal-300" />
+                  <span>Recycler Partner</span>
+                </button>
+                <button
+                  onClick={onPartnerLogout}
+                  className="px-2 py-1.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-1 cursor-pointer"
+                  title="Sign out of Partner Portal"
+                >
+                  <LogOut className="w-3 h-3" />
+                  <span>Out</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={onOpenPartnerLogin}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-teal-800 flex items-center gap-1.5 transition-all cursor-pointer hover:bg-teal-50"
+                title="Recovery Partner Portal"
+              >
+                <Factory className="w-3.5 h-3.5 text-teal-600" />
+                <span>Recycler Portal</span>
               </button>
             )}
           </nav>
@@ -155,8 +192,30 @@ export default function Navbar({
               <Globe className="w-3.5 h-3.5 text-slate-500 absolute left-2 top-2.5 pointer-events-none" />
             </div>
 
-            {/* Mobile Admin Lock Button (Visible on mobile screens) */}
-            <div className="md:hidden">
+            {/* Mobile Auth Quick Buttons */}
+            <div className="flex items-center gap-1 md:hidden">
+              {/* Partner mobile button */}
+              {isPartnerLoggedIn ? (
+                <button
+                  type="button"
+                  onClick={() => setCurrentTab('partner')}
+                  className="p-2 bg-teal-100 text-teal-800 rounded-xl text-xs font-bold flex items-center"
+                  title="Recycler Partner"
+                >
+                  <Factory className="w-4 h-4 text-teal-700" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onOpenPartnerLogin}
+                  className="p-2 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-xl"
+                  title="Recycler Portal"
+                >
+                  <Factory className="w-4 h-4" />
+                </button>
+              )}
+
+              {/* Admin mobile button */}
               {isAdminLoggedIn ? (
                 <button
                   type="button"
