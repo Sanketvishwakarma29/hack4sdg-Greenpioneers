@@ -25,7 +25,7 @@ function generateImageHash(canvas) {
   }
 }
 
-export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired = true, t }) {
+export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired = true, t = {} }) {
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraLoading, setCameraLoading] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
@@ -477,7 +477,7 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
               className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-black text-xs sm:text-sm rounded-full shadow-lg shadow-emerald-500/40 flex items-center gap-2 transform active:scale-95 transition-all cursor-pointer"
             >
               <Camera className="w-4 h-4 text-slate-950" />
-              <span>{cameraReady ? 'Take Photo' : 'Starting Camera...'}</span>
+              <span>{cameraReady ? (t?.takePhotoBtn || 'Take Photo') : (t?.startingCamera || 'Starting Camera...')}</span>
             </button>
 
             {/* Close Camera Button */}
@@ -508,7 +508,7 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
           <div className="absolute top-2 left-2 flex items-center gap-1.5">
             <span className="px-2.5 py-1 bg-emerald-600 text-white text-[10px] font-black uppercase rounded-full shadow flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
-              Live Camera Verified Shot
+              {t?.cameraVerifiedBadge || 'Live Camera Verified Shot'}
             </span>
             {photoTimestamp && (
               <span className="px-2 py-0.5 bg-black/70 text-slate-300 text-[9px] font-mono rounded-md hidden sm:inline">
@@ -526,7 +526,7 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
               title="Retake Photo"
             >
               <RefreshCw className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Retake</span>
+              <span>{t?.retakeBtn || 'Retake'}</span>
             </button>
             <button
               type="button"
@@ -552,7 +552,7 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
             className="w-full py-4 px-5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl shadow-lg shadow-emerald-700/25 flex items-center justify-center gap-2.5 text-sm font-black transition-all transform active:scale-[0.99] cursor-pointer"
           >
             <Camera className="w-5 h-5 text-amber-300" />
-            <span>Open Camera to Take Photo</span>
+            <span>{t?.openCameraBtn || 'Open Camera to Take Photo'}</span>
           </button>
 
           {/* Mobile Fallback: Direct Phone Camera trigger if in-browser permission blocks */}
@@ -583,7 +583,7 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
       {/* Trust & Verification Footer Note */}
       <p className="text-[11px] text-slate-500 flex items-center gap-1.5 pt-0.5">
         <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-        <span>A live timestamp watermark is burned onto your photo to verify authentic blister recovery.</span>
+        <span>{t?.watermarkNotice || 'A live timestamp watermark is burned onto your photo to verify authentic blister recovery.'}</span>
       </p>
     </div>
   );

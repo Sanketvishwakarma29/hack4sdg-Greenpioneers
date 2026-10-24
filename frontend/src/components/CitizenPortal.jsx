@@ -208,27 +208,27 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
             </div>
 
             {/* Dynamic Localized Headline focusing on Pharmaceutical Recovery */}
-            <h1 className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight leading-[1.12]">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.15]">
               {tr.heroHeading || "Pharmaceutical Blister Pack Recovery & Medicine Discount Initiative"}
             </h1>
 
             {/* Subtitle */}
-            <p className="text-emerald-100/90 text-sm sm:text-base lg:text-lg leading-relaxed font-normal max-w-xl">
+            <p className="text-emerald-100/90 text-xs sm:text-sm lg:text-base leading-relaxed font-normal max-w-xl">
               {tr.heroSub || "Deposit empty tablet and capsule blister foil packs at verified pharmacies across Bengaluru. Help recover pure aluminum and polymers while receiving 10%–25% OFF on your next prescription medicine purchase."}
             </p>
 
             {/* CTA Button Row */}
-            <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-2">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-5 pt-2">
               <button
                 type="button"
                 onClick={() => {
                   const formEl = document.getElementById('deposit-form-card');
                   if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
-                className="px-7 py-3.5 lg:px-8 lg:py-4 bg-[#bef264] hover:bg-[#a3e635] text-emerald-950 font-black rounded-full text-sm sm:text-base lg:text-lg flex items-center gap-3 shadow-lg shadow-lime-400/25 transition-all cursor-pointer active:scale-95 group"
+                className="px-6 py-3 sm:px-7 sm:py-3.5 bg-[#bef264] hover:bg-[#a3e635] text-emerald-950 font-black rounded-full text-xs sm:text-sm lg:text-base flex items-center gap-2.5 shadow-lg shadow-lime-400/25 transition-all cursor-pointer active:scale-95 group"
               >
                 <span>{tr.depositStripsBtn || "Deposit Blister Packs Now"}</span>
-                <span className="w-6 h-6 lg:w-7 lg:h-7 rounded-full bg-emerald-950 text-[#bef264] flex items-center justify-center text-xs lg:text-sm font-black transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-950 text-[#bef264] flex items-center justify-center text-xs font-black transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                   ↗
                 </span>
               </button>
@@ -280,7 +280,7 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
       {/* ============================================================== */}
       {/* 2. DYNAMIC MARQUEE TICKER TAPE (LOCALIZED FOR ALL 8 LANGUAGES) */}
       {/* ============================================================== */}
-      <div className="w-full bg-[#bef264] text-emerald-950 font-black text-xs sm:text-sm lg:text-base py-3.5 lg:py-4 px-4 rounded-2xl shadow-sm overflow-hidden select-none border border-lime-300">
+      <div className="w-full bg-[#bef264] text-emerald-950 font-black text-xs sm:text-sm py-2.5 sm:py-3 px-4 rounded-2xl shadow-sm overflow-hidden select-none border border-lime-300">
         <div className="flex items-center gap-8 whitespace-nowrap animate-marquee">
           {marqueeItemsList.map((item, idx) => (
             <span key={idx} className="flex items-center gap-2">
@@ -310,21 +310,21 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
           <form 
             id="deposit-form-card"
             onSubmit={handleSubmit} 
-            className="bg-white rounded-[32px] p-6 sm:p-9 lg:p-10 shadow-xl border-2 border-[#bef264] space-y-6 text-left relative transition-all"
+            className="bg-white rounded-[32px] p-5 sm:p-7 lg:p-8 shadow-xl border-2 border-[#bef264] space-y-5 text-left relative transition-all"
           >
-            {/* Card Header (Increased size on laptop view) */}
+            {/* Card Header */}
             <div className="text-center pb-3 border-b border-slate-100 space-y-1.5">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
                 {tr.formTitle || "Record Blister Packaging Deposit"}
               </h2>
-              <p className="text-xs sm:text-sm lg:text-base text-slate-600 font-medium max-w-md mx-auto">
+              <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-md mx-auto">
                 {tr.formSubtitle || "Enter the number of empty medicine strips you are depositing to receive your instant pharmacy discount voucher."}
               </p>
               
               {/* Current Reward Badge */}
-              <div className="pt-2 flex justify-center">
-                <span className="px-4 py-1.5 rounded-full text-xs lg:text-sm font-black bg-emerald-50 text-emerald-900 border border-emerald-300 shadow-xs flex items-center gap-2 animate-pulse">
-                  <Award className="w-4 h-4 lg:w-5 lg:h-5 text-emerald-600" />
+              <div className="pt-1.5 flex justify-center">
+                <span className="px-3.5 py-1 rounded-full text-xs sm:text-[13px] font-black bg-emerald-50 text-emerald-900 border border-emerald-300 shadow-xs flex items-center gap-2 animate-pulse">
+                  <Award className="w-4 h-4 text-emerald-600" />
                   <span>
                     {tr.currentRewardText || "Current Reward Tier"}: <strong className="text-emerald-700 font-black">{currentTier.percent}% {tr.offText || "OFF"}</strong>
                   </span>
@@ -334,8 +334,8 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
 
             {/* Error Alert */}
             {formError && (
-              <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 text-xs lg:text-sm text-rose-900 animate-shake">
-                <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+              <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-2.5 text-xs text-rose-900 animate-shake">
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <span className="font-extrabold block text-rose-950">Missing Requirement</span>
                   <span className="font-medium">{formError}</span>
@@ -343,21 +343,21 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
               </div>
             )}
 
-            {/* STEP 1: IDENTITY & VOUCHER OWNERSHIP (Single numbering badge, responsive text) */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2.5">
-                <span className="w-6 h-6 lg:w-7 lg:h-7 rounded-full bg-emerald-600 text-white text-xs lg:text-sm font-black flex items-center justify-center shrink-0 shadow-2xs">
+            {/* STEP 1: IDENTITY & VOUCHER OWNERSHIP */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0 shadow-2xs">
                   1
                 </span>
-                <h3 className="text-xs sm:text-sm lg:text-base font-black uppercase tracking-wider text-slate-900">
+                <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900">
                   {tr.step1Title || "Citizen Recycler Details"}
                 </h3>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Full Name */}
                 <div className="space-y-1">
-                  <label className="text-[11px] sm:text-xs lg:text-sm font-black uppercase tracking-wider text-slate-800 flex items-center gap-1">
+                  <label className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1">
                     <span>{tr.nameLabel || "Full Name"}</span>
                     <span className="text-rose-600">*</span>
                   </label>
@@ -367,33 +367,33 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder={tr.namePlaceholder || "e.g. Ramesh Sharma"}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm lg:text-base font-bold text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#a3e635] transition-all shadow-xs"
+                    className="w-full px-3.5 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#a3e635] transition-all shadow-xs"
                   />
                 </div>
 
                 {/* Email (RESTORED - OPTIONAL FOR DIGITAL RECEIPT) */}
                 <div className="space-y-1">
-                  <label className="text-[11px] sm:text-xs lg:text-sm font-black uppercase tracking-wider text-slate-800 flex items-center justify-between">
+                  <label className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-800 flex items-center justify-between">
                     <span>{tr.emailLabel || "Email Address"}</span>
-                    <span className="text-[10px] lg:text-xs text-slate-400 font-normal lowercase">{tr.optionalText || "(optional)"}</span>
+                    <span className="text-[10px] text-slate-400 font-normal lowercase">{tr.optionalText || "(optional)"}</span>
                   </label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={tr.emailPlaceholder || "e.g. ramesh@example.com"}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm lg:text-base font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#a3e635] transition-all shadow-xs"
+                    className="w-full px-3.5 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#a3e635] transition-all shadow-xs"
                   />
                 </div>
 
                 {/* Phone Number (Mandatory to redeem voucher at store) */}
                 <div className="space-y-1 sm:col-span-2">
-                  <label className="text-[11px] sm:text-xs lg:text-sm font-black uppercase tracking-wider text-slate-800 flex items-center justify-between">
+                  <label className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-800 flex items-center justify-between">
                     <span className="flex items-center gap-1">
                       <span>{tr.phoneLabel || "Mobile Phone Number"}</span>
                       <span className="text-rose-600">*</span>
                     </span>
-                    <span className="text-[10px] lg:text-xs text-emerald-800 font-bold bg-emerald-100 px-2.5 py-0.5 rounded-md">
+                    <span className="text-[10px] sm:text-[11px] text-emerald-800 font-bold bg-emerald-100 px-2 py-0.5 rounded-md">
                       {tr.phoneRedeemNote || "Required to Redeem Voucher at Chemist Store"}
                     </span>
                   </label>
@@ -402,56 +402,56 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder={tr.phonePlaceholder || "+91 98765 43210"}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm lg:text-base font-bold text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#a3e635] transition-all shadow-xs"
+                    className="w-full px-3.5 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#a3e635] transition-all shadow-xs"
                   />
                 </div>
               </div>
             </div>
 
-            {/* STEP 2: BLISTER STRIPS QUANTITY & DROP-OFF POINT (CLEAN & SIMPLE: NO DISCOUNT BOX) */}
-            <div className="space-y-4 pt-2 border-t border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <span className="w-6 h-6 lg:w-7 lg:h-7 rounded-full bg-emerald-600 text-white text-xs lg:text-sm font-black flex items-center justify-center shrink-0 shadow-2xs">
+            {/* STEP 2: BLISTER STRIPS QUANTITY & DROP-OFF POINT (COMPACT & DECREASED SPACE) */}
+            <div className="space-y-3 pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0 shadow-2xs">
                   2
                 </span>
-                <h3 className="text-xs sm:text-sm lg:text-base font-black uppercase tracking-wider text-slate-900">
+                <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900">
                   {tr.step2Title || "Blister Strips Quantity & Drop-off Point"}
                 </h3>
               </div>
 
-              {/* ONLY KEEP NO OF STRIPS INPUT (DISCOUNT BOX COMPLETELY REMOVED AS REQUESTED) */}
-              <div className="p-4 sm:p-5 bg-emerald-50/70 rounded-2xl border-2 border-emerald-200/90 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              {/* ONLY KEEP NO OF STRIPS INPUT (COMPACT SPACING) */}
+              <div className="p-3 sm:p-3.5 bg-emerald-50/60 rounded-xl border border-emerald-200/90 space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div>
-                    <label className="text-xs sm:text-sm lg:text-base font-black uppercase tracking-wider text-slate-900 block">
+                    <label className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900 block">
                       {tr.stripsInputLabel || "Enter Number of Empty Medicine Strips Deposited"} *
                     </label>
-                    <span className="text-[11px] lg:text-xs text-emerald-900 font-semibold">
-                      {tr.stripsHelper || "Type your strip count directly or use the stepper buttons."}
+                    <span className="text-[10px] sm:text-[11px] text-emerald-800 font-medium block">
+                      {tr.stripsHelper || "Enter your exact strip count directly"}
                     </span>
                   </div>
 
-                  {/* Direct Number of Strips Stepper */}
-                  <div className="flex items-center gap-2 self-start sm:self-auto bg-white p-1 rounded-xl border border-emerald-300 shadow-sm">
+                  {/* Direct Number of Strips Stepper (Compact) */}
+                  <div className="flex items-center gap-1.5 self-start sm:self-auto bg-white p-1 rounded-xl border border-emerald-300 shadow-2xs">
                     <button
                       type="button"
                       onClick={() => handleStripCountChange(stripCountInput - 1)}
-                      className="w-9 h-9 lg:w-10 lg:h-10 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-black flex items-center justify-center transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-black flex items-center justify-center transition-colors cursor-pointer"
                       title="Decrease"
                     >
-                      <Minus className="w-4 h-4" />
+                      <Minus className="w-3.5 h-3.5" />
                     </button>
 
-                    <div className="flex items-center px-2">
+                    <div className="flex items-center px-1.5">
                       <input
                         type="number"
                         min="1"
                         max="999"
                         value={stripCountInput}
                         onChange={(e) => handleStripCountChange(e.target.value)}
-                        className="w-16 lg:w-20 py-1 text-center font-black text-xl lg:text-2xl text-emerald-950 focus:outline-none"
+                        className="w-14 sm:w-16 py-0.5 text-center font-black text-lg sm:text-xl text-emerald-950 focus:outline-none"
                       />
-                      <span className="text-xs lg:text-sm font-black text-slate-500 ml-1">
+                      <span className="text-xs font-black text-slate-500 ml-1">
                         {tr.stripsUnit || "Strips"}
                       </span>
                     </div>
@@ -459,48 +459,48 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
                     <button
                       type="button"
                       onClick={() => handleStripCountChange(stripCountInput + 1)}
-                      className="w-9 h-9 lg:w-10 lg:h-10 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-black flex items-center justify-center transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-black flex items-center justify-center transition-colors cursor-pointer"
                       title="Increase"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
 
-                {/* Quick Add Buttons */}
-                <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs font-bold text-slate-700">
-                  <span className="text-[11px] lg:text-xs text-slate-500 font-bold mr-1">Quick Add:</span>
+                {/* Quick Add Buttons (Compact) */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-xs font-bold text-slate-700">
+                  <span className="text-[10px] sm:text-[11px] text-slate-500 font-bold mr-0.5">Quick Add:</span>
                   {[5, 10, 15, 25, 50].map((addNum) => (
                     <button
                       key={addNum}
                       type="button"
                       onClick={() => handleStripCountChange(stripCountInput + addNum)}
-                      className="px-2.5 py-1 bg-white hover:bg-emerald-100 text-emerald-900 rounded-lg text-xs lg:text-sm font-extrabold border border-emerald-300 shadow-2xs transition-all cursor-pointer"
+                      className="px-2 py-0.5 bg-white hover:bg-emerald-100 text-emerald-900 rounded-md text-[11px] sm:text-xs font-extrabold border border-emerald-300 shadow-2xs transition-all cursor-pointer"
                     >
-                      +{addNum} {tr.stripsUnit || "Strips"}
+                      +{addNum}
                     </button>
                   ))}
                   <button
                     type="button"
                     onClick={() => handleStripCountChange(1)}
-                    className="px-2 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-[10px] lg:text-xs font-bold cursor-pointer ml-auto"
+                    className="px-2 py-0.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-md text-[10px] sm:text-[11px] font-bold cursor-pointer ml-auto"
                   >
-                    Reset to 1
+                    Reset
                   </button>
                 </div>
               </div>
 
               {/* Drop-off Pharmacy / Medical Store Drop-box */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="text-[11px] sm:text-xs lg:text-sm font-black uppercase tracking-wider text-slate-800 flex items-center gap-1">
+                  <label className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1">
                     <span>{tr.dropPointLabel || "Drop-off Pharmacy / Medical Store"}</span>
                     <span className="text-rose-600">*</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => setIsCustomPoint(!isCustomPoint)}
-                    className="text-xs lg:text-sm text-emerald-700 font-bold hover:underline cursor-pointer"
+                    className="text-[11px] sm:text-xs text-emerald-700 font-bold hover:underline cursor-pointer"
                   >
                     {isCustomPoint ? (tr.chooseFromList || "Choose from Drop-box List") : (tr.otherMedicalStore || "+ Other Medical Store")}
                   </button>
@@ -510,7 +510,7 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
                   <select
                     value={selectedDropPoint}
                     onChange={(e) => setSelectedDropPoint(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm lg:text-base font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#a3e635] shadow-xs"
+                    className="w-full px-3.5 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#a3e635] shadow-xs"
                   >
                     {bengaluruLocations.map((group) => (
                       <optgroup key={group.group} label={group.group}>
@@ -529,13 +529,13 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
                     value={customPointText}
                     onChange={(e) => setCustomPointText(e.target.value)}
                     placeholder={tr.customStorePlaceholder || "e.g. Sanjeevani Medicals, Near Malleshwaram 8th Cross"}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm lg:text-base font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#a3e635] shadow-xs"
+                    className="w-full px-3.5 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#a3e635] shadow-xs"
                   />
                 )}
 
                 {/* Quick Select Chips */}
-                <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  <span className="text-[10px] lg:text-xs text-slate-500 font-bold mr-1">{tr.quickSelect || "Quick Select:"}</span>
+                <div className="flex flex-wrap items-center gap-1 pt-0.5">
+                  <span className="text-[10px] text-slate-500 font-bold mr-1">{tr.quickSelect || "Quick Select:"}</span>
                   {["Victoria Hospital", "Apollo Pharmacy Indiranagar", "Manipal Hospital", "Majestic Metro Hub"].map((name) => (
                     <button
                       key={name}
@@ -545,7 +545,7 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
                         const found = bengaluruLocations.flatMap(g => g.items).find(i => i.label.includes(name));
                         if (found) setSelectedDropPoint(found.id);
                       }}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-[10px] lg:text-xs font-bold border border-slate-200/90 transition-all cursor-pointer shadow-2xs"
+                      className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-md text-[10px] sm:text-[11px] font-bold border border-slate-200/90 transition-all cursor-pointer shadow-2xs"
                     >
                       {name}
                     </button>
@@ -555,13 +555,13 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
 
               {/* Material Type */}
               <div className="space-y-1">
-                <label className="text-[11px] sm:text-xs lg:text-sm font-black uppercase tracking-wider text-slate-800">
+                <label className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-800">
                   {tr.materialLabel || "Blister Packaging Material / Foil Type"}
                 </label>
                 <select
                   value={materialType}
                   onChange={(e) => setMaterialType(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm lg:text-base font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#a3e635] shadow-xs"
+                  className="w-full px-3.5 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#a3e635] shadow-xs"
                 >
                   <option value="Alu-Alu Blister Foil (Cold Form Opaque)">
                     {tr.materials?.aluAlu || "Alu-Alu Cold-Form Opaque Foil (Highest Aluminum Yield)"}
@@ -577,16 +577,15 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
                   </option>
                 </select>
               </div>
-
             </div>
 
-            {/* STEP 3: MANDATORY CAMERA PHOTO PROOF (Single numbering badge, responsive text) */}
+            {/* STEP 3: MANDATORY CAMERA PHOTO PROOF */}
             <div id="camera-section" className="space-y-3 pt-2 border-t border-slate-100 scroll-mt-24">
-              <div className="flex items-center gap-2.5">
-                <span className="w-6 h-6 lg:w-7 lg:h-7 rounded-full bg-emerald-600 text-white text-xs lg:text-sm font-black flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0 shadow-2xs">
                   3
                 </span>
-                <h3 className="text-xs sm:text-sm lg:text-base font-black uppercase tracking-wider text-slate-900">
+                <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900">
                   {tr.step3Title || "Camera Photo Verification"}
                 </h3>
               </div>
@@ -603,13 +602,13 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
               />
             </div>
 
-            {/* STEP 4: LOCATION MAP & VOICE ASSIST (Single numbering badge, responsive text) */}
+            {/* STEP 4: LOCATION MAP & VOICE ASSIST */}
             <div className="space-y-3 pt-2 border-t border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <span className="w-6 h-6 lg:w-7 lg:h-7 rounded-full bg-slate-200 text-slate-700 text-xs lg:text-sm font-black flex items-center justify-center shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0 shadow-2xs">
                   4
                 </span>
-                <h3 className="text-xs sm:text-sm lg:text-base font-black uppercase tracking-wider text-slate-900">
+                <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900">
                   {tr.step4Title || "Location & Voice Assistance"}
                 </h3>
               </div>
@@ -630,30 +629,30 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
               />
             </div>
 
-            {/* SUBMIT BUTTON (Responsive scaling on laptop view) */}
+            {/* SUBMIT BUTTON */}
             <div className="pt-2">
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-4 lg:py-5 px-8 bg-[#062e1b] hover:bg-[#073c24] text-[#bef264] font-black text-sm sm:text-base lg:text-lg rounded-full shadow-xl flex items-center justify-center gap-3 transition-all duration-200 cursor-pointer active:scale-95 group"
+                className="w-full py-3.5 sm:py-4 px-6 sm:px-8 bg-[#062e1b] hover:bg-[#073c24] text-[#bef264] font-black text-sm sm:text-base rounded-full shadow-xl flex items-center justify-center gap-2.5 transition-all duration-200 cursor-pointer active:scale-95 group"
               >
                 {submitting ? (
                   <>
-                    <Loader2 className="w-5 h-5 lg:w-6 lg:h-6 animate-spin text-[#bef264]" />
+                    <Loader2 className="w-5 h-5 animate-spin text-[#bef264]" />
                     <span>{tr.submittingText || `Generating ${currentTier.percent}% OFF Medical Voucher...`}</span>
                   </>
                 ) : (
                   <>
                     <span>{tr.submitBtnText || `Submit Deposit & Generate ${currentTier.percent}% OFF Voucher`}</span>
-                    <span className="w-6 h-6 lg:w-7 lg:h-7 rounded-full bg-[#bef264] text-emerald-950 flex items-center justify-center text-xs lg:text-sm font-black transition-transform duration-200 group-hover:translate-x-1">
+                    <span className="w-6 h-6 rounded-full bg-[#bef264] text-emerald-950 flex items-center justify-center text-xs font-black transition-transform duration-200 group-hover:translate-x-1">
                       ↗
                     </span>
                   </>
                 )}
               </button>
 
-              <p className="text-center text-[11px] lg:text-xs text-slate-500 font-medium pt-2 flex items-center justify-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-emerald-600" />
+              <p className="text-center text-[11px] text-slate-500 font-medium pt-2 flex items-center justify-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                 <span>{tr.voucherNotice || "Your personalized discount voucher is generated instantly with barcode and promo code for chemist checkout."}</span>
               </p>
             </div>
@@ -664,100 +663,100 @@ export default function CitizenPortal({ onReportSuccess, onOpenQrModal, currentL
         {/* ------------------------------------------------------------ */}
         {/* RIGHT COLUMN: ABOUT SECTION (PURE PHARMACEUTICAL RECYCLING) */}
         {/* ------------------------------------------------------------ */}
-        <div className="lg:col-span-6 space-y-8 text-left pt-2">
+        <div className="lg:col-span-6 space-y-7 text-left pt-2">
           
           {/* Section Tag */}
-          <div className="space-y-3">
-            <span className="text-xs lg:text-sm font-black uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+          <div className="space-y-2.5">
+            <span className="text-xs font-black uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
               <span>✱</span>
               <span>{tr.aboutBadge || "About Eco-Blisters"}</span>
             </span>
 
-            {/* Big Headline */}
-            <h2 className="text-2xl sm:text-4xl lg:text-4xl xl:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            {/* Headline */}
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
               {tr.aboutHeading || "Specialized Medicine Blister Foil Recovery Network"}
             </h2>
 
             {/* Description */}
-            <p className="text-slate-600 text-sm sm:text-base lg:text-lg leading-relaxed">
+            <p className="text-slate-600 text-xs sm:text-sm lg:text-base leading-relaxed">
               {tr.aboutDesc || "Eco-Blisters is India's dedicated pharmaceutical blister recovery network. We collect empty tablet and capsule packaging from households and clinics, delaminating composite aluminum and plastic foils into high-purity recycled raw materials while providing citizens with instant prescription discounts."}
             </p>
           </div>
 
-          {/* 4 Checkmark Features Grid (Slightly larger on laptop) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs sm:text-sm lg:text-base font-bold text-slate-800">
-            <div className="flex items-center gap-2.5">
-              <div className="w-5 h-5 lg:w-6 lg:h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                <CheckCircle className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+          {/* 4 Checkmark Features Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm font-bold text-slate-800">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                <CheckCircle className="w-3.5 h-3.5" />
               </div>
               <span>{tr.feature1 || "Verified Hospital & Chemist Drop-boxes"}</span>
             </div>
 
-            <div className="flex items-center gap-2.5">
-              <div className="w-5 h-5 lg:w-6 lg:h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                <CheckCircle className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                <CheckCircle className="w-3.5 h-3.5" />
               </div>
               <span>{tr.feature2 || "Reliable Scheduled Fleet Collection"}</span>
             </div>
 
-            <div className="flex items-center gap-2.5">
-              <div className="w-5 h-5 lg:w-6 lg:h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                <CheckCircle className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                <CheckCircle className="w-3.5 h-3.5" />
               </div>
               <span>{tr.feature3 || "Closed-Loop Secondary Aluminum Recovery"}</span>
             </div>
 
-            <div className="flex items-center gap-2.5">
-              <div className="w-5 h-5 lg:w-6 lg:h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                <CheckCircle className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                <CheckCircle className="w-3.5 h-3.5" />
               </div>
               <span>{tr.feature4 || "Instant 10%–25% Medical Discounts"}</span>
             </div>
           </div>
 
           {/* Metric Cards (Avatar Cluster & Percentage Card) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
             
             {/* Card 1: Avatars Cluster */}
-            <div className="p-6 bg-slate-50/80 rounded-3xl border border-slate-200/80 space-y-3">
-              <div className="flex items-center -space-x-3">
+            <div className="p-5 bg-slate-50/80 rounded-2xl border border-slate-200/80 space-y-2.5">
+              <div className="flex items-center -space-x-2.5">
                 <img 
-                  className="w-10 h-10 lg:w-11 lg:h-11 rounded-full border-2 border-white object-cover" 
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-white object-cover" 
                   src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" 
                   alt="Customer avatar 1" 
                 />
                 <img 
-                  className="w-10 h-10 lg:w-11 lg:h-11 rounded-full border-2 border-white object-cover" 
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-white object-cover" 
                   src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" 
                   alt="Customer avatar 2" 
                 />
                 <img 
-                  className="w-10 h-10 lg:w-11 lg:h-11 rounded-full border-2 border-white object-cover" 
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-white object-cover" 
                   src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80" 
                   alt="Customer avatar 3" 
                 />
               </div>
               <div>
-                <span className="text-xl lg:text-2xl font-black text-slate-900 block">1,250+</span>
-                <span className="text-xs lg:text-sm text-slate-600 font-semibold">{tr.satisfiedClients || "Satisfied Citizens & Patients"}</span>
+                <span className="text-lg sm:text-xl font-black text-slate-900 block">1,250+</span>
+                <span className="text-xs text-slate-600 font-semibold">{tr.satisfiedClients || "Satisfied Citizens & Patients"}</span>
               </div>
             </div>
 
             {/* Card 2: Percentage Box */}
-            <div className="p-6 bg-emerald-50/70 rounded-3xl border border-emerald-200/70 space-y-1">
-              <span className="text-4xl lg:text-5xl font-black text-emerald-950 block tracking-tight">98%</span>
-              <span className="text-xs lg:text-sm font-bold text-emerald-900 block">{tr.stat98 || "Customer Satisfaction Rate"}</span>
-              <span className="text-[11px] lg:text-xs text-emerald-700 block">& {tr.stat99 || "99.2% Aluminum Recovery Yield"}</span>
+            <div className="p-5 bg-emerald-50/70 rounded-2xl border border-emerald-200/70 space-y-1">
+              <span className="text-3xl sm:text-4xl font-black text-emerald-950 block tracking-tight">98%</span>
+              <span className="text-xs font-bold text-emerald-900 block">{tr.stat98 || "Customer Satisfaction Rate"}</span>
+              <span className="text-[11px] text-emerald-700 block">& {tr.stat99 || "99.2% Aluminum Recovery Yield"}</span>
             </div>
 
           </div>
 
           {/* Pill Button: More About Us */}
-          <div className="pt-2">
+          <div className="pt-1">
             <button
               type="button"
               onClick={onOpenQrModal}
-              className="px-6 py-3 lg:px-7 lg:py-3.5 bg-[#bef264] hover:bg-[#a3e635] text-emerald-950 font-black rounded-full text-xs sm:text-sm lg:text-base inline-flex items-center gap-2 shadow-md shadow-lime-400/20 transition-all cursor-pointer active:scale-95 group"
+              className="px-5 py-2.5 sm:px-6 sm:py-3 bg-[#bef264] hover:bg-[#a3e635] text-emerald-950 font-black rounded-full text-xs sm:text-sm inline-flex items-center gap-2 shadow-md shadow-lime-400/20 transition-all cursor-pointer active:scale-95 group"
             >
               <span>{tr.moreAboutUsBtn || "More About Us"}</span>
               <span className="w-5 h-5 rounded-full bg-emerald-950 text-[#bef264] flex items-center justify-center text-[10px] font-black transition-transform group-hover:translate-x-0.5">

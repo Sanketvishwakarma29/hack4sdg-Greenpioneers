@@ -46,7 +46,7 @@ export const translations = {
     "phoneRedeemNote": "Required to Redeem Voucher at Chemist Store",
     "step2Title": "Blister Strips Quantity & Drop-off Point",
     "stripsInputLabel": "Enter Number of Empty Medicine Strips Deposited",
-    "stripsHelper": "Type or adjust your strip count — your discount tier calculates automatically in real-time!",
+    "stripsHelper": "Enter your exact strip count directly",
     "stripsUnit": "Strips",
     "unlockedDiscount": "Discount Voucher Unlocked!",
     "tier1Label": "Tier 1: Starter Deposit (1–5 Strips ➔ 10% OFF)",
@@ -111,7 +111,13 @@ export const translations = {
     "detectLocationBtn": "Detect Current GPS",
     "locationDetected": "GPS Locked",
     "cameraLabel": "Blister Pack Camera Photo * (Mandatory)",
-    "audioSectionLabel": "Voice Notes & Audio Assistance"
+    "audioSectionLabel": "Voice Notes & Audio Assistance",
+    "openCameraBtn": "Open Camera to Take Photo",
+    "watermarkNotice": "A live timestamp watermark is burned onto your photo to verify authentic blister recovery.",
+    "takePhotoBtn": "Take Photo",
+    "retakeBtn": "Retake",
+    "cameraVerifiedBadge": "Live Camera Verified Shot",
+    "startingCamera": "Starting Camera..."
   },
   "hi": {
     "appTitle": "इको-ब्लिस्टर्स",
@@ -160,7 +166,7 @@ export const translations = {
     "phoneRedeemNote": "मेडिकल स्टोर पर वाउचर भुनाने के लिए आवश्यक",
     "step2Title": "ब्लिस्टर स्ट्रिप्स की संख्या और ड्रॉप-ऑफ स्थान",
     "stripsInputLabel": "जमा की जा रही खाली ब्लिस्टर स्ट्रिप्स की संख्या दर्ज करें",
-    "stripsHelper": "अपनी स्ट्रिप्स की संख्या सीधे दर्ज करें — आपकी छूट प्रतिशत अपने आप तुरंत गणना हो जाएगी!",
+    "stripsHelper": "सीधे अपनी सटीक स्ट्रिप्स संख्या दर्ज करें",
     "stripsUnit": "स्ट्रिप्स",
     "unlockedDiscount": "डिस्काउंट वाउचर अनलॉक हुआ!",
     "tier1Label": "टीयर 1: स्टार्टर डिपॉजिट (1–5 स्ट्रिप्स ➔ 10% छूट)",
@@ -225,7 +231,13 @@ export const translations = {
     "detectLocationBtn": "वर्तमान जीपीएस का पता लगाएं",
     "locationDetected": "जीपीएस लॉक हुआ",
     "cameraLabel": "ब्लिस्टर पैक कैमरा फोटो * (अनिवार्य)",
-    "audioSectionLabel": "ध्वनि नोट्स और ऑडियो सहायता"
+    "audioSectionLabel": "ध्वनि नोट्स और ऑडियो सहायता",
+    "openCameraBtn": "फोटो लेने के लिए कैमरा खोलें",
+    "watermarkNotice": "प्रामाणिक ब्लिस्टर रिकवरी सत्यापित करने के लिए आपकी फोटो पर लाइव समय वॉटरमार्क दर्ज किया जाता है।",
+    "takePhotoBtn": "फोटो खींचें",
+    "retakeBtn": "दोबारा फोटो लें",
+    "cameraVerifiedBadge": "लाइव कैमरा सत्यापित फोटो",
+    "startingCamera": "कैमरा शुरू हो रहा है..."
   },
   "kn": {
     "appTitle": "ಇಕೋ-ಬ್ಲಿಸ್ಟರ್ಸ್",
@@ -274,7 +286,7 @@ export const translations = {
     "phoneRedeemNote": "ಔಷಧಾಲಯದಲ್ಲಿ ವೋಚರ್ ಬಳಸಲು ಕಡ್ಡಾಯವಾಗಿದೆ",
     "step2Title": "ಬ್ಲಿಸ್ಟರ್ ಸ್ಟ್ರಿಪ್ಸ್ ಪ್ರಮಾಣ ಮತ್ತು ಡ್ರಾಪ್-ಆಫ್ ಸ್ಥಳ",
     "stripsInputLabel": "ಠೇವಣಿ ಮಾಡುತ್ತಿರುವ ಖಾಲಿ ಔಷಧಿ ಸ್ಟ್ರಿಪ್‌ಗಳ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ",
-    "stripsHelper": "ನಿಮ್ಮ ಸ್ಟ್ರಿಪ್‌ಗಳ ಸಂಖ್ಯೆಯನ್ನು ನೇರವಾಗಿ ನಮೂದಿಸಿ — ನಿಮ್ಮ ರಿಯಾಯಿತಿ ಶೇಕಡಾವಾರು ತಕ್ಷಣವೇ ಲೆಕ್ಕಹಾಕಲಾಗುತ್ತದೆ!",
+    "stripsHelper": "ನಿಮ್ಮ ನಿಖರವಾದ ಸ್ಟ್ರಿಪ್‌ಗಳ ಸಂಖ್ಯೆಯನ್ನು ನೇರವಾಗಿ ನಮೂದಿಸಿ",
     "stripsUnit": "ಸ್ಟ್ರಿಪ್‌ಗಳು",
     "unlockedDiscount": "ರಿಯಾಯಿತಿ ವೋಚರ್ ಅನ್‌ಲಾಕ್ ಆಗಿದೆ!",
     "tier1Label": "ಶ್ರೇಣಿ 1: ಆರಂಭಿಕ ಠೇವಣಿ (1–5 ಸ್ಟ್ರಿಪ್ಸ್ ➔ 10% ರಿಯಾಯಿತಿ)",
@@ -339,7 +351,13 @@ export const translations = {
     "detectLocationBtn": "ಪ್ರಸ್ತುತ ಜಿಪಿಎಸ್ ಪತ್ತೆ ಮಾಡಿ",
     "locationDetected": "ಜಿಪಿಎಸ್ ಲಾಕ್ ಆಗಿದೆ",
     "cameraLabel": "ಬ್ಲಿಸ್ಟರ್ ಪ್ಯಾಕ್ ಕ್ಯಾಮೆರಾ ಫೋಟೋ * (ಕಡ್ಡಾಯ)",
-    "audioSectionLabel": "ಧ್ವನಿ ಟಿಪ್ಪಣಿಗಳು ಮತ್ತು ಆಡಿಯೋ ನೆರವು"
+    "audioSectionLabel": "ಧ್ವನಿ ಟಿಪ್ಪಣಿಗಳು ಮತ್ತು ಆಡಿಯೋ ನೆರವು",
+    "openCameraBtn": "ಫೋಟೋ ತೆಗೆಯಲು ಕ್ಯಾಮೆರಾ ತೆರೆಯಿರಿ",
+    "watermarkNotice": "ಅಧಿಕೃತ ಬ್ಲಿಸ್ಟರ್ ರಿಕವರಿಯನ್ನು ಪರಿಶೀಲಿಸಲು ನಿಮ್ಮ ಫೋಟೋದ ಮೇಲೆ ಲೈವ್ ಸಮಯ ವಾಟರ್‌ಮಾರ್ಕ್ ದಾಖಲಾಗುತ್ತದೆ.",
+    "takePhotoBtn": "ಫೋಟೋ ಸೆರೆಹಿಡಿಯಿರಿ",
+    "retakeBtn": "ಮತ್ತೆ ತೆಗೆಯಿರಿ",
+    "cameraVerifiedBadge": "ಲೈವ್ ಕ್ಯಾಮೆರಾ ಪರಿಶೀಲಿಸಿದ ಫೋಟೋ",
+    "startingCamera": "ಕ್ಯಾಮೆರಾ ಪ್ರಾರಂಭವಾಗುತ್ತಿದೆ..."
   },
   "ta": {
     "appTitle": "Eco-Blisters",
@@ -388,7 +406,7 @@ export const translations = {
     "phoneRedeemNote": "மருந்தகத்தில் தள்ளுபடி பெற போன் எண் அவசியம்",
     "step2Title": "மாத்திரை அட்டை எண்ணிக்கை மற்றும் ஒப்படைக்கும் இடம்",
     "stripsInputLabel": "ஒப்படைக்கும் காலி மாத்திரை அட்டைகளின் எண்ணிக்கையை உள்ளிடவும்",
-    "stripsHelper": "உங்கள் எண்ணிக்கையை நேரடியாக உள்ளிடுங்கள் — தள்ளுபடி சதவீதம் உடனடியாக கணக்கிடப்படும்!",
+    "stripsHelper": "உங்கள் சரியான அட்டை எண்ணிக்கையை நேரடியாக உள்ளிடவும்",
     "stripsUnit": "அட்டைகள்",
     "unlockedDiscount": "தள்ளுபடி கூப்பன் திறக்கப்பட்டது!",
     "tier1Label": "நிலை 1: தொடக்க ஒப்படைப்பு (1–5 அட்டைகள் ➔ 10% தள்ளுபடி)",
@@ -453,7 +471,13 @@ export const translations = {
     "detectLocationBtn": "ஜிபிஎஸ் கண்டறி",
     "locationDetected": "ஜிபிஎஸ் சரிபார்க்கப்பட்டது",
     "cameraLabel": "கேமரா புகைப்படம் * (கட்டாயமானது)",
-    "audioSectionLabel": "குரல் குறிப்புகள் மற்றும் உதவி"
+    "audioSectionLabel": "குரல் குறிப்புகள் மற்றும் உதவி",
+    "openCameraBtn": "புகைப்படம் எடுக்க கேமராவைத் திறக்கவும்",
+    "watermarkNotice": "உண்மையான மருந்து அட்டை ஒப்படைப்பை உறுதிப்படுத்த உங்கள் புகைப்படத்தில் நேரலை நேர முத்திரை பதிக்கப்படுகிறது.",
+    "takePhotoBtn": "படம் எடுக்கவும்",
+    "retakeBtn": "மீண்டும் எடுக்கவும்",
+    "cameraVerifiedBadge": "நேரலை கேமரா சரிபார்க்கப்பட்ட புகைப்படம்",
+    "startingCamera": "கேமரா தொடங்குகிறது..."
   },
   "te": {
     "appTitle": "Eco-Blisters",
@@ -502,7 +526,7 @@ export const translations = {
     "phoneRedeemNote": "మెడికల్ స్టోర్‌లో వోచర్ ఉపయోగించడానికి ఫోన్ నంబర్ అవసరం",
     "step2Title": "బ్లిస్టర్ స్ట్రిప్స్ పరిమాణం & డిపాజిట్ కేంద్రం",
     "stripsInputLabel": "డిపాజిట్ చేస్తున్న ఖాళీ మెడిసిన్ స్ట్రిప్స్ సంఖ్యను నమోదు చేయండి",
-    "stripsHelper": "మీ స్ట్రిప్స్ సంఖ్యను నేరుగా నమోదు చేయండి — మీ డిస్కౌంట్ శాతం తక్షణమే లెక్కించబడుతుంది!",
+    "stripsHelper": "మీ ఖచ్చితమైన స్ట్రిప్స్ సంఖ్యను నేరుగా నమోదు చేయండి",
     "stripsUnit": "స్ట్రిప్స్",
     "unlockedDiscount": "డిస్కౌంట్ వోచర్ అన్‌లాక్ చేయబడింది!",
     "tier1Label": "స్థాయి 1: ప్రారంభ డిపాజిట్ (1–5 స్ట్రిప్స్ ➔ 10% తగ్గింపు)",
@@ -567,7 +591,13 @@ export const translations = {
     "detectLocationBtn": "జీపీఎస్ గుర్తించు",
     "locationDetected": "జీపీఎస్ లాక్ చేయబడింది",
     "cameraLabel": "కెమెరా ఫోటో * (తప్పనిసరి)",
-    "audioSectionLabel": "వాయిస్ నోట్స్ & సహాయం"
+    "audioSectionLabel": "వాయిస్ నోట్స్ & సహాయం",
+    "openCameraBtn": "ఫోటో తీయడానికి కెమెరాను తెరవండి",
+    "watermarkNotice": "నిజమైన బ్లిస్టర్ రికవరీని ధృవీకరించడానికి మీ ఫోటోపై లైవ్ సమయ వాటర్‌మార్క్ నమోదు చేయబడుతుంది.",
+    "takePhotoBtn": "ఫోటో తీయండి",
+    "retakeBtn": "మళ్ళీ తీయండి",
+    "cameraVerifiedBadge": "లైవ్ కెమెరా ధృవీకరించిన ఫోటో",
+    "startingCamera": "కెమెరా ప్రారంభమవుతోంది..."
   },
   "ml": {
     "appTitle": "Eco-Blisters",
@@ -616,7 +646,7 @@ export const translations = {
     "phoneRedeemNote": "മെഡിക്കൽ സ്റ്റോറിൽ വൗച്ചർ ഉപയോഗിക്കാൻ ഫോൺ നമ്പർ ആവശ്യമാണ്",
     "step2Title": "സ്ട്രിപ്പുകളുടെ എണ്ണവും കളക്ഷൻ പോയിന്റും",
     "stripsInputLabel": "നിക്ഷേപിക്കുന്ന കാലി മരുന്ന് സ്ട്രിപ്പുകളുടെ എണ്ണം നൽകുക",
-    "stripsHelper": "നിങ്ങളുടെ സ്ട്രിപ്പുകളുടെ എണ്ണം നേരിട്ട് നൽകുക — ഡിസ്കൗണ്ട് ശതമാനം തത്സമയം കണക്കാക്കും!",
+    "stripsHelper": "നിങ്ങളുടെ കൃത്യമായ സ്ട്രിപ്പുകളുടെ എണ്ണം നേരിട്ട് നൽകുക",
     "stripsUnit": "സ്ട്രിപ്പുകൾ",
     "unlockedDiscount": "ഡിസ്കൗണ്ട് വൗച്ചർ അൺലോക്ക് ചെയ്തു!",
     "tier1Label": "ലെവൽ 1: ആരംഭ നിക്ഷേപം (1–5 സ്ട്രിപ്പുകൾ ➔ 10% കിഴിവ്)",
@@ -681,7 +711,13 @@ export const translations = {
     "detectLocationBtn": "ജിപിഎസ് കണ്ടെത്തുക",
     "locationDetected": "ജിപിഎസ് കണ്ടെത്തി",
     "cameraLabel": "ക്യാമറ ഫോട്ടോ * (നിർബന്ധം)",
-    "audioSectionLabel": "വോയ്സ് നോട്ടുകളും സഹായവും"
+    "audioSectionLabel": "വോയ്സ് നോട്ടുകളും സഹായവും",
+    "openCameraBtn": "ഫോട്ടോ എടുക്കാൻ ക്യാമറ തുറക്കുക",
+    "watermarkNotice": "യഥാർത്ഥ ബ്ലിസ്റ്റർ നിക്ഷേപം പരിശോധിക്കുന്നതിന് നിങ്ങളുടെ ഫോട്ടോയിൽ തത്സമയ സമയ വാട്ടർമാർക്ക് ചേർക്കുന്നു.",
+    "takePhotoBtn": "ഫോട്ടോ എടുക്കൂ",
+    "retakeBtn": "വീണ്ടും എടുക്കുക",
+    "cameraVerifiedBadge": "ലൈവ് ക്യാമറ പരിശോധിച്ച ഫോട്ടോ",
+    "startingCamera": "ക്യാമറ ആരംഭിക്കുന്നു..."
   },
   "bn": {
     "appTitle": "Eco-Blisters",
@@ -730,7 +766,7 @@ export const translations = {
     "phoneRedeemNote": "দোকানে ডিসকাউন্টের জন্য ফোন নম্বর আবশ্যক",
     "step2Title": "ব্লিস্টার স্ট্রিপের পরিমাণ এবং ড্রপ-অফ পয়েন্ট",
     "stripsInputLabel": "জমা দেওয়া খালি ওষুধের স্ট্রিপের সংখ্যা লিখুন",
-    "stripsHelper": "সরাসরি আপনার স্ট্রিপ সংখ্যা লিখুন — আপনার ডিসকাউন্ট শতাংশ স্বয়ংক্রিয়ভাবে গণনা করা হবে!",
+    "stripsHelper": "সরাসরি আপনার সঠিক স্ট্রিপ সংখ্যা লিখুন",
     "stripsUnit": "স্ট্রিপ",
     "unlockedDiscount": "ডিসকাউন্ট ভাউচার আনলক হয়েছে!",
     "tier1Label": "স্তর ১: প্রাথমিক জমা (১–৫ স্ট্রিপ ➔ ১০% ছাড়)",
@@ -795,7 +831,13 @@ export const translations = {
     "detectLocationBtn": "বর্তমান জিপিএস নির্ণয় করুন",
     "locationDetected": "জিপিএস পাওয়া গেছে",
     "cameraLabel": "ক্যামেরা ছবি * (বাধ্যতামূলক)",
-    "audioSectionLabel": "ভয়েস নোট ও অডিও সহায়তা"
+    "audioSectionLabel": "ভয়েস নোট ও অডিও সহায়তা",
+    "openCameraBtn": "ছবি তুলতে ক্যামেরা খুলুন",
+    "watermarkNotice": "আসল ব্লিস্টার পুনরুদ্ধার যাচাই করতে আপনার ছবিতে একটি লাইভ টাইমস্ট্যাম্প ওয়াটারমার্ক যুক্ত করা হয়।",
+    "takePhotoBtn": "ছবি তুলুন",
+    "retakeBtn": "পুনরায় তুলুন",
+    "cameraVerifiedBadge": "লাইভ ক্যামেরা যাচাইকৃত ছবি",
+    "startingCamera": "ক্যামেরা শুরু হচ্ছে..."
   },
   "mr": {
     "appTitle": "इको-ब्लिस्टर्स",
@@ -844,7 +886,7 @@ export const translations = {
     "phoneRedeemNote": "स्टोअरमध्ये सवलत मिळवण्यासाठी आवश्यक",
     "step2Title": "ब्लिस्टर पट्ट्यांची संख्या आणि ड्रॉप-ऑफ ठिकाण",
     "stripsInputLabel": "जमा करत असलेल्या रिकाम्या औषधांच्या पट्ट्यांची संख्या प्रविष्ट करा",
-    "stripsHelper": "तुमची पट्ट्यांची संख्या थेट प्रविष्ट करा — तुमची सवलत टक्केवारी आपोआप लगेच मोजली जाईल!",
+    "stripsHelper": "तुमची अचूक पट्ट्यांची संख्या थेट प्रविष्ट करा",
     "stripsUnit": "पट्ट्या",
     "unlockedDiscount": "सवलत व्हाउचर अनलॉक झाले!",
     "tier1Label": "पातळी 1: प्रारंभिक ठेव (1–5 पट्ट्या ➔ 10% सवलत)",
@@ -909,6 +951,12 @@ export const translations = {
     "detectLocationBtn": "वर्तमान जीपीएस शोधा",
     "locationDetected": "जीपीएस लॉक झाले",
     "cameraLabel": "कॅमेरा फोटो * (अनिवार्य)",
-    "audioSectionLabel": "व्हॉइस नोट्स आणि ऑडिओ मदत"
+    "audioSectionLabel": "व्हॉइस नोट्स आणि ऑडिओ मदत",
+    "openCameraBtn": "फोटो काढण्यासाठी कॅमेरा उघडा",
+    "watermarkNotice": "अस्सल ब्लिस्टर पुनर्प्राप्ती पडताळण्यासाठी तुमच्या फोटोवर थेट वेळेचा वॉटरमार्क नोंदवला जातो.",
+    "takePhotoBtn": "फोटो काढा",
+    "retakeBtn": "पुन्हा काढा",
+    "cameraVerifiedBadge": "थेट कॅमेरा पडताळलेला फोटो",
+    "startingCamera": "कॅमेरा सुरू होत आहे..."
   }
 };
