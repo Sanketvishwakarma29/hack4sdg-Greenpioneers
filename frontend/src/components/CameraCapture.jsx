@@ -352,11 +352,11 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
   return (
     <div className="space-y-3">
       {/* Label and Verified Status Badge */}
-      <div className="flex items-center justify-between">
-        <label className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+      <div className="min-h-[20px] flex items-center justify-between">
+        <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
           <Camera className="w-4 h-4 text-emerald-600" />
-          <span>{t.cameraLabel || 'Blister Pack Camera Photo'}</span>
-          {isRequired && <span className="text-rose-500 font-black text-sm">*</span>}
+          <span>{t?.cameraLabel || 'Blister Pack Camera Photo'}</span>
+          {isRequired && <span className="text-rose-500 font-bold">*</span>}
         </label>
 
         {currentPhoto ? (
@@ -365,7 +365,7 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
             <span>✓ Camera Verified</span>
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200">
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200">
             * Required
           </span>
         )}
@@ -549,9 +549,9 @@ export default function CameraCapture({ onPhotoCapture, currentPhoto, isRequired
           <button
             type="button"
             onClick={() => startCamera()}
-            className="w-full py-4 px-5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl shadow-lg shadow-emerald-700/25 flex items-center justify-center gap-2.5 text-sm font-black transition-all transform active:scale-[0.99] cursor-pointer"
+            className="w-full h-12 py-3 px-5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl shadow-md shadow-emerald-700/20 flex items-center justify-center gap-2.5 text-xs sm:text-sm font-bold transition-all transform active:scale-[0.99] cursor-pointer"
           >
-            <Camera className="w-5 h-5 text-amber-300" />
+            <Camera className="w-4 h-4 text-amber-300" />
             <span>{t?.openCameraBtn || 'Open Camera to Take Photo'}</span>
           </button>
 

@@ -352,7 +352,7 @@ export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
           placeholder={t.voiceNotesPlaceholder}
-          className="w-full px-3.5 py-2.5 pr-14 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none shadow-inner"
+          className="w-full px-3.5 py-2.5 pr-14 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#bef264] focus:border-emerald-500 transition-all resize-none shadow-xs"
         />
 
         {/* Floating Microphone Button */}

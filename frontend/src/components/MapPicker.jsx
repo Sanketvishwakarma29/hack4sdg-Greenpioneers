@@ -163,16 +163,18 @@ export default function MapPicker({ latitude, longitude, address, onLocationChan
       </div>
 
       {/* Address / Landmark Field */}
-      <div>
-        <label className="text-xs text-slate-500 font-medium mb-1 block">
-          {t.addressLabel}
-        </label>
+      <div className="space-y-1.5">
+        <div className="min-h-[20px] flex items-center">
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-700 block">
+            {t.addressLabel || 'Address / Landmark'}
+          </label>
+        </div>
         <input
           type="text"
           value={address || ''}
           onChange={(e) => onLocationChange({ latitude: currentLat, longitude: currentLng, address: e.target.value })}
           placeholder={t.addressPlaceholder}
-          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+          className="w-full h-11 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#bef264] focus:border-emerald-500 transition-all shadow-xs"
         />
       </div>
     </div>
