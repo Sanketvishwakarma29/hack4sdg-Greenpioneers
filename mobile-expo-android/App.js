@@ -18,7 +18,7 @@ import {
 import io from 'socket.io-client';
 
 // Cloudflare public tunnel URL & Local LAN fallback
-const PUBLIC_TUNNEL = 'https://frontpage-vocal-morgan-cons.trycloudflare.com';
+const PUBLIC_TUNNEL = 'https://framework-drive-inclusive-rack.trycloudflare.com';
 const LOCAL_LAN = 'http://10.54.179.36:5001';
 
 // Drop-off points in Bengaluru
