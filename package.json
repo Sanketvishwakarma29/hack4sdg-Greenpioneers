@@ -21,6 +21,9 @@
     "leaflet",
     "socket.io"
   ],
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  },
   "author": "Ecoblister Inc.",
   "license": "MIT"
 }
