@@ -419,8 +419,9 @@ if (fs.existsSync(FRONTEND_DIST)) {
 }
 
 // Start Server
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`
+if (process.env.NODE_ENV !== 'test') {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`
 ==================================================
 🌿 ECO-BLISTERS (Collect Track Recover) RUNNING
 ==================================================
@@ -429,5 +430,8 @@ server.listen(PORT, '0.0.0.0', () => {
 📱 Mobile Web App: http://${LOCAL_IP}:5173
 🚗 Logistics App:  http://${LOCAL_IP}:5173/#driver
 ==================================================
-  `);
-});
+    `);
+  });
+}
+
+module.exports = app;
