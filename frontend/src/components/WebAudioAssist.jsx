@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Volume2, VolumeX, Sparkles, Check, AlertCircle } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, Sparkles, Check, AlertCircle, Headphones } from 'lucide-react';
 
 export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en', t }) {
   const [isListening, setIsListening] = useState(false);
@@ -8,6 +8,7 @@ export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en
   const [interimText, setInterimText] = useState('');
   const [voiceStatus, setVoiceStatus] = useState('');
   const [voices, setVoices] = useState([]);
+  const [activeVoiceInfo, setActiveVoiceInfo] = useState('');
 
   const recognitionRef = useRef(null);
   const notesRef = useRef(notes);
@@ -27,7 +28,7 @@ export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en
 
   const currentSpeechCode = speechLangMap[currentLang] || 'en-IN';
 
-  // Load and cache voices properly (handling async Chrome voice loading)
+  // Load and cache voices properly (handling async Chrome & Safari voice loading)
   useEffect(() => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
@@ -58,7 +59,7 @@ export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en
 
     try {
       const recognition = new SpeechRecognition();
-      recognition.continuous = false; // Note: false avoids runaway Chrome duplicates, restarts smoothly
+      recognition.continuous = false;
       recognition.interimResults = true;
       recognition.lang = currentSpeechCode;
 
@@ -92,9 +93,15 @@ export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en
 
       recognition.onerror = (event) => {
         if (event.error === 'no-speech') {
-          setVoiceStatus('No speech detected. Tap mic to try again.');
+          setVoiceStatus('No speech detected. Tap mic to speak.');
         } else if (event.error === 'not-allowed') {
           setVoiceStatus('Mic permission blocked. Please allow mic in browser.');
+        } else if (event.error === 'language-not-supported') {
+          // Fallback to en-IN if regional STT isn't installed
+          try {
+            recognition.lang = 'en-IN';
+            setVoiceStatus('Regional voice not installed, falling back to Indian English STT.');
+          } catch (e) {}
         } else {
           setVoiceStatus('');
         }
@@ -125,6 +132,30 @@ export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en
     };
   }, [currentLang, currentSpeechCode]);
 
+  // Native script texts for all 8 languages
+  const guideTexts = {
+    en: "Welcome to Eco-Blisters. Enter your full name, choose your drop-off hospital or pharmacy, select your packaging material and strip count to receive your instant medical discount voucher!",
+    hi: "इको-ब्लिस्टर्स में आपका स्वागत है। अपना नाम लिखें, नजदीकी फार्मेसी चुनें, और स्ट्रिप्स की संख्या चुनकर अपना मेडिकल डिस्काउंट वाउचर प्राप्त करें!",
+    kn: "ಇಕೋ-ಬ್ಲಿಸ್ಟರ್ಸ್‌ಗೆ ಸುಸ್ವಾಗತ. ನಿಮ್ಮ ಹೆಸರು ಬರೆಯಿರಿ, ಹತ್ತಿರದ ಮೆಡಿಕಲ್ ಶಾಪ್ ಆಯ್ಕೆಮಾಡಿ, ಮತ್ತು ಖಾಲಿ ಸ್ಟ್ರಿಪ್‌ಗಳನ್ನು ನೀಡಿ ರಿಯಾಯಿತಿ ವೋಚರ್ ಪಡೆಯಿರಿ!",
+    ta: "Eco-Blisters-க்கு நல்வரவு. உங்கள் பெயரை உள்ளிட்டு, மருந்தகம் மற்றும் அட்டைகளின் எண்ணிக்கையைத் தேர்ந்தெடுத்து உடனடி மெடிக்கல் தள்ளுபடி வவுச்சரைப் பெறுங்கள்!",
+    te: "Eco-Blisters కు స్వాగతం. మీ పేరు నమోదు చేసి, సమీప మెడికల్ షాప్ ఎంచుకుని, ఖాళీ స్ట్రిప్స్ ఇచ్చి ఇన్స్టంట్ మెడిసిన్ డిస్కౌంట్ వోచర్ పొందండి!",
+    ml: "Eco-Blisters-ലേക്ക് സ്വാഗതം. നിങ്ങളുടെ പേര് നൽകി, ഫാർമസിയും സ്ട്രിപ്പുകളുടെ എണ്ണവും തിരഞ്ഞെടുത്ത് മെഡಿಕൽ ഡിസ്കൗണ്ട് വൗച്ചർ നേടൂ!",
+    bn: "Eco-Blisters-এ স্বাগতম। আপনার নাম লিখুন, ফার্মেসি ও স্ট্রিপের সংখ্যা বেছে নিন এবং তাত্ক্ষণিক ডিসকাউন্ট ভাউচার পান!",
+    mr: "इको-ब्लिस्टर्स मध्ये आपले स्वागत आहे. आपले नाव भरा, मेडिकल शॉप निवडा आणि औषध सवलतीसाठी तात्काळ प्रोमोकोड वाउचर मिळवा!"
+  };
+
+  // Phonetic Romanized / Indian pronunciation fallbacks when browser has NO native Indic TTS voice
+  const fallbackPhoneticTexts = {
+    ta: "Vanakkam! Welcome to Eco-Blisters. Ungal peyarai pathivu seidhu, drop-off marundhagam matrum strips count select pannungal. Instant medical discount promo voucher perungal!",
+    ml: "Swagatham! Welcome to Eco-Blisters. Ningalude peru nalki, drop-off hospital or pharmacy-um, strips count-um select cheyyuka. Instant medical discount voucher labhikkum!",
+    kn: "Susvaagatha! Welcome to Eco-Blisters. Nimma hesaru namoodisi, hospital athava pharmacy, mathu strips count aayke maadi instant discount voucher padeyiri!",
+    te: "Swagatham! Welcome to Eco-Blisters. Mee peru enter chesi, hospital leda pharmacy mariyu strips count select cheyandi. Instant medical discount voucher pondandi!",
+    hi: "Eco-Blisters mein aapka swagat hai. Apna naam darj karein, pharmacy aur strips sankhya chunein, aur instant medical discount voucher paayein!",
+    bn: "Swagatom! Welcome to Eco-Blisters. Aaponar naam likhun, hospital ba pharmacy ebong strips sonkhya select korun. Instant medical discount voucher paben!",
+    mr: "Swagat ahe! Welcome to Eco-Blisters. Aaple naav taka, pharmacy aani strips count select kara. Instant medical discount voucher milva!",
+    en: "Welcome to Eco-Blisters. Enter your full name, choose your drop-off hospital or pharmacy, select your packaging material and strip count to receive your instant medical discount voucher!"
+  };
+
   // Toggle voice dictation
   const toggleListening = () => {
     if (!speechSupported || !recognitionRef.current) {
@@ -132,7 +163,6 @@ export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en
       return;
     }
 
-    // Stop TTS narration if active before listening
     if (isPlayingAudioGuide && typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel();
       setIsPlayingAudioGuide(false);
@@ -151,7 +181,6 @@ export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en
         recognitionRef.current.start();
       } catch (err) {
         console.error('Error starting recognition:', err);
-        // If it was already running, abort and restart
         try {
           recognitionRef.current.abort();
           setTimeout(() => {
@@ -168,16 +197,17 @@ export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en
     }
   };
 
-  // Text-to-Speech audio narration in all 8 Indian languages
+  // Text-to-Speech audio narration in all 8 Indian languages with seamless phonetic fallback
   const playAudioGuide = () => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      alert('Text-to-speech is not supported in this browser.');
+      alert('Text-to-speech audio is not supported in this browser.');
       return;
     }
 
     if (isPlayingAudioGuide) {
       window.speechSynthesis.cancel();
       setIsPlayingAudioGuide(false);
+      setActiveVoiceInfo('');
       return;
     }
 
@@ -191,35 +221,66 @@ export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en
 
     window.speechSynthesis.cancel();
 
-    const guideTexts = {
-      en: "Welcome to Eco-Blisters. Enter your name, choose your drop-off hospital or pharmacy, select your packaging material and strip count to receive your instant medical discount voucher!",
-      hi: "इको-ब्लिस्टर्स में आपका स्वागत है। अपना नाम लिखें, नजदीकी फार्मेसी चुनें, और स्ट्रिप्स की संख्या चुनकर अपना मेडिकल डिस्काउंट वाउचर प्राप्त करें!",
-      kn: "ಇಕೋ-ಬ್ಲಿಸ್ಟರ್ಸ್‌ಗೆ ಸುಸ್ವಾಗತ. ನಿಮ್ಮ ಹೆಸರು ಬರೆಯಿರಿ, ಹತ್ತಿರದ ಮೆಡಿಕಲ್ ಶಾಪ್ ಆಯ್ಕೆಮಾಡಿ, ಮತ್ತು ಖಾಲಿ ಸ್ಟ್ರಿಪ್‌ಗಳನ್ನು ನೀಡಿ ರಿಯಾಯಿತಿ ವೋಚರ್ ಪಡೆಯಿರಿ!",
-      ta: "Eco-Blisters-க்கு நல்வரவு. உங்கள் பெயரை உள்ளிட்டு, மருந்தகம் மற்றும் அட்டைகளின் எண்ணிக்கையைத் தேர்ந்தெடுத்து உடனடி மெடிக்கல் தள்ளுபடி வவுச்சரைப் பெறுங்கள்!",
-      te: "Eco-Blisters కు స్వాగతం. మీ పేరు నమోదు చేసి, సమీప మెడికల్ షాప్ ఎంచుకుని, ఖాళీ స్ట్రిప్స్ ఇచ్చి ఇన్స్టంట్ మెడిసిన్ డిస్కౌంట్ వోచర్ పొందండి!",
-      ml: "Eco-Blisters-ലേക്ക് സ്വാഗതം. നിങ്ങളുടെ പേര് നൽകി, ഫാർമസിയും സ്ട്രിപ്പുകളുടെ എണ്ണവും തിരഞ്ഞെടുത്ത് മെഡിക്കൽ ഡിസ്കൗണ്ട് വൗച്ചർ നേടൂ!",
-      bn: "Eco-Blisters-এ স্বাগতম। আপনার নাম লিখুন, ফার্মেসি ও স্ট্রিপের সংখ্যা বেছে নিন এবং তাত্ক্ষণিক ডিসকাউন্ট ভাউচার পান!",
-      mr: "इको-ब्लिस्टर्स मध्ये आपले स्वागत आहे. आपले नाव भरा, मेडिकल शॉप निवडा आणि औषध सवलतीसाठी तात्काळ प्रोमोकोड वाउचर मिळवा!"
-    };
-
-    const textToSpeak = guideTexts[currentLang] || guideTexts.en;
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    utterance.lang = currentSpeechCode;
-    utterance.rate = 0.95;
-
-    // Pick best available voice from cache
     const available = voices.length > 0 ? voices : window.speechSynthesis.getVoices();
-    const matchingVoice = available.find(v => v.lang.toLowerCase().replace('_', '-').startsWith(currentLang))
-      || available.find(v => v.lang.toLowerCase().includes('in'))
-      || available.find(v => v.lang.startsWith('en'))
-      || available[0];
 
-    if (matchingVoice) {
-      utterance.voice = matchingVoice;
+    // Check if the OS has a native voice installed for this language (e.g. 'ta-IN', 'ml-IN', 'hi-IN')
+    const nativeVoice = available.find(v => {
+      const vLang = v.lang.toLowerCase().replace('_', '-');
+      return vLang.startsWith(currentLang) || vLang.includes(`${currentLang}-in`);
+    });
+
+    let textToSpeak = '';
+    let selectedVoice = null;
+    let selectedLangCode = currentSpeechCode;
+
+    if (nativeVoice) {
+      // Browser has native Tamil / Malayalam / Hindi voice
+      textToSpeak = guideTexts[currentLang] || guideTexts.en;
+      selectedVoice = nativeVoice;
+      selectedLangCode = nativeVoice.lang;
+      setActiveVoiceInfo(`Native Voice (${nativeVoice.name})`);
+    } else {
+      // Browser does NOT have native Tamil / Malayalam voice installed (common on macOS / Windows)
+      // Pass phonetic Romanized script to an Indian English or general English voice so it speaks audibly
+      textToSpeak = fallbackPhoneticTexts[currentLang] || guideTexts.en;
+      selectedVoice = available.find(v => v.lang.toLowerCase().includes('in') && v.lang.toLowerCase().startsWith('en'))
+        || available.find(v => v.lang.toLowerCase().includes('in'))
+        || available.find(v => v.lang.toLowerCase().startsWith('en'))
+        || available[0];
+      selectedLangCode = selectedVoice?.lang || 'en-IN';
+      setActiveVoiceInfo(currentLang === 'en' ? 'English Voice' : `Voice Assist (Subtitled in ${currentLang.toUpperCase()})`);
     }
 
-    utterance.onend = () => setIsPlayingAudioGuide(false);
-    utterance.onerror = () => setIsPlayingAudioGuide(false);
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.lang = selectedLangCode;
+    utterance.rate = 0.92; // Slightly measured pace for utmost clarity
+    utterance.pitch = 1.0;
+
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+
+    utterance.onend = () => {
+      setIsPlayingAudioGuide(false);
+      setActiveVoiceInfo('');
+    };
+
+    utterance.onerror = (e) => {
+      console.warn('SpeechSynthesis error:', e);
+      // Emergency retry with default browser voice if specific engine rejected
+      if (selectedVoice && selectedVoice !== available[0]) {
+        try {
+          const retryUtterance = new SpeechSynthesisUtterance(fallbackPhoneticTexts[currentLang] || guideTexts.en);
+          retryUtterance.rate = 0.92;
+          retryUtterance.onend = () => setIsPlayingAudioGuide(false);
+          retryUtterance.onerror = () => setIsPlayingAudioGuide(false);
+          window.speechSynthesis.speak(retryUtterance);
+          return;
+        } catch (err) {}
+      }
+      setIsPlayingAudioGuide(false);
+      setActiveVoiceInfo('');
+    };
 
     setIsPlayingAudioGuide(true);
     window.speechSynthesis.speak(utterance);
@@ -237,10 +298,10 @@ export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en
         <button
           type="button"
           onClick={playAudioGuide}
-          className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs cursor-pointer ${
+          className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 transition-all shadow-sm cursor-pointer ${
             isPlayingAudioGuide
-              ? 'bg-amber-100 text-amber-800 border border-amber-300 animate-pulse'
-              : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+              ? 'bg-amber-500 text-white shadow-md animate-pulse'
+              : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300'
           }`}
           title="Audio Narration"
         >
@@ -248,6 +309,41 @@ export default function WebAudioAssist({ notes, onNotesChange, currentLang = 'en
           <span>{isPlayingAudioGuide ? t.readingOut : t.playAudioGuideBtn}</span>
         </button>
       </div>
+
+      {/* Live Audio Subtitle / Caption Card when Audio Guide is Playing */}
+      {isPlayingAudioGuide && (
+        <div className="p-4 bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-2xl shadow-xl border border-emerald-400/40 animate-fade-in space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+              <Headphones className="w-3.5 h-3.5 text-emerald-400 animate-bounce" />
+              Audio Guide Active • {activeVoiceInfo || 'Playing Instructions'}
+            </span>
+            {/* Animated Equalizer Bars */}
+            <div className="flex items-center gap-0.5 h-3">
+              <span className="w-1 bg-emerald-400 rounded-full animate-[pulse_0.6s_ease-in-out_infinite] h-3"></span>
+              <span className="w-1 bg-emerald-300 rounded-full animate-[pulse_0.4s_ease-in-out_infinite] h-2"></span>
+              <span className="w-1 bg-teal-300 rounded-full animate-[pulse_0.8s_ease-in-out_infinite] h-3"></span>
+              <span className="w-1 bg-emerald-200 rounded-full animate-[pulse_0.5s_ease-in-out_infinite] h-1.5"></span>
+            </div>
+          </div>
+          
+          {/* Display Full Native Regional Script (Tamil, Malayalam, Hindi, etc.) */}
+          <p className="text-xs sm:text-sm text-emerald-50 font-medium leading-relaxed bg-black/30 p-2.5 rounded-xl border border-emerald-500/20">
+            "{guideTexts[currentLang] || guideTexts.en}"
+          </p>
+
+          <div className="flex items-center justify-between text-[10px] text-emerald-300/80 pt-0.5">
+            <span>Supports Tamil, Malayalam & all 8 Indian languages</span>
+            <button
+              type="button"
+              onClick={playAudioGuide}
+              className="text-white hover:text-amber-300 underline font-semibold cursor-pointer"
+            >
+              Stop Audio
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Voice Dictation Box */}
       <div className="relative">

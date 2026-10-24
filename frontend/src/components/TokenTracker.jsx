@@ -75,7 +75,7 @@ export default function TokenTracker({ initialToken, onNewReport, t }) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="w-full max-w-5xl mx-auto space-y-6">
       {/* Search Header for previous vouchers */}
       <div className="bg-white/80 backdrop-blur-md rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200">
         <h2 className="text-base sm:text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">

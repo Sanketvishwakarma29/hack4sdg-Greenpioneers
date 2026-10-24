@@ -5,7 +5,7 @@ import {
 import BrandLogo from './BrandLogo';
 import { InstagramIcon, FacebookIcon, XTwitterIcon } from './SocialIcons';
 
-export default function Footer() {
+export default function Footer({ onOpenAdminLogin, isAdminLoggedIn }) {
   return (
     <footer className="bg-slate-950 text-slate-300 border-t border-slate-800 pt-12 pb-8 mt-16 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -142,9 +142,18 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3">
           <p>© 2026 Ecoblister Inc. All rights reserved.</p>
-          <p className="flex items-center gap-1 text-slate-400">
-            Pioneering Sustainable Healthcare Packaging Across India
-          </p>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={onOpenAdminLogin}
+              className="text-slate-500 hover:text-emerald-400 flex items-center gap-1 cursor-pointer transition-colors"
+            >
+              🔒 <span>{isAdminLoggedIn ? 'Open Logistics Fleet' : 'Staff & Fleet Login'}</span>
+            </button>
+            <p className="flex items-center gap-1 text-slate-400 hidden md:inline">
+              Pioneering Sustainable Healthcare Packaging Across India
+            </p>
+          </div>
         </div>
       </div>
     </footer>
