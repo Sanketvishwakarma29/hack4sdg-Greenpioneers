@@ -742,7 +742,7 @@ export default function AndroidDriverApp({ t }) {
                     <div className="flex items-center justify-between">
                       <span className="text-xs uppercase font-extrabold text-slate-300 flex items-center gap-1.5">
                         <Camera className="w-4 h-4 text-emerald-400" />
-                        Customer Uploaded Blister Photo
+                        Customer Camera Blister Photo Proof
                       </span>
                       {selectedReport.isLivePhoto ? (
                         <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-950 text-emerald-300 border border-emerald-800 flex items-center gap-1 shadow-xs">
@@ -751,7 +751,7 @@ export default function AndroidDriverApp({ t }) {
                         </span>
                       ) : (
                         <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
-                          {(selectedReport.photoBase64 || selectedReport.photoUrl) ? '📁 File / Gallery Upload' : 'No Photo Uploaded'}
+                          {(selectedReport.photoBase64 || selectedReport.photoUrl) ? '📷 Camera Photo Attached' : 'No Photo Captured'}
                         </span>
                       )}
                     </div>
@@ -1831,7 +1831,7 @@ export default function AndroidDriverApp({ t }) {
             <div className="p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
               <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                {previewPhoto.isLive ? 'Live Camera Snapshot with Watermark' : 'File Upload Verification'}
+                {previewPhoto.isLive ? 'Live Camera Snapshot with Watermark' : 'Camera Snapshot Verification'}
               </span>
               <button
                 type="button"
