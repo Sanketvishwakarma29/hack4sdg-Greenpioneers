@@ -1,0 +1,639 @@
+[
+  {
+    "id": "rep-1792786244238",
+    "token": "ECO-CZF2-238",
+    "promoCode": "ECOBLISTER-10OFF-VQHU",
+    "userName": "xyz",
+    "userEmail": null,
+    "userPhone": null,
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "1 – 5 Strips",
+    "exactStrips": 5,
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T20:05:00.000Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 10,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T20:10:44.238Z",
+        "note": "Deposit of 5 strips registered. 10% OFF Promo code issued."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792785867810",
+    "token": "ECO-P8X5-810",
+    "promoCode": "ECOBLISTER-25OFF-EVNW",
+    "userName": "Dr. Sandeep K",
+    "userEmail": null,
+    "userPhone": null,
+    "binId": "Apollo Pharmacy - Indiranagar",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "6 – 15 Strips",
+    "exactStrips": 40,
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Bengaluru Medical Center",
+    "date": "2026-10-23T20:04:27.810Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 25,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T20:04:27.810Z",
+        "note": "Deposit of 40 strips registered. 25% OFF Promo code issued."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792785859049",
+    "token": "ECO-64MC-049",
+    "promoCode": "ECOBLISTER-20OFF-SZ4D",
+    "userName": "Priya Sharma",
+    "userEmail": "priya@example.com",
+    "userPhone": "+91 91234 56789",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "Alu-Alu Blister Foil",
+    "stripCount": "16 – 30 Strips",
+    "exactStrips": 20,
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Bengaluru Medical Center",
+    "date": "2026-10-23T20:04:19.049Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 20,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T20:04:19.050Z",
+        "note": "Deposit of 20 strips registered. 20% OFF Promo code issued."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792785804190",
+    "token": "ECO-ZN8D-190",
+    "promoCode": "ECOBLISTER-10OFF-YPMK",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "Alu-Alu Blister Foil",
+    "stripCount": "16 – 30 Strips",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Bengaluru Medical Center",
+    "date": "2026-10-23T20:03:24.190Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 15,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T20:03:24.190Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792785271026",
+    "token": "ECO-MZNF-026",
+    "promoCode": "ECOBLISTER-25OFF-XRBY",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "30+ Bulk Strips (Approx: 45 strips)",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T19:54:00.000Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 15,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T19:54:31.026Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792785261852",
+    "token": "ECO-B8AC-852",
+    "promoCode": "ECOBLISTER-10OFF-SR63",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "6 – 15 Strips (Approx: 12 strips)",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T19:54:00.000Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 19,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T19:54:21.852Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792785074108",
+    "token": "ECO-GTM4-108",
+    "promoCode": "ECOBLISTER-15OFF-UTLA",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "6 – 15 Strips (Approx: 12 strips)",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T19:51:00.000Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 20,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T19:51:14.108Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792785025679",
+    "token": "ECO-SDTZ-679",
+    "promoCode": "ECOBLISTER-10OFF-7RLR",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "6 – 15 Strips (Approx: 12 strips)",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T19:50:00.000Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 24,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T19:50:25.679Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792785016272",
+    "token": "ECO-NYNK-272",
+    "promoCode": "ECOBLISTER-25OFF-AJ93",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "16 – 30 Strips (Approx: 25 strips)",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T19:50:00.000Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 12,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T19:50:16.272Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792785003235",
+    "token": "ECO-7DJK-235",
+    "promoCode": "ECOBLISTER-15OFF-4NCQ",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "30+ Bulk Strips (Approx: 45 strips)",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T19:49:00.000Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 11,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T19:50:03.235Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792784993931",
+    "token": "ECO-LKLZ-931",
+    "promoCode": "ECOBLISTER-15OFF-UTMY",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "16 – 30 Strips (Approx: 25 strips)",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T19:49:00.000Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 11,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T19:49:53.931Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792784979174",
+    "token": "ECO-RPF5-174",
+    "promoCode": "ECOBLISTER-20OFF-BZBH",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "30+ Bulk Strips (Approx: 45 strips)",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T19:46:00.000Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 20,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T19:49:39.174Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792784793387",
+    "token": "ECO-XVS9-387",
+    "promoCode": "ECOBLISTER-15OFF-3L49",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "6 – 15 Strips (Approx: 12 strips)",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T19:45:00.000Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 20,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T19:46:33.387Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792784705674",
+    "token": "ECO-2HXP-674",
+    "promoCode": "ECOBLISTER-10OFF-CHJQ",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "6 – 15 Strips (Household Prescription) (Approx: 10 strips)",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T19:44:00.000Z",
+    "status": "Pending",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": null,
+    "resolutionPhotoUrl": null,
+    "discountPercentage": 16,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T19:45:05.674Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      }
+    ]
+  },
+  {
+    "id": "rep-1792784055945",
+    "token": "ECO-CMNA-945",
+    "promoCode": "ECOBLISTER-15OFF-XBPU",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "Alu-Alu Blister Foil (Cold Form Opaque)",
+    "stripCount": "1 – 5 Strips (Approx: 5 strips)",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T19:03:00.000Z",
+    "status": "Resolved",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": "Officer R. Sharma (Truck #07)",
+    "resolutionPhotoUrl": "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=500&auto=format&fit=crop&q=60",
+    "discountPercentage": 19,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T19:34:15.945Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      },
+      {
+        "status": "Resolved",
+        "time": "2026-10-23T19:36:19.378Z",
+        "note": "Status updated to Resolved by Officer R. Sharma (Truck #07)"
+      },
+      {
+        "status": "Assigned",
+        "time": "2026-10-23T19:36:36.458Z",
+        "note": "Status updated to Assigned by Officer R. Sharma (Truck #07)"
+      },
+      {
+        "status": "Resolved",
+        "time": "2026-10-23T19:36:40.245Z",
+        "note": "Status updated to Resolved by Officer R. Sharma (Truck #07)"
+      },
+      {
+        "status": "In Progress",
+        "time": "2026-10-23T19:36:41.894Z",
+        "note": "Status updated to In Progress by Officer R. Sharma (Truck #07)"
+      },
+      {
+        "status": "Resolved",
+        "time": "2026-10-23T19:36:42.953Z",
+        "note": "Status updated to Resolved by Officer R. Sharma (Truck #07)"
+      }
+    ]
+  },
+  {
+    "id": "rep-1792783977533",
+    "token": "ECO-QKAH-533",
+    "promoCode": "ECOBLISTER-10OFF-NXGC",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "1 – 5 Strips (Approx: 5 strips)",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "Near Apollo Pharmacy, 100 Feet Road, Indiranagar, Bengaluru",
+    "date": "2026-10-23T19:32:00.000Z",
+    "status": "Resolved",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": "Officer R. Sharma (Truck #07)",
+    "resolutionPhotoUrl": "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=500&auto=format&fit=crop&q=60",
+    "discountPercentage": 23,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T19:32:57.533Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      },
+      {
+        "status": "Resolved",
+        "time": "2026-10-23T19:36:21.779Z",
+        "note": "Status updated to Resolved by Officer R. Sharma (Truck #07)"
+      }
+    ]
+  },
+  {
+    "id": "rep-1792781696625",
+    "token": "ECO-DTQY-625",
+    "promoCode": "ECOBLISTER-15OFF-5R8X",
+    "binId": "Victoria Hospital - Fort Rd OPD Counter",
+    "materialType": "Mixed Pharmaceutical Blister Packs",
+    "stripCount": "1 – 5 Strips (Approx: 5 strips)",
+    "latitude": 13.12201503133488,
+    "longitude": 77.6178229077874,
+    "address": "Dwaraka Nagar, Kogilu, Bengaluru North City Corporation",
+    "date": "2026-10-23T18:53:00.000Z",
+    "status": "Resolved",
+    "notes": "",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "audioNoteUrl": null,
+    "assignedDriver": "Officer R. Sharma (Truck #07)",
+    "resolutionPhotoUrl": "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=500&auto=format&fit=crop&q=60",
+    "discountPercentage": 11,
+    "partnerPharmacy": "Apollo Pharmacy, MedPlus & Wellness Forever Bengaluru",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T18:54:56.625Z",
+        "note": "Deposit registered by user. Medical discount promo code activated."
+      },
+      {
+        "status": "Assigned",
+        "time": "2026-10-23T18:55:23.535Z",
+        "note": "Status updated to Assigned by Officer R. Sharma (Truck #07)"
+      },
+      {
+        "status": "Resolved",
+        "time": "2026-10-23T19:31:51.051Z",
+        "note": "Status updated to Resolved by Officer R. Sharma (Truck #07)"
+      },
+      {
+        "status": "Assigned",
+        "time": "2026-10-23T19:32:11.572Z",
+        "note": "Status updated to Assigned by Officer R. Sharma (Truck #07)"
+      },
+      {
+        "status": "In Progress",
+        "time": "2026-10-23T19:32:13.999Z",
+        "note": "Status updated to In Progress by Officer R. Sharma (Truck #07)"
+      },
+      {
+        "status": "Resolved",
+        "time": "2026-10-23T19:32:15.315Z",
+        "note": "Status updated to Resolved by Officer R. Sharma (Truck #07)"
+      }
+    ]
+  },
+  {
+    "id": "rep-seed-1",
+    "token": "ECO-K9X-201",
+    "promoCode": "ECOBLISTER-20OFF-M81B",
+    "binId": "Apollo Pharmacy - Indiranagar 100ft Rd",
+    "materialType": "PVC / PVDC Transparent + Aluminum Foil",
+    "stripCount": "16 – 30 Strips",
+    "latitude": 12.9716,
+    "longitude": 77.6412,
+    "address": "100 Feet Road, HAL 2nd Stage, Indiranagar, Bengaluru",
+    "date": "2026-10-23T16:29:40.181Z",
+    "status": "In Progress",
+    "notes": "Paracetamol and antibiotic empty blister strips deposited in store collection box.",
+    "photoUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60",
+    "assignedDriver": "Officer R. Sharma (Truck #07)",
+    "discountPercentage": 20,
+    "partnerPharmacy": "Apollo Pharmacy Bengaluru Network",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T16:29:40.181Z",
+        "note": "Deposited in Pharmacy Collection Bin"
+      },
+      {
+        "status": "Assigned",
+        "time": "2026-10-23T16:59:40.181Z",
+        "note": "Assigned to Eco-Blisters Van #03"
+      },
+      {
+        "status": "In Progress",
+        "time": "2026-10-23T17:59:40.181Z",
+        "note": "In transit to Material Recovery Facility"
+      },
+      {
+        "status": "Assigned",
+        "time": "2026-10-23T18:55:34.084Z",
+        "note": "Status updated to Assigned by Officer R. Sharma (Truck #07)"
+      },
+      {
+        "status": "In Progress",
+        "time": "2026-10-23T18:55:36.743Z",
+        "note": "Status updated to In Progress by Officer R. Sharma (Truck #07)"
+      }
+    ]
+  },
+  {
+    "id": "rep-seed-2",
+    "token": "ECO-H3A-812",
+    "promoCode": "ECOBLISTER-15OFF-T44K",
+    "binId": "Victoria Hospital - Fort Road OPD Counter",
+    "materialType": "Alu-Alu Blister Foil (Cold Form Opaque)",
+    "stripCount": "30+ Bulk Strips",
+    "latitude": 12.9634,
+    "longitude": 77.5756,
+    "address": "Near OPD Counter 3, Victoria Hospital, Kalasipalyam, Bengaluru",
+    "date": "2026-10-23T13:29:40.181Z",
+    "status": "Pending",
+    "notes": "Monthly prescription empty tablet foils deposited after outpatient consultation.",
+    "photoUrl": "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=500&auto=format&fit=crop&q=60",
+    "assignedDriver": null,
+    "discountPercentage": 15,
+    "partnerPharmacy": "Victoria Hospital Med Store & MedPlus",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T13:29:40.181Z",
+        "note": "Deposited in Hospital Drop-box"
+      }
+    ]
+  },
+  {
+    "id": "rep-seed-3",
+    "token": "ECO-M7V-459",
+    "promoCode": "ECOBLISTER-25OFF-R99Z",
+    "binId": "Manipal Hospital - Old Airport Road",
+    "materialType": "High-Barrier Aclar / Alu Pharmaceutical Strip",
+    "stripCount": "6 – 15 Strips",
+    "latitude": 12.9592,
+    "longitude": 77.6534,
+    "address": "Near Main Pharmacy Hall, 98 HAL Old Airport Rd, Kodihalli, Bengaluru",
+    "date": "2026-10-23T10:29:40.181Z",
+    "status": "Resolved",
+    "notes": "Cardiac and diabetic tablet packaging foils safely deposited.",
+    "photoUrl": "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=500&auto=format&fit=crop&q=60",
+    "assignedDriver": "Anand Gowda (Van #01)",
+    "resolutionPhotoUrl": "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=500&auto=format&fit=crop&q=60",
+    "discountPercentage": 25,
+    "partnerPharmacy": "Manipal Hospital Chemist & Wellness Forever",
+    "history": [
+      {
+        "status": "Pending",
+        "time": "2026-10-23T10:29:40.181Z",
+        "note": "Deposited in Collection Box"
+      },
+      {
+        "status": "Assigned",
+        "time": "2026-10-23T11:29:40.181Z",
+        "note": "Collected by Logistics Team"
+      },
+      {
+        "status": "In Progress",
+        "time": "2026-10-23T12:29:40.181Z",
+        "note": "Arrived at Recovery Facility"
+      },
+      {
+        "status": "Resolved",
+        "time": "2026-10-23T14:29:40.181Z",
+        "note": "Foil separated & recycled into raw aluminum ingots & polymer"
+      }
+    ]
+  }
+]

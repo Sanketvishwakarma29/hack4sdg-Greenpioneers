@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Eco-Blisters",
+    "slug": "eco-blisters",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#022c22"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#022c22"
+      },
+      "package": "com.ecoblister.recovery",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "RECORD_AUDIO"
+      ]
+    },
+    "extra": {
+      "tagline": "Collect • Track • Recover",
+      "company": "Ecoblister",
+      "phone": "+919117472155",
+      "email": "xxxxxxxxxx@gmail.com"
+    }
+  }
+}
